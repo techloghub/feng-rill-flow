@@ -1,6 +1,9 @@
 <template>
   <Dag
     :mode="MODE.INSTANCE"
+    :readonly="true"
+    :showNodeGroups="false"
+    :showToolBar="false"
   />
 </template>
 
@@ -17,16 +20,13 @@
   import {useMessage} from "@/hooks/web/useMessage";
   import {useGo} from "@/hooks/web/usePage";
   import {useI18n} from "@/hooks/web/useI18n";
-  /**
-   * 类型
-   * 节点分组信息
-   * ID
-   * 图信息
-   */
+
   const nodeGroups = ref();
   const dagInfo = ref();
+  console.log("flow-instance start ====>")
 
   onMounted(async () => {
+    console.log("xxx instance", route.query)
     if (route.query.execution_id === undefined) {
       createMessage.warn(t('routes.flow.instances.graph.execution_detail_none_message'));
       go("/flow-instance/list");

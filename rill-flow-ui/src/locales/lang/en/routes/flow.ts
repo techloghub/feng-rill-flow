@@ -54,6 +54,7 @@ export default {
           context_key: "Key",
           context_value: "Value",
           error_result_msg: "Execution Exception Message",
+          error_result_default_msg: "No Exception Message",
           trace: "Trace",
           trace_detail: "Detail",
         }

@@ -1,4 +1,4 @@
-import {Graph, Shape} from "@antv/x6";
+import {Addon, Graph, Shape} from "@antv/x6";
 import {
   defaultEdge,
   defaultNode,
@@ -49,8 +49,17 @@ const defaultGraphConfig: Partial<GraphOptions.Manual> = {
     createEdge() {
       return new Shape.Edge(defaultEdge);
     },
-    validateConnection() {
-      return false;
+    validateConnection({ sourceView, targetView, sourceMagnet, targetMagnet }) {
+      if (sourceView === targetView) {
+        return false;
+      }
+      if (!sourceMagnet) {
+        return false;
+      }
+      if (!targetMagnet) {
+        return false;
+      }
+      return true;
     },
   },
   highlighting: {
@@ -71,19 +80,147 @@ const defaultGraphConfig: Partial<GraphOptions.Manual> = {
   },
 }
 
-export function initGraph(dagInfo, nodeGroups, container) {
+export function initGraph(dagInfo, nodeGroups, container, readonly) {
+  if(readonly) {
+    defaultGraphConfig.connecting.validateConnection = () => {
+      return false;
+    }
+  }
   defaultGraphConfig.container = container
   const graph = new Graph(defaultGraphConfig)
   initGraphShape(graph, dagInfo, nodeGroups)
   initGraphEvent(graph)
+  initStencil(graph, nodeGroups)
   graph.resize(document.body.offsetWidth, document.body.offsetHeight);
   return graph
 }
 
-function initGraphShape(graphInstance, flowInfo, nodeGroups) {
+function initStencil(graph, nodeGroups) {
+  console.log("nodeGroups", nodeGroups)
+
+  // 挂载到页面
+  let groups = []
+  for (const nodeGroupsKey in nodeGroups) {
+    groups.push({
+      name: nodeGroups[nodeGroupsKey]?.groupName,
+      title: nodeGroups[nodeGroupsKey]?.groupName,
+      graphHeight: 380,
+    })
+  }
+  const stencil = new Addon.Stencil({
+    target: graph,
+    stencilGraphWidth: 480,
+    search: { rect: true },
+    collapsable: true,
+    groups: groups,
+  });
+  const stencilContainer = document.querySelector('#stencil');
+  stencilContainer?.appendChild(stencil.container);
+
+  // 装载模板节点
+  for (const nodeGroupsKey in nodeGroups) {
+    // console.log("nodeGroupsKey",nodeGroupsKey,nodeGroups[nodeGroupsKey]?.operatorList)
+    const operatorList = nodeGroups[nodeGroupsKey]?.operatorList
+    const nodeList = []
+    for (const operator in operatorList) {
+      let name = operatorList[operator].name !== '' ? operatorList[operator].name : operatorList[operator].category
+      defaultNode.attrs.label={"text": name}
+      defaultNode.attrs.body={"rx":0, "ry":100*(operator+1)}
+      const cell = graph.createNode(defaultNode)
+      console.log("operatorList operator ",name, operatorList[operator].name, defaultNode)
+      nodeList.push(cell)
+    }
+    const r2 = graph.createNode({
+      shape: 'flow-chart-rect',
+      attrs: {
+        body: {
+          rx: 24,
+          ry: 74,
+        },
+        text: {
+          text: '流程节点',
+        },
+      },
+    });
+    const r1 = graph.createNode({
+      shape: 'flow-chart-rect',
+      attrs: {
+        body: {
+          rx: 24,
+          ry: 24,
+        },
+        text: {
+          text: '起始节点',
+        },
+      },
+    });
+    const r3 = graph.createNode({
+      shape: 'flow-chart-rect',
+      width: 52,
+      height: 52,
+      angle: 45,
+      attrs: {
+        'edit-text': {
+          style: {
+            transform: 'rotate(-45deg)',
+          },
+        },
+        text: {
+          text: '判断节点',
+          transform: 'rotate(-45deg)',
+        },
+      },
+      ports: {
+        groups: {
+          top: {
+            position: {
+              name: 'top',
+              args: {
+                dx: -26,
+              },
+            },
+          },
+          right: {
+            position: {
+              name: 'right',
+              args: {
+                dy: -26,
+              },
+            },
+          },
+          bottom: {
+            position: {
+              name: 'bottom',
+              args: {
+                dx: 26,
+              },
+            },
+          },
+          left: {
+            position: {
+              name: 'left',
+              args: {
+                dy: 26,
+              },
+            },
+          },
+        },
+      },
+    });
+    nodeList.push(r3.clone())
+    nodeList.push(r2.clone())
+    nodeList.push(r1.clone())
+    console.log("stencil nodeList", nodeList, nodeGroups[nodeGroupsKey]?.groupName, r1, r2, r3)
+
+    stencil.load(nodeList, nodeGroups[nodeGroupsKey]?.groupName)
+    // stencil.load(nodeList)
+  }
+}
+
+function initGraphShape(graphInstance, tasks, nodeGroups) {
   const cells = []
 
-  let data = JsonToGraphCell(flowInfo, nodeGroups)
+  let data = JsonToGraphCell(tasks, nodeGroups)
   data.forEach((item) => {
     if (item.shape === 'edge') {
       cells.push(graphInstance.createEdge(item))
@@ -104,7 +241,9 @@ function initGraphShape(graphInstance, flowInfo, nodeGroups) {
       defaultNode.parent = item.parent
       defaultNode.shape = item.shape
       delete item.component
-      cells.push(graphInstance.createNode(defaultNode))
+      const cell = graphInstance.createNode(defaultNode)
+      console.log("initGraphShape 展示图", cell)
+      cells.push(cell)
     }
   })
   graphInstance.resetCells(cells)
@@ -142,18 +281,20 @@ function showPorts(ports: NodeListOf<SVGAElement>, show: boolean) {
   }
 }
 
-function JsonToGraphCell(graphDataJson, nodeGroups) {
+function JsonToGraphCell(tasks, nodeGroups) {
   const cells = []
 
   let nodeList = []
-  for (let task in graphDataJson?.tasks) {
-    nodeList.push({"name": task, "next": graphDataJson?.tasks[task]?.next})
+  console.log("======> JsonToGraphCell", tasks)
+  for (let task in tasks) {
+    console.log("tasks:", task, tasks[task])
+    nodeList.push({"name": task, "next": tasks[task]?.next})
   }
 
   let nodePositions = generatePositions(nodeList, document.body.offsetWidth / 2, false)
 
-  for (let task in graphDataJson?.tasks) {
-    let taskInfo = graphDataJson?.tasks[task]
+  for (let task in tasks) {
+    let taskInfo = tasks[task]
     let icon
     for (const key in nodeGroups[2]?.operatorList) {
       if (nodeGroups[2]?.operatorList[key].name === taskInfo.task.resourceProtocol) {

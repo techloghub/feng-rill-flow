@@ -3,6 +3,25 @@ export default {
     record: "流程定义",
     list: "流程列表",
     detail: "流程详情",
+    opt: "操作",
+    option: {
+      versions: "版本",
+      edit: "编辑"
+    },
+    columns: {
+      create_time: "创建时间",
+      update_time: "更新时间",
+      business_id: "业务名称",
+      feature_id: "服务名称",
+      alias: "别名",
+    },
+    modal:{
+      title: "版本信息",
+      columns: {
+        "descriptor_id": "流程ID",
+        "create_time": "创建时间"
+      }
+    }
   },
   instances: {
     record: "执行记录",
@@ -53,6 +72,7 @@ export default {
           context_key: "参数名",
           context_value: "参数值",
           error_result_msg: "执行异常信息",
+          error_result_default_msg: "暂无",
           trace: "Trace日志信息",
           trace_detail: "详情",
         }

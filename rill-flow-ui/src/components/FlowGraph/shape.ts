@@ -15,6 +15,16 @@ Graph.registerNode("flow-node", {  //将vue组件注册到系统中
   },
 });
 
+Graph.registerVueComponent(
+    "vue-node",
+    {
+      template: `<NodeTemplate />`,
+      components: {
+        NodeTemplate,
+      },
+    },
+    true
+);
 Graph.registerNode('flow-chart-rect', {
   inherit: 'rect',
   width: 80,

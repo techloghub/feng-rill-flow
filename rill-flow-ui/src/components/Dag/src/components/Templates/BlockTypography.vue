@@ -1,13 +1,15 @@
 <template>
   <div class="blockText">
     <a-typography-paragraph>
-      <pre>{{ context!== undefined? context: '暂无' }}</pre>
+      <pre>{{ contextMessage }}</pre>
     </a-typography-paragraph>
   </div>
 </template>
 
 <script>
 import {Typography} from "ant-design-vue";
+import { useI18n } from '/@/hooks/web/useI18n';
+const { t } = useI18n();
 
 export default {
   name: "BlockText",
@@ -17,7 +19,18 @@ export default {
   },
   data() {
     return {}
+  },
+  computed: {
+    contextMessage() {
+      const { t } = useI18n();
+      if (this.context!== undefined) {
+        return this.context
+      } else {
+        return t('routes.flow.instances.graph.grid.schema.error_result_default_msg');
+      }
+    }
   }
+
 }
 
 </script>

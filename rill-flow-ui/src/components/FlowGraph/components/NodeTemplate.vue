@@ -25,7 +25,6 @@ const statusImg = ref();
 const statusShow = ref(false);
 const logoSwitch = ref(true);
 const getNode = inject<() => any>('getNode');
-
 if (getNode !== undefined) {
   status.value = getNode().store.data.attrs.status
   const type = getNode().store.data.attrs.type

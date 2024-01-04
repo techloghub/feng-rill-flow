@@ -17,6 +17,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -91,30 +92,26 @@ public class BgController {
         descriptorManager.getBusiness().stream().forEach(bussinessId -> {
             descriptorManager.getFeature(bussinessId).stream().forEach(featureId -> {
                 descriptorManager.getAlias(bussinessId, featureId).stream().forEach(alia -> {
-                    descriptorManager.getVersion(bussinessId, featureId, alia).forEach(version -> {
-                        Map versionMap = (Map) version;
-                        String descriptorId = String.valueOf(versionMap.get("descriptor_id"));
-                        long createTime = Long.parseLong(String.valueOf(versionMap.get("create_time")));
+                    List<Map> versions = descriptorManager.getVersion(bussinessId, featureId, alia);
+                    if (CollectionUtils.isNotEmpty(versions)) {
                         DAGRecord record = DAGRecord.builder()
                                 .businessId(bussinessId)
                                 .featureId(featureId)
-                                .alia(alia)
-                                .descriptorId(descriptorId)
-                                .createTime(createTime)
+                                .alias(alia)
+                                .descriptorId(String.valueOf(versions.get(0).get("descriptor_id")))
+                                .createTime(Long.parseLong(String.valueOf(versions.get(0).get("create_time"))))
+                                .updateTime(Long.parseLong(String.valueOf(versions.get(versions.size()-1).get("create_time"))))
                                 .build();
                         dagRecordList.add(record);
-                    });
+                    }
                 });
             });
         });
 
         dagRecordList.sort((a, b) -> b.getCreateTime().compareTo(a.getCreateTime()));
-        result.put("list", dagRecordList);
-        result.put("total", dagRecordList.size());
-        result.put("pageSize", dagRecordList.size() / pageSize + 1);
 
         log.info("record curr:{}, pageSize:{}, result:{}", current, pageSize, result.toJSONString());
-        return Map.of("data", result, "message", "", "success", true);
+        return Map.of("items", dagRecordList, "total", dagRecordList.size());
     }
 
     /**

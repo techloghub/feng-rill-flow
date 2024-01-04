@@ -1,9 +1,18 @@
 <template>
   <div class="wrap">
     <div class="content flex ">
+      <div id="stencil" class="sider w-60" v-if="showNodeGroups"></div>
       <div class="panel flex-auto w-50">
+        <!--流程图工具栏-->
+        <div class="toolbar">
+          <ToolBar v-if="showToolbar"/>
+        </div>
         <!--流程图画板-->
-        <graph :mode="mode" />
+        <graph
+          :mode="mode"
+          :readonly="readonly"
+          :showNodeGroups="showNodeGroups"
+        />
       </div>
       <!--右侧工具栏-->
       <div class="config w-100" v-if="isConfigPanelShow">
@@ -30,9 +39,9 @@ import './reset/global.css';
 import './index.less';
 import ConfigPanel from './components/ConfigPanel/index.vue';
 import Graph from './components/Graph/index.vue';
+import ToolBar from './components/ToolBar/index.vue';
 import {MenuUnfoldOutlined, MenuFoldOutlined} from '@ant-design/icons-vue';
 
-import {flowGroupDetailApi, flowInstanceDetailApi} from "@/api/table";
 import {useMessage} from '@/hooks/web/useMessage';
 import {useGo} from "@/hooks/web/usePage";
 import {useI18n} from '@/hooks/web/useI18n';
@@ -51,7 +60,7 @@ const graph = ref();
 
 const dagInfo: any = inject('dagInfo');
 const nodeGroups: any = inject('nodeGroups');
-
+console.log("Dag ===> start")
 const props = defineProps({
   mode: {
     type: String as PropType<MODE>,
@@ -60,8 +69,21 @@ const props = defineProps({
       // 这个值必须匹配下列字符串中的一个
       return Object.values(MODE).includes(value);
     },
-  }
+  },
+  readonly: {
+    type: Boolean,
+  },
+  showNodeGroups: {
+    type: Boolean,
+  },
+  showToolBar: {
+    type: Boolean,
+  },
 })
+
+onMounted( () => {
+  console.log("Dag ===> init", graph.value, props.mode)
+});
 
 provide('graph', graph);
 provide('initGraphStatus', initGraphStatus);

@@ -3,10 +3,11 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, watch, inject} from 'vue';
+import {inject, ref, watch} from 'vue';
 import '@antv/x6-vue-shape';
 import {MODE} from "../../typing";
 import {initGraph} from "@/components/FlowGraph";
+
 const container = ref(null);
 
 const graph: any = inject('graph');
@@ -20,10 +21,23 @@ const props = defineProps({
     type: String as PropType<MODE>,
     default: MODE.INSTANCE,
   },
+  readonly: {
+    type: Boolean,
+  },
+  showNodeGroups: {
+    type: Boolean,
+  }
 })
 
 watch(() => dagInfo.value, (n) => {
-  graph.value = initGraph(dagInfo.value, nodeGroups.value, container.value)
+  console.log("graph props", props.mode, props.readonly, props.showNodeGroups)
+  let tasks
+  if(props.mode === MODE.DEFINITION) {
+    tasks=dagInfo.value?.data?.tasks
+  } else if (props.mode === MODE.INSTANCE) {
+    tasks=dagInfo.value?.tasks
+  }
+  graph.value = initGraph(tasks, nodeGroups.value, container.value, props.readonly)
   initGraphStatus.value = true
 }, {deep: true})
 
