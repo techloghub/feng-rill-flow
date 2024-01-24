@@ -63,12 +63,12 @@
 <!--      <a-button name="print" @click="handleClick" class="item-space" size="small"> print </a-button>-->
 <!--    </a-tooltip>-->
 
-    <a-tooltip placement="bottom">
-      <template #title>
-        <span>导出 (Cmd + P)</span>
-      </template>
-      <a-button name="toJSON" @click="handleClick" class="item-space" size="small"> toJSON </a-button>
-    </a-tooltip>
+<!--    <a-tooltip placement="bottom">-->
+<!--      <template #title>-->
+<!--        <span>导出 (Cmd + P)</span>-->
+<!--      </template>-->
+<!--      <a-button name="toJSON" @click="handleClick" class="item-space" size="small"> toJSON </a-button>-->
+<!--    </a-tooltip>-->
   </div>
 </template>
 
@@ -122,10 +122,7 @@ import {defineComponent, inject, ref} from 'vue'; // ref, reactive
             graph.history.redo();
             break;
           case 'delete':
-            console.log("delete cell ", graph, graph.value.getSelectedCells())
-            const cells = graph.value.getSelectedCells();
-            console.log("delete cell ", cells)
-            graph.value.clearCells();
+            graph.clearCells();
             break;
           case 'savePNG':
             graph.toPNG(
@@ -164,8 +161,8 @@ import {defineComponent, inject, ref} from 'vue'; // ref, reactive
             paste();
             break;
           case 'toJSON':
-            console.log(graph.value.toJSON());
-            console.log(JSON.stringify(graph.value.toJSON()));
+            console.log(graph.toJSON());
+            console.log(JSON.stringify(graph.toJSON()));
 
 
             // graph.fromJSON({cells:[graph.toJSON().cells[0],graph.toJSON().cells[1]]})

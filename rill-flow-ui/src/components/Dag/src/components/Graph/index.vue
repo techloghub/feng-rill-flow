@@ -38,6 +38,7 @@ watch(() => dagInfo.value, (n) => {
     tasks=dagInfo.value?.tasks
   }
   graph.value = initGraph(tasks, nodeGroups.value, container.value, props.readonly)
+  console.log("getSelectedCells:",graph.value.getSelectedCells())
   initGraphStatus.value = true
 }, {deep: true})
 

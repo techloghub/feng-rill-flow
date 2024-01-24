@@ -4,6 +4,7 @@
     :readonly="true"
     :showNodeGroups="false"
     :showToolBar="false"
+    :nodesBar="{}"
   />
 </template>
 
@@ -24,7 +25,6 @@
   const nodeGroups = ref();
   const dagInfo = ref();
   console.log("flow-instance start ====>")
-
   onMounted(async () => {
     console.log("xxx instance", route.query)
     if (route.query.execution_id === undefined) {

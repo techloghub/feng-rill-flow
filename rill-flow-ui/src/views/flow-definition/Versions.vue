@@ -41,6 +41,7 @@ const go = useGo();
 
 const versions = ref([]);
 const [register] = useModalInner((data) => {
+  console.log("xxxxxxxxx useModalInner", data)
   versions.value = data.versions
 });
 

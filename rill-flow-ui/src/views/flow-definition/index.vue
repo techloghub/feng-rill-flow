@@ -60,7 +60,8 @@ function handleDetail(record: Recordable) {
   go({
     "path": "/flow-definition/detail",
     "query": {
-      "descriptor_id": record.descriptor_id
+      "descriptor_id": record.descriptor_id,
+      "dagMeta":  JSON.stringify({"workspace": "rillFlow","dagName": "txt2img", "version":"20211223", "type": "flow"})
     }
   });
 

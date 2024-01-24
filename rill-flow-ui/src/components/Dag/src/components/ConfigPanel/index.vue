@@ -17,12 +17,51 @@ const graph: any = inject('graph');
 
 const nodeDetail: any = ref('nodeDetail');
 const type = ref('grid');
+const showNodeEditModal: any = inject('showNodeEditModal');
+const showNodeSchema: any = inject('showNodeSchema');
 
 onMounted(() => {
   graph.value.on('blank:click', () => {
     type.value = 'grid';
   });
+
+  graph.value.on('cell:contextmenu', ({cell}) => {
+    showNodeEditModal.value = false
+    console.log("cell:contextmenu", cell)
+    showNodeEditModal.value = true
+    showNodeSchema.value = cell
+    // showNodeSchema.value = {
+    //   "type": cell.store.data.nodeDetailSchema?.node_type ? cell.store.data.nodeDetailSchema.node_type : 'other' ,
+    //   "data": cell.store.data.nodeDetailSchema?.node_type === 'meta' ?  cell.store.data.nodeDetailSchema.fields : cell.store.data.nodeDetailSchema?.schema
+    // }
+  });
+
+  graph.value.on('cell:mouseup', ({cell}) => {
+    console.log("cell:mouseup", cell)
+  });
+
+  graph.value.on('node:dblclick', ({node}) => {
+    console.log("node:dblclick", node)
+    showNodeEditModal.value = true
+  });
+
+  graph.value.on('node:added', ({ node }) => {
+    const { x, y } = node.position()
+    showNodeEditModal.value = true
+    console.log("node:added", x, y, node, showNodeEditModal.value)
+    showNodeSchema.value = node
+
+    // showNodeSchema.value = {
+    //   "type": node.store.data.nodeDetailSchema?.node_type,
+    //   "data": node.store.data.nodeDetailSchema?.node_type === 'meta' ?  node.store.data.nodeDetailSchema?.fields : node.store.data.nodeDetailSchema
+    // }
+  })
+
+  graph.value.on('cell:mousedown', ({cell}) => {
+    console.log("cell:mousedown", cell)
+  });
   graph.value.on('cell:click', ({cell}) => {
+    console.log("cell:click", cell)
     type.value = cell.isNode() ? 'node' : 'edge';
     let nodeInfo
     if(type.value === 'edge') {

@@ -35,6 +35,24 @@ const flowDefinitions: { redirect: string; path: string; component: () => Promis
         currentActiveMenu: '/flow-definition/list',
       },
     },
+    {
+      path: 'node-templetes',
+      name: 'FlowNodeTempletes',
+      component: () => import('@/views/flow-definition/node-templetes/index.vue'),
+      meta: {
+        title: t('routes.flow.definitions.node_templetes'),
+        open: true
+      },
+    },
+    {
+      path: 'json-schema',
+      name: 'FlowJsonSchema',
+      component: () => import('@/views/flow-definition/json-schema/index.vue'),
+      meta: {
+        title: t('routes.flow.definitions.json_schema'),
+        open: true
+      },
+    },
   ],
 };
 

@@ -115,7 +115,7 @@ function initStencil(graph, nodeGroups) {
     groups: groups,
   });
   const stencilContainer = document.querySelector('#stencil');
-  stencilContainer?.appendChild(stencil.container);
+  // stencilContainer?.appendChild(stencil.container);
 
   // 装载模板节点
   for (const nodeGroupsKey in nodeGroups) {
@@ -297,6 +297,7 @@ function JsonToGraphCell(tasks, nodeGroups) {
     let taskInfo = tasks[task]
     let icon
     for (const key in nodeGroups[2]?.operatorList) {
+      console.log('taskInfo===>', taskInfo)
       if (nodeGroups[2]?.operatorList[key].name === taskInfo.task.resourceProtocol) {
         icon = nodeGroups[2]?.operatorList[key].icon
       }

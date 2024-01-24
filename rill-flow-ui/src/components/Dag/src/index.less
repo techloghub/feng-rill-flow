@@ -17,13 +17,24 @@
 
   .content {
     position: relative;
+
     .sider {
-      position: relative;
-      border-right: 1px solid rgb(0 0 0 / 8%);
+      .title {
+        text-align: center;
+        height: 38px;
+        background-color: #f7f9fb;
+        border-bottom: 1px solid rgb(0 0 0 / 8%);
+        padding-top: 10px
+      }
+
+      z-index: 4;
+      border: 1px solid rgb(0 0 0 / 8%);
+      background-color: #f7f9fb;
     }
 
     .panel {
       height: 100%;
+
       .toolbar {
         align-items: center;
         height: 38px;
@@ -49,6 +60,7 @@
 
     .show-config {
       z-index: 5;
+
       .button {
         position: absolute;
         top: 10px;
