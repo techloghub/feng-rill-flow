@@ -7,6 +7,7 @@ import {
 enum Api {
   INSTANCE_LIST = '/flow/bg/get_execution_ids.json?current=1',
   DEFINITION_LIST = '/flow/bg/get_descriptor_ids.json?current=1',
+  TEMPLATE_LIST = '/template/get_task_templates.json',
   BUSINESS_LIST = '/flow/bg/get_business_options.json',
   FEATURE_LIST = '/flow/bg/manage/descriptor/get_feature.json',
   INSTANCE_DETAIL = '/flow/bg/get_execution.json',
@@ -32,6 +33,16 @@ export const instanceListApi = (params: DemoParams) =>
 export const definitionListApi = (params: DemoParams) =>
   defHttp.get({
     url: Api.DEFINITION_LIST,
+    params,
+    headers: {
+      // @ts-ignore
+      ignoreCancelToken: true,
+    },
+  });
+
+export const templateListApi = (params: DemoParams) =>
+  defHttp.get({
+    url: Api.TEMPLATE_LIST,
     params,
     headers: {
       // @ts-ignore

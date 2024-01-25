@@ -25,7 +25,7 @@ import { BasicTable, useTable } from '/@/components/Table';
 import { getBasicColumns, getFormConfig } from './tableData';
 import { Alert } from 'ant-design-vue';
 
-import {definitionListApi} from "@/api/table";
+import {templateListApi} from "@/api/table";
 
 export default defineComponent({
   components: { BasicTable, AAlert: Alert },
@@ -34,7 +34,7 @@ export default defineComponent({
     const [registerTable, { getForm }] = useTable({
       title: '开启搜索区域',
       // api: demoListApi,
-      api: definitionListApi,
+      api: templateListApi,
       columns: getBasicColumns(),
       useSearchForm: true,
       formConfig: getFormConfig(),
