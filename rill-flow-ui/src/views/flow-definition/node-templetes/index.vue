@@ -25,7 +25,6 @@ import { BasicTable, useTable } from '/@/components/Table';
 import { getBasicColumns, getFormConfig } from './tableData';
 import { Alert } from 'ant-design-vue';
 
-import { demoListApi } from '/@/api/demo/table';
 import {definitionListApi} from "@/api/table";
 
 export default defineComponent({
