@@ -2,8 +2,6 @@ import { optionsListApi } from '/@/api/demo/select';
 import { FormProps, FormSchema } from '/@/components/Table';
 import { BasicColumn } from '/@/components/Table/src/types/table';
 import { VxeFormItemProps, VxeGridPropTypes } from '/@/components/VxeTable';
-import { ref } from 'vue';
-import { Input } from 'ant-design-vue';
 
 export function getBasicColumns(): BasicColumn[] {
   return [
@@ -17,34 +15,34 @@ export function getBasicColumns(): BasicColumn[] {
       title: '姓名',
       dataIndex: 'name',
       width: 150,
-      filters: [
-        { text: 'Male', value: 'male' },
-        { text: 'Female', value: 'female' },
-      ],
+      // filters: [
+      //   { text: 'Male', value: 'male' },
+      //   { text: 'Female', value: 'female' },
+      // ],
     },
-    {
-      title: '地址',
-      dataIndex: 'address',
-    },
-    {
-      title: '编号',
-      dataIndex: 'no',
-      width: 150,
-      sorter: true,
-      defaultHidden: true,
-    },
-    {
-      title: '开始时间',
-      width: 150,
-      sorter: true,
-      dataIndex: 'beginTime',
-    },
-    {
-      title: '结束时间',
-      width: 150,
-      sorter: true,
-      dataIndex: 'endTime',
-    },
+    // {
+    //   title: '地址',
+    //   dataIndex: 'address',
+    // },
+    // {
+    //   title: '编号',
+    //   dataIndex: 'no',
+    //   width: 150,
+    //   sorter: true,
+    //   defaultHidden: true,
+    // },
+    // {
+    //   title: '开始时间',
+    //   width: 150,
+    //   sorter: true,
+    //   dataIndex: 'beginTime',
+    // },
+    // {
+    //   title: '结束时间',
+    //   width: 150,
+    //   sorter: true,
+    //   dataIndex: 'endTime',
+    // },
   ];
 }
 
@@ -73,108 +71,6 @@ export function getBasicShortColumns(): BasicColumn[] {
     },
   ];
 }
-
-export function getMultipleHeaderColumns(): BasicColumn[] {
-  const testRef = ref('姓名:');
-  return [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      width: 200,
-    },
-    {
-      title: '姓名',
-      customHeaderRender() {
-        return (
-          <Input placeholder="输入值 更新 自定义title" size="small" v-model:value={testRef.value} />
-        );
-      },
-      dataIndex: 'name',
-      width: 120,
-    },
-    {
-      title: '地址',
-      dataIndex: 'address',
-      sorter: true,
-      children: [
-        {
-          title: '编号',
-          customHeaderRender(column) {
-            // 【自定义渲染的】
-            return (
-              <div>
-                _ <span style="background: #f00; color: #fff;">{testRef.value}</span> _
-                {column.customTitle}
-              </div>
-            );
-          },
-          dataIndex: 'no',
-          width: 120,
-          filters: [
-            { text: 'Male', value: 'male', children: [] },
-            { text: 'Female', value: 'female', children: [] },
-          ],
-        },
-
-        {
-          title: '开始时间',
-          dataIndex: 'beginTime',
-          width: 120,
-        },
-        {
-          title: '结束时间',
-          dataIndex: 'endTime',
-          width: 120,
-        },
-      ],
-    },
-  ];
-}
-
-export function getCustomHeaderColumns(): BasicColumn[] {
-  return [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      helpMessage: 'headerHelpMessage方式1',
-      width: 200,
-    },
-    {
-      // title: '姓名',
-      dataIndex: 'name',
-      width: 120,
-      // slots: { title: 'customTitle' },
-    },
-    {
-      // title: '地址',
-      dataIndex: 'address',
-      width: 120,
-      // slots: { title: 'customAddress' },
-      sorter: true,
-    },
-
-    {
-      title: '编号',
-      dataIndex: 'no',
-      width: 120,
-      filters: [
-        { text: 'Male', value: 'male', children: [] },
-        { text: 'Female', value: 'female', children: [] },
-      ],
-    },
-    {
-      title: '开始时间',
-      dataIndex: 'beginTime',
-      width: 120,
-    },
-    {
-      title: '结束时间',
-      dataIndex: 'endTime',
-      width: 120,
-    },
-  ];
-}
-
 const cellContent = (_, index) => ({
   colSpan: index === 9 ? 0 : 1,
 });
