@@ -8,9 +8,9 @@
             <span>已选中{{ checkedKeys.length }}条记录(可跨页)</span>
             <a-button type="link" @click="checkedKeys = []" size="small">清空</a-button>
           </template>
-          <template v-else>
-            <span>未选中任何项目</span>
-          </template>
+<!--          <template v-else>-->
+<!--            <span>未选中任何项目</span>-->
+<!--          </template>-->
         </template>
       </a-alert>
     </template>
@@ -35,6 +35,9 @@ export default defineComponent({
       title: '开启搜索区域',
       // api: demoListApi,
       api: templateListApi,
+      fetchSetting: {
+        listField: "data"
+      },
       columns: getBasicColumns(),
       useSearchForm: true,
       formConfig: getFormConfig(),
