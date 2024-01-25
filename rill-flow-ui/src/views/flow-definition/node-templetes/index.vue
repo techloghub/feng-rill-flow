@@ -41,7 +41,7 @@ export default defineComponent({
       showTableSetting: true,
       tableSetting: { fullScreen: true },
       showIndexColumn: false,
-      rowKey: 'id',
+      rowKey: 'name',
       rowSelection: {
         type: 'checkbox',
         selectedRowKeys: checkedKeys,
