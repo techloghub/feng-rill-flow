@@ -7,7 +7,7 @@ import {
 enum Api {
   INSTANCE_LIST = '/flow/bg/get_execution_ids.json?current=1',
   DEFINITION_LIST = '/flow/bg/get_descriptor_ids.json?current=1',
-  TEMPLATE_LIST = '/template/get_task_templates.json',
+  TEMPLATE_LIST = 'http://127.0.0.1:8080/template/get_task_templates.json',
   BUSINESS_LIST = '/flow/bg/get_business_options.json',
   FEATURE_LIST = '/flow/bg/manage/descriptor/get_feature.json',
   INSTANCE_DETAIL = '/flow/bg/get_execution.json',
