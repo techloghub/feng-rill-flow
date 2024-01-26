@@ -53,6 +53,19 @@ const flowDefinitions: { redirect: string; path: string; component: () => Promis
         open: true
       },
     },
+    {
+      path: 'formily',
+      name: 'Formily',
+      // component: () => import('@/views/flow-definition/formily/index.vue'),
+      // component: () => import('@/views/flow-definition/formily/index_tree.vue'),
+      component: () => import('@/views/flow-definition/formily/index_tab.vue'),
+      // component: () => import('@/views/flow-definition/formily/index_array.vue'),
+      // component: () => import('@/views/flow-definition/formily/switch.vue'),
+      meta: {
+        title: t('routes.flow.definitions.formily'),
+        open: true
+      },
+    },
   ],
 };
 

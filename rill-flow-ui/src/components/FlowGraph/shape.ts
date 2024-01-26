@@ -1,5 +1,6 @@
 import {Dom, Graph, Node} from '@antv/x6';
 import NodeTemplate from "./components/NodeTemplate.vue";
+// import NodeTemplate from "../Dag/src/components/NodesBar/NodeTemplate.vue";
 import '@antv/x6-vue-shape'
 import {createVNode} from "vue";
 import {buildUUID} from "@/utils/uuid";

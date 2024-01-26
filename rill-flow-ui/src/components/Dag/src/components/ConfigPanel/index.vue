@@ -11,6 +11,7 @@ import ConfigNode from './ConfigNode/index.vue';
 import {ref, inject, onMounted, watch, provide} from 'vue';
 import moment from 'moment';
 import {RILL_CATEGORY} from "@/components/Dag";
+import {Cell} from "@antv/x6";
 
 const dagInfo: any = inject('dagInfo');
 const graph: any = inject('graph');
@@ -25,41 +26,55 @@ onMounted(() => {
     type.value = 'grid';
   });
 
-  graph.value.on('cell:contextmenu', ({cell}) => {
-    showNodeEditModal.value = false
-    console.log("cell:contextmenu", cell)
-    showNodeEditModal.value = true
-    showNodeSchema.value = cell
-    // showNodeSchema.value = {
-    //   "type": cell.store.data.nodeDetailSchema?.node_type ? cell.store.data.nodeDetailSchema.node_type : 'other' ,
-    //   "data": cell.store.data.nodeDetailSchema?.node_type === 'meta' ?  cell.store.data.nodeDetailSchema.fields : cell.store.data.nodeDetailSchema?.schema
-    // }
-  });
-
-  graph.value.on('cell:mouseup', ({cell}) => {
-    console.log("cell:mouseup", cell)
-  });
-
-  graph.value.on('node:dblclick', ({node}) => {
-    console.log("node:dblclick", node)
-    showNodeEditModal.value = true
-  });
-
-  graph.value.on('node:added', ({ node }) => {
-    const { x, y } = node.position()
-    showNodeEditModal.value = true
-    console.log("node:added", x, y, node, showNodeEditModal.value)
-    showNodeSchema.value = node
-
-    // showNodeSchema.value = {
-    //   "type": node.store.data.nodeDetailSchema?.node_type,
-    //   "data": node.store.data.nodeDetailSchema?.node_type === 'meta' ?  node.store.data.nodeDetailSchema?.fields : node.store.data.nodeDetailSchema
-    // }
-  })
-
-  graph.value.on('cell:mousedown', ({cell}) => {
-    console.log("cell:mousedown", cell)
-  });
+  // graph.value.on('cell:contextmenu', ({cell}) => {
+  //   showNodeEditModal.value = false
+  //   console.log("cell:contextmenu", cell)
+  //   showNodeEditModal.value = true
+  //   showNodeSchema.value = cell
+  //
+  // });
+  //
+  // graph.value.on('cell:mouseup', ({cell}) => {
+  //   console.log("cell:mouseup", cell)
+  // });
+  //
+  // graph.value.on('node:dblclick', ({node}) => {
+  //   console.log("node:dblclick", node)
+  //   showNodeEditModal.value = true
+  // });
+  //
+  // graph.value.on('cell:change:*', (args: {
+  //   cell: Cell
+  //   key: string   // 通过 key 来确定改变项
+  //   current: any  // 当前值，类型根据 key 指代的类型确定
+  //   previous: any // 改变之前的值，类型根据 key 指代的类型确定
+  //   options: any  // 透传的 options
+  // }) => {
+  //   // console.log("cell:change", args)
+  //   console.log("cell:change", args)
+  //
+  //   if (args.key === 'label') {
+  //     args.cell.setAttrs({ label: { text: args.current } })
+  //   } else if (args.key === 'nodeDetailParams') {
+  //     console.log("cell:change nodeDetailParams", args)
+  //   }
+  // })
+  //
+  // graph.value.on('node:added', ({ node }) => {
+  //   const { x, y } = node.position()
+  //   showNodeEditModal.value = true
+  //   console.log("node:added", x, y, node, showNodeEditModal.value)
+  //   showNodeSchema.value = node
+  //
+  //   // showNodeSchema.value = {
+  //   //   "type": node.store.data.nodeDetailSchema?.node_type,
+  //   //   "data": node.store.data.nodeDetailSchema?.node_type === 'meta' ?  node.store.data.nodeDetailSchema?.fields : node.store.data.nodeDetailSchema
+  //   // }
+  // })
+  //
+  // graph.value.on('cell:mousedown', ({cell}) => {
+  //   console.log("cell:mousedown", cell)
+  // });
   graph.value.on('cell:click', ({cell}) => {
     console.log("cell:click", cell)
     type.value = cell.isNode() ? 'node' : 'edge';

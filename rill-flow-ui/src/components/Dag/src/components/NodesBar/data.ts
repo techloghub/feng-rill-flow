@@ -1,5 +1,5 @@
-import {h} from "vue";
-
+import {shallowRef} from "vue";
+import {Testwidget} from "@/components/Widget";
 
 export function nodeList() {
 
@@ -236,41 +236,59 @@ export function nodeList() {
         "schema": {
           type: 'object',
           required: [
-            'userName',
-            'age',
+            'name',
+            'appkey',
           ],
           properties: {
-            userName: {
+            name: {
               type: 'string',
-              title: '用户名',
-              default: 'Liu.Jun',
-              'ui:options': {
-                renderScopedSlots: {
-                  default: (props) => h('span', "123")
-                }
-              }
+              title: '节点名称',
+              default: '',
             },
-            age: {
-              type: 'number',
-              title: '年龄',
-              'ui:options': {
-                renderScopedSlots: {
-                  append: (props) => h('span', "123")
-                }
-              }
-            },
-            bio: {
-              type: 'string',
-              title: '签名',
-              minLength: 10,
-              default: '知道的越多、就知道的越少',
-              'ui:options': {
-                placeholder: '请输入你的签名',
-                type: 'textarea',
-                rows: 1,
-                renderScopedSlots: {
-                  default: (props) => h('span', "123")
-                }
+            appkey: {
+              title: "appkey",
+              properties: {
+                attr: {
+                  title: '类型',
+                  type: 'string',
+                  enum: [
+                    'input',
+                    'reference'
+                  ],
+                  enumNames: [
+                    'input',
+                    'reference'
+                  ],
+                  'ui:width': '30%'
+                },
+                input: {
+                  title: '文本',
+                  type: 'string',
+                  'ui:hidden': "{{parentFormData.attr !== 'input'}}",
+                  'ui:width': '40%'
+                },
+                reference: {
+                  title: 'reference',
+                  type: 'string',
+                  // pattern: '^[0-9]+$',
+                  // message: {
+                  //   pattern: '输入正确得分'
+                  // },
+                  // default: JSON.stringify([{"title":"parent11111","value":"parent1","children":[{"title":"parent 1-0","value":"parent 1-0","children":[{"title":"my leaf","value":"leaf1"},{"title":"your leaf","value":"leaf2"}]},{"title":"parent 1-1","value":"parent 1-1"}]}]),
+                  default: 's',
+                  'ui:hidden': "{{parentFormData.attr !== 'reference'}}",
+                  'ui:width': '40%',
+                  "ui:widget": 'SelectByTypeWidget',
+                  'ui:treeData': [{
+                    "title": "parent11111",
+                    "value": "parent1",
+                    "children": [{
+                      "title": "parent 1-0",
+                      "value": "parent 1-0",
+                      "children": [{"title": "my leaf", "value": "leaf1"}, {"title": "your leaf", "value": "leaf2"}]
+                    }, {"title": "parent 1-1", "value": "parent 1-1"}]
+                  }],
+                },
               }
             }
           }
@@ -285,10 +303,340 @@ export function nodeList() {
               "created_at": "string",
               "id": "integer",
               "mid": "string"
+            },
+            {
+              "visible1": {
+                "type1": "integer",
+                "list_id1": "integer"
+              },
+              "created_at1": "string",
+              "id1": "integer",
+              "mid1": "string"
             }
-          ]
+          ],
+          "video": {
+            "id": "long",
+            "file_size": "long",
+          },
+
         }
-      }
+      },
+      // {
+      //   "id": 6,
+      //   "name": "demo_template",
+      //   "node_type": "template", // or template
+      //   "category": "function",
+      //   "icon": {
+      //     "type": "img_base64",
+      //     "value": "data:image/jpeg;base64,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"
+      //   },
+      //   "task_yaml": {
+      //     "next": "gptOutputProcessor",
+      //     "name": "chatgptExecutor",
+      //     "category": "function",
+      //     "pattern": "task_async",
+      //     "resourceName": "chatgpt://",
+      //     "inputMappings": [
+      //       {
+      //         "source": "$.context.prompt",
+      //         "target": "$.input.prompt"
+      //       }
+      //     ],
+      //     "outputMappings": [
+      //       {
+      //         "source": "$.output.result",
+      //         "target": "$.context.gpt_response"
+      //       },
+      //       {
+      //         "source": "$.output.error",
+      //         "target": "$.context.error"
+      //       }
+      //     ],
+      //
+      //     "resourceProtocol": "chatgpt",
+      //     "parameters": {
+      //       "apikey": "123"
+      //     }
+      //   },
+      //   "meta_data": [
+      //     {
+      //       "icon": "",
+      //       "fields": {
+      //         "resource_name": {
+      //           "type": "string",
+      //           "name": "资源名称",
+      //           "required": true,
+      //           "default_value": ""
+      //         },
+      //         "resource_protocol": {
+      //           "type": "string",
+      //           "name": "资源协议",
+      //           "required": true,
+      //           "options": [
+      //             {
+      //               "name": "http",
+      //               "value": "http"
+      //             },
+      //             {
+      //               "name": "阿里通义千问",
+      //               "value": "ali_ai"
+      //             },
+      //             {
+      //               "name": "k8s 服务",
+      //               "value": "service"
+      //             }
+      //           ]
+      //         },
+      //         "request_type": {
+      //           "type": "string",
+      //           "name": "请求类型",
+      //           "required": false,
+      //           "default_value": "POST",
+      //           "options": [
+      //             {
+      //               "name": "POST",
+      //               "value": "POST"
+      //             },
+      //             {
+      //               "name": "GET",
+      //               "value": "GET"
+      //             }
+      //           ]
+      //         },
+      //         "pattern": {
+      //           "type": "string",
+      //           "name": "同步类型",
+      //           "required": true,
+      //           "options": [
+      //             {
+      //               "name": "同步",
+      //               "value": "task_scheduler"
+      //             },
+      //             {
+      //               "name": "异步",
+      //               "value": "task_async"
+      //             }
+      //           ]
+      //         },
+      //         "input_mappings": {
+      //           "type": "list",
+      //           "name": "输入映射",
+      //           "required": true,
+      //           "data": {
+      //             "type": "object",
+      //             "fields": {
+      //               "source": {
+      //                 "type": "string",
+      //                 "name": "输入来源",
+      //                 "required": true
+      //               },
+      //               "target": {
+      //                 "type": "string",
+      //                 "name": "输入目标",
+      //                 "required": true
+      //               },
+      //               "reference": {
+      //                 "type": "string",
+      //                 "name": "commonMapping 引用",
+      //                 "required": true
+      //               },
+      //               "transform": {
+      //                 "type": "string",
+      //                 "name": "输入映射处理 aviator 表达式",
+      //                 "required": false
+      //               },
+      //               "tolerance": {
+      //                 "type": "boolean",
+      //                 "name": "容忍错误",
+      //                 "required": false
+      //               },
+      //               "required_group": [
+      //                 ["source", "target"],
+      //                 ["reference"]
+      //               ]
+      //             }
+      //           }
+      //         },
+      //         "output_mappings": {
+      //           "type": "list",
+      //           "name": "输入映射",
+      //           "required": true,
+      //           "data": {
+      //             "type": "object",
+      //             "fields": {
+      //               "source": {
+      //                 "type": "string",
+      //                 "name": "输入来源",
+      //                 "required": true
+      //               },
+      //               "target": {
+      //                 "type": "string",
+      //                 "name": "输入目标",
+      //                 "required": true
+      //               },
+      //               "reference": {
+      //                 "type": "string",
+      //                 "name": "commonMapping 引用",
+      //                 "required": true
+      //               },
+      //               "transform": {
+      //                 "type": "string",
+      //                 "name": "输入映射处理 aviator 表达式",
+      //                 "required": false
+      //               },
+      //               "tolerance": {
+      //                 "type": "boolean",
+      //                 "name": "容忍错误",
+      //                 "required": false
+      //               },
+      //               "required_group": [
+      //                 ["source", "target"],
+      //                 ["reference"]
+      //               ]
+      //             }
+      //           }
+      //         },
+      //         "tolerance": {
+      //           "type": "boolean",
+      //           "name": "是否容错",
+      //           "required": false,
+      //           "default_value": false
+      //         },
+      //         "success_conditions": {
+      //           "type": "list",
+      //           "name": "成功条件",
+      //           "required": false,
+      //           "data": {
+      //             "type": "string"
+      //           }
+      //         },
+      //         "fail_conditions": {
+      //           "type": "list",
+      //           "name": "失败条件",
+      //           "required": false,
+      //           "data": {
+      //             "type": "string"
+      //           }
+      //         },
+      //         "retry": {
+      //           "type": "object",
+      //           "required": false,
+      //           "fields": {
+      //             "max_retry_times": {
+      //               "type": "integer",
+      //               "name": "最大重试次数",
+      //               "required": true
+      //             },
+      //             "interval_in_seconds": {
+      //               "type": "integer",
+      //               "name": "间隔时间",
+      //               "required": false,
+      //               "default_value": 0
+      //             },
+      //             "multiplier": {
+      //               "type": "integer",
+      //               "name": "放大系数",
+      //               "required": false,
+      //               "default_value": 1
+      //             }
+      //           }
+      //         },
+      //         "next": {
+      //           "type": "string",
+      //           "name": "下一节点",
+      //           "required": false
+      //         }
+      //       }
+      //     }
+      //   ],
+      //   "schema": {
+      //     type: 'object',
+      //     required: [
+      //       'name',
+      //       'appkey',
+      //     ],
+      //     properties: {
+      //       name: {
+      //         type: 'string',
+      //         title: '节点名称',
+      //         default: '',
+      //       },
+      //       appkey: {
+      //         title: "appkey",
+      //         properties: {
+      //           attr: {
+      //             title: '类型',
+      //             type: 'string',
+      //             enum: [
+      //               'input',
+      //               'reference'
+      //             ],
+      //             enumNames: [
+      //               'input',
+      //               'reference'
+      //             ],
+      //             'ui:width': '30%'
+      //           },
+      //           input: {
+      //             title: '文本',
+      //             type: 'string',
+      //             'ui:hidden': "{{parentFormData.attr !== 'input'}}",
+      //             'ui:width': '40%'
+      //           },
+      //           reference: {
+      //             title: 'reference',
+      //             type: 'string',
+      //             // pattern: '^[0-9]+$',
+      //             // message: {
+      //             //   pattern: '输入正确得分'
+      //             // },
+      //             // default: JSON.stringify([{"title":"parent11111","value":"parent1","children":[{"title":"parent 1-0","value":"parent 1-0","children":[{"title":"my leaf","value":"leaf1"},{"title":"your leaf","value":"leaf2"}]},{"title":"parent 1-1","value":"parent 1-1"}]}]),
+      //             default: 's',
+      //             'ui:hidden': "{{parentFormData.attr !== 'reference'}}",
+      //             'ui:width': '40%',
+      //             "ui:widget": 'SelectByTypeWidget',
+      //             'ui:treeData': [{
+      //               "title": "parent11111",
+      //               "value": "parent1",
+      //               "children": [{
+      //                 "title": "parent 1-0",
+      //                 "value": "parent 1-0",
+      //                 "children": [{"title": "my leaf", "value": "leaf1"}, {"title": "your leaf", "value": "leaf2"}]
+      //               }, {"title": "parent 1-1", "value": "parent 1-1"}]
+      //             }],
+      //           },
+      //         }
+      //       }
+      //     }
+      //   },
+      //   "output": {
+      //     "statuses": [
+      //       {
+      //         "visible": {
+      //           "type": "integer",
+      //           "list_id": "integer"
+      //         },
+      //         "created_at": "string",
+      //         "id": "integer",
+      //         "mid": "string"
+      //       },
+      //       {
+      //         "visible1": {
+      //           "type1": "integer",
+      //           "list_id1": "integer"
+      //         },
+      //         "created_at1": "string",
+      //         "id1": "integer",
+      //         "mid1": "string"
+      //       }
+      //     ],
+      //     "video": {
+      //       "id": "long",
+      //       "file_size": "long",
+      //     },
+      //
+      //   }
+      // }
     ],
     "logical": [],
     "function": [
@@ -300,6 +648,12 @@ export function nodeList() {
           "value": "ant-design:api-outlined"
         },
         "fields": {
+          "name": {
+            "type": "string",
+            "name": "节点名称",
+            "required": true,
+            "default_value": ""
+          },
           "resource_name": {
             "type": "string",
             "name": "资源名称",
@@ -444,6 +798,194 @@ export function nodeList() {
           },
           "retry": {
             "type": "object",
+            "name": "任务重试设置",
+            "required": false,
+            "fields": {
+              "max_retry_times": {
+                "type": "integer",
+                "name": "最大重试次数",
+                "required": true
+              },
+              "interval_in_seconds": {
+                "type": "integer",
+                "name": "间隔时间",
+                "required": false,
+                "default_value": 0
+              },
+              "multiplier": {
+                "type": "integer",
+                "name": "放大系数",
+                "required": false,
+                "default_value": 1
+              }
+            }
+          },
+          "next": {
+            "type": "string",
+            "name": "下一节点",
+            "required": false
+          }
+        }
+      },
+      {
+        "category": "rillflow",
+        "node_type": "meta", // or template
+        "icon": {
+          "type": "icon",
+          "value": "ant-design:deployment-unit-outlined"
+        },
+        "fields": {
+          "name": {
+            "type": "string",
+            "name": "节点名称",
+            "required": true,
+            "default_value": ""
+          },
+          "resource_name": {
+            "type": "string",
+            "name": "资源名称",
+            "required": true,
+            "default_value": ""
+          },
+          "resource_protocol": {
+            "type": "string",
+            "name": "资源协议",
+            "required": true
+          },
+          "request_type": {
+            "type": "string",
+            "name": "请求类型",
+            "required": false,
+            "default_value": "POST",
+            "options": [
+              {
+                "name": "POST",
+                "value": "POST"
+              },
+              {
+                "name": "GET",
+                "value": "GET"
+              }
+            ]
+          },
+          "pattern": {
+            "type": "string",
+            "name": "同步类型",
+            "required": true,
+            "options": [
+              {
+                "name": "同步",
+                "value": "task_scheduler"
+              },
+              {
+                "name": "异步",
+                "value": "task_async"
+              }
+            ]
+          },
+          "input_mappings": {
+            "type": "list",
+            "name": "输入映射",
+            "required": true,
+            "data": {
+              "type": "object",
+              "fields": {
+                "source": {
+                  "type": "string",
+                  "name": "输入来源",
+                  "required": true
+                },
+                "target": {
+                  "type": "string",
+                  "name": "输入目标",
+                  "required": true
+                },
+                "reference": {
+                  "type": "string",
+                  "name": "commonMapping 引用",
+                  "required": true
+                },
+                "transform": {
+                  "type": "string",
+                  "name": "输入映射处理 aviator 表达式",
+                  "required": false
+                },
+                "tolerance": {
+                  "type": "boolean",
+                  "name": "容忍错误",
+                  "required": false
+                },
+                "required_group": [
+                  ["source", "target"],
+                  ["reference"]
+                ]
+              }
+            }
+          },
+          "output_mappings": {
+            "type": "list",
+            "name": "输出映射",
+            "required": true,
+            "data": {
+              "type": "object",
+              "fields": {
+                "source": {
+                  "type": "string",
+                  "name": "输出来源",
+                  "required": true
+                },
+                "target": {
+                  "type": "string",
+                  "name": "输出目标",
+                  "required": true
+                },
+                "reference": {
+                  "type": "string",
+                  "name": "commonMapping 引用",
+                  "required": true
+                },
+                "transform": {
+                  "type": "string",
+                  "name": "输入映射处理 aviator 表达式",
+                  "required": false
+                },
+                "tolerance": {
+                  "type": "boolean",
+                  "name": "容忍错误",
+                  "required": false
+                },
+                "required_group": [
+                  ["source", "target"],
+                  ["reference"]
+                ]
+              }
+            }
+          },
+          "tolerance": {
+            "type": "boolean",
+            "name": "是否容错",
+            "required": false,
+            "default_value": false
+          },
+          "success_conditions": {
+            "type": "list",
+            "name": "成功条件",
+            "required": false,
+            "data": {
+              "type": "string"
+            }
+          },
+          "fail_conditions": {
+            "type": "list",
+            "name": "失败条件",
+            "required": false,
+            "data": {
+              "type": "string"
+            }
+          },
+          "retry": {
+            "type": "object",
+            "name": "任务重试设置",
             "required": false,
             "fields": {
               "max_retry_times": {
@@ -718,7 +1260,6 @@ export function templateNode() {
   }
 }
 
-
 export function dagInfoDemo() {
   return {"data": {
       "dagName": "choiceSample",
@@ -878,4 +1419,10 @@ export function dagInfoDemo() {
         }
       }
     }}
+}
+
+export function customWidgets() {
+  return {
+    "SelectByTypeWidget": Testwidget
+  }
 }

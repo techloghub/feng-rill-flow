@@ -5,6 +5,7 @@ export default {
     detail: "流程详情",
     node_templetes: "节点模版管理",
     json_schema: "json_schema测试",
+    formily: "formily测试",
     opt: "操作",
     option: {
       versions: "版本",

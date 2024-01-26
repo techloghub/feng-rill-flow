@@ -25,9 +25,13 @@ const statusImg = ref();
 const statusShow = ref(false);
 const logoSwitch = ref(true);
 const getNode = inject<() => any>('getNode');
+console.log("NodeTemplate start")
 if (getNode !== undefined) {
+  console.log("NodeTemplate detail", getNode(), getNode().store.data.attrs)
   status.value = getNode().store.data.attrs.status
   const type = getNode().store.data.attrs.type
+  const icon = getNode().store.data.attrs.icon
+
 
   if (getNode().store.data.attrs.icon !== undefined) {
     logo.value = NodeLogo.prefix + getNode().store.data.attrs.icon
@@ -35,6 +39,14 @@ if (getNode !== undefined) {
   } else if (type !== undefined && NodeLogo[type] !== undefined) {
     logo.value = NodeLogo[type]
     logoSwitch.value = false
+  }
+
+  if (icon!= undefined && icon.type === 'icon') {
+    logoSwitch.value = false
+    logo.value = icon.value
+  } else if(icon!= undefined &&  icon.type === 'img_base64') {
+    logo.value = icon.value
+    logoSwitch.value = true
   }
 
   if (NodeStatus[status.value] !== undefined) {
