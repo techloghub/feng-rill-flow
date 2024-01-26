@@ -69,9 +69,9 @@ onMounted(async () => {
   }
 
   const groups = await flowGroupDetailApi();
-  // dagInfo.value = response
+  dagInfo.value = response
   // dagInfo.value = dagInfoDemo()
-  dagInfo.value = {}
+  // dagInfo.value = {}
   console.log("===> dagInfo", response, dagInfoDemo())
   nodeGroups.value = groups.data
   nodesBar.value = groups.data

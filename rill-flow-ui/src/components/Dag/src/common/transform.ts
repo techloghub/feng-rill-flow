@@ -41,7 +41,7 @@ export function getActionTypeTheme(type) {
  * 兼容x6/g6
  */
 function getBaseConfig(node) {
-    let { type, shape, tooltip, attrs, x, y, size, id, position, data, actionType, initialization, nodeDetailSchema } = node
+    let { type, shape, tooltip, attrs, x, y, size, id, position, data, actionType, initialization, nodeDetailSchema, nodeDetailParams, icon } = node
     let _width,
         _height,
         _x = x,
@@ -94,7 +94,10 @@ function getBaseConfig(node) {
             initialization,
             tooltip: _tooltip
         },
-        nodeDetailSchema
+        nodeDetailSchema,
+        nodeDetailParams,
+        icon,
+        position:position,
     }
 }
 
@@ -311,9 +314,90 @@ export function getDiamondNode(node) {
     }
 }
 
+export const defaultPorts = {
+  groups: {
+    top: {
+      position: 'top',
+      attrs: {
+        circle: {
+          r: 3,
+          magnet: true,
+          stroke: '#5F95FF',
+          strokeWidth: 1,
+          fill: '#fff',
+          style: {
+            visibility: 'hidden',
+          },
+        },
+      },
+    },
+    right: {
+      position: {
+        name: 'right',
+      },
+      attrs: {
+        circle: {
+          r: 3,
+          magnet: true,
+          stroke: '#5F95FF',
+          strokeWidth: 1,
+          fill: '#fff',
+          style: {
+            visibility: 'hidden',
+          },
+        },
+      },
+    },
+    bottom: {
+      position: 'bottom',
+      attrs: {
+        circle: {
+          r: 3,
+          magnet: true,
+          stroke: '#5F95FF',
+          strokeWidth: 1,
+          fill: '#fff',
+          style: {
+            visibility: 'hidden',
+          },
+        },
+      },
+    },
+    left: {
+      position: 'left',
+      attrs: {
+        circle: {
+          r: 3,
+          magnet: true,
+          stroke: '#5F95FF',
+          strokeWidth: 1,
+          fill: '#fff',
+          style: {
+            visibility: 'hidden',
+          },
+        },
+      },
+    },
+  },
+  items: [
+    {
+      group: 'top',
+    },
+    {
+      group: 'right',
+    },
+    {
+      group: 'bottom',
+    },
+    {
+      group: 'left',
+    },
+  ],
+}
+
 // 获取Vue节点
 export function getVueNode(node) {
-    const { label, width, height, id, data, nodeDetailSchema } = getBaseConfig(node)
+    const { label, width, height, id, data, nodeDetailSchema,position, nodeDetailParams, icon } = getBaseConfig(node)
     return {
         id,
         shape: "vue-shape",
@@ -323,46 +407,14 @@ export function getVueNode(node) {
         label,
         zIndex: 100,
         data,
+        position,
         nodeDetailSchema,
+        nodeDetailParams,
         "attrs": {
             "label": {"text": label},
+            icon,
         },
-        ports: {
-            items: [
-                { group: 'port-top', id: 'p_top' },
-                { group: 'port-bottom', id: 'p_bottom' },
-            ],
-            groups: {
-                "port-top": {
-                    position: 'top',
-                    zIndex: 20,
-                    attrs: {
-                        circle: {
-                            dataClass: 'choice-point',
-                            r: 3,
-                            magnet: true,
-                            stroke: '#5b8ffa',
-                            strokeWidth: 1,
-                            fill: '#fff'
-                        }
-                    }
-                },
-                "port-bottom": {
-                    position: 'bottom',
-                    zIndex: 20,
-                    attrs: {
-                        circle: {
-                            dataClass: 'choice-point',
-                            r: 3,
-                            magnet: true,
-                            stroke: '#5b8ffa',
-                            strokeWidth: 1,
-                            fill: '#fff'
-                        }
-                    }
-                }
-            }
-        },
+        ports: defaultPorts
     }
 }
 

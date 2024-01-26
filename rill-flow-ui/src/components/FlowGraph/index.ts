@@ -8,6 +8,8 @@ import {
 import {buildUUID} from "@/utils/uuid";
 import {cloneDeep} from 'lodash-es';
 import {Options as GraphOptions} from "@antv/x6/src/graph/options";
+import {getVueNode} from "@/components/Dag/src/common/transform";
+import {nodeList} from "@/components/Dag/src/components/NodesBar/data";
 
 const defaultGraphConfig: Partial<GraphOptions.Manual> = {
   container: null,
@@ -90,6 +92,7 @@ export function initGraph(dagInfo, nodeGroups, container, readonly) {
   const graph = new Graph(defaultGraphConfig)
   initGraphShape(graph, dagInfo, nodeGroups)
   initGraphEvent(graph)
+  console.log("isKeyboardEnabled", graph.isKeyboardEnabled())
   initStencil(graph, nodeGroups)
   graph.resize(document.body.offsetWidth, document.body.offsetHeight);
   return graph
@@ -221,6 +224,7 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
   const cells = []
 
   let data = JsonToGraphCell(tasks, nodeGroups)
+  console.log("cell:contextmenu data", data, nodeGroups)
   data.forEach((item) => {
     if (item.shape === 'edge') {
       cells.push(graphInstance.createEdge(item))
@@ -241,8 +245,24 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
       defaultNode.parent = item.parent
       defaultNode.shape = item.shape
       delete item.component
-      const cell = graphInstance.createNode(defaultNode)
-      console.log("initGraphShape 展示图", cell)
+      const json = getVueNode({
+        shape: "rect",
+        tooltip: item.attrs.label.text,
+        size: {width: 200, height: 50},
+        actionType: 'Vue-node',
+        initialization: true,
+        // TODO 从模版列表接口中获取指定类型的
+        nodeDetailSchema: nodeList().function[0],
+        nodeDetailParams: tasks[item.attrs.label.text],
+        id:item.id,
+        position: item.position,
+        icon: {
+          type: "icon",
+          value:"ant-design:api-outlined",
+        }
+      })
+      const cell = graphInstance.createNode(json)
+      console.log("initGraphShape 展示图", cell, defaultNode, json, item.attrs.label)
       cells.push(cell)
     }
   })
@@ -273,6 +293,19 @@ function initGraphEvent(graph) {
       }
     });
   });
+  graph.on('cell:removed', ({ cell, index, options }) => {
+    console.log("cell:removed", cell)
+  })
+
+  graph.bindKey('backspace', (e) => { console.log("backspace key", e)})
+  // // backspace
+  // graph.bindKey('delete', () => {
+  //   const cells = graph.getSelectedCells();
+  //   if (cells.length) {
+  //     graph.removeCells(cells);
+  //   }
+  // });
+
 }
 
 function showPorts(ports: NodeListOf<SVGAElement>, show: boolean) {
