@@ -9,65 +9,22 @@ export function getBasicColumns(): BasicColumn[] {
       title: 'ID',
       dataIndex: 'id',
       fixed: 'left',
-      width: 200,
+      width: 50
     },
     {
-      title: '姓名',
+      title: '模板名称',
       dataIndex: 'name',
-      width: 150,
-      // filters: [
-      //   { text: 'Male', value: 'male' },
-      //   { text: 'Female', value: 'female' },
-      // ],
-    },
-    // {
-    //   title: '地址',
-    //   dataIndex: 'address',
-    // },
-    // {
-    //   title: '编号',
-    //   dataIndex: 'no',
-    //   width: 150,
-    //   sorter: true,
-    //   defaultHidden: true,
-    // },
-    // {
-    //   title: '开始时间',
-    //   width: 150,
-    //   sorter: true,
-    //   dataIndex: 'beginTime',
-    // },
-    // {
-    //   title: '结束时间',
-    //   width: 150,
-    //   sorter: true,
-    //   dataIndex: 'endTime',
-    // },
-  ];
-}
-
-export function getBasicShortColumns(): BasicColumn[] {
-  return [
-    {
-      title: 'ID',
-      width: 150,
-      dataIndex: 'id',
-      sorter: true,
-      sortOrder: 'ascend',
+      width: 150
     },
     {
-      title: '姓名',
-      dataIndex: 'name',
-      width: 120,
+      title: '模板类型',
+      dataIndex: 'type_str',
+      width: 100,
     },
     {
-      title: '地址',
-      dataIndex: 'address',
-    },
-    {
-      title: '编号',
-      dataIndex: 'no',
-      width: 80,
+      title: '类别',
+      dataIndex: 'category',
+      width: 100,
     },
   ];
 }
@@ -308,7 +265,7 @@ export const vxeTableFormSchema: VxeFormItemProps[] = [
           props: { type: 'primary', content: '查询', htmlType: 'submit' },
           attrs: { class: 'mr-2' },
         },
-        { props: { type: 'default', htmlType: 'reset', content: '重置' } },
+        // { props: { type: 'default', htmlType: 'reset', content: '重置' } },
       ],
     },
   },
