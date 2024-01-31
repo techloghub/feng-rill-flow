@@ -22,7 +22,12 @@ export function getBasicColumns(): BasicColumn[] {
       width: 100,
     },
     {
-      title: '类别',
+      title: '节点类型',
+      dataIndex: 'node_type',
+      width: 100,
+    },
+    {
+      title: 'category',
       dataIndex: 'category',
       width: 100,
     },
