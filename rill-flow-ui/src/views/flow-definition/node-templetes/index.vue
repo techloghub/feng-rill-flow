@@ -18,22 +18,23 @@
       </template>
     </template>
   </BasicTable>
-  <NodeTemplateModal @register="templateRegister" :minHeight="100" />
+
+  <TaskTemplateEditDrawer @register="registerTaskTemplateEditDrawer" />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
 import {BasicTable, TableAction, useTable} from '/@/components/Table';
 import { getBasicColumns, getFormConfig } from './tableData';
-import {Alert, Modal} from 'ant-design-vue';
+import {Drawer} from 'ant-design-vue';
 
 import {templateListApi} from "@/api/table";
-import {useModal} from "@/components/Modal";
-import NodeTemplateModal from "@/views/flow-definition/node-templetes/NodeTemplateModal.vue";
+import TaskTemplateEditDrawer
+  from "@/views/flow-definition/node-templetes/taskTemplateEditDrawer.vue";
+import {useDrawer} from "@/components/Drawer";
 
 export default defineComponent({
-  components: {TableAction, BasicTable, AAlert: Alert, Modal, NodeTemplateModal },
+  components: {TableAction, BasicTable, Drawer, TaskTemplateEditDrawer },
   setup() {
-    const [templateRegister, { openModal: openTemplateModal }] = useModal();
     const [registerTable, {  }] = useTable({
       title: '开启搜索区域',
       api: templateListApi,
@@ -55,14 +56,16 @@ export default defineComponent({
       },
     });
 
+    const [registerTaskTemplateEditDrawer, { openDrawer }] = useDrawer();
+
     function handleEdit(record: Recordable) {
-      openTemplateModal(true);
+      openDrawer(true, record)
     }
 
     return {
+      registerTaskTemplateEditDrawer,
       registerTable,
       handleEdit,
-      templateRegister,
     };
   },
 });
