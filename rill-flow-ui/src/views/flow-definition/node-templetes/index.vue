@@ -10,7 +10,7 @@
                   ifShow: (_action) => {
                     return record.node_type !== 'meta';
                   },
-                  // onClick: handleEdit.bind(null, record)
+                  onClick: handleEdit.bind(null, record)
                 },
               ]"
           :dropDownActions="[]"
@@ -18,22 +18,24 @@
       </template>
     </template>
   </BasicTable>
+  <NodeTemplateModal @register="templateRegister" :minHeight="100" />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
 import {BasicTable, TableAction, useTable} from '/@/components/Table';
 import { getBasicColumns, getFormConfig } from './tableData';
-import { Alert } from 'ant-design-vue';
+import {Alert, Modal} from 'ant-design-vue';
 
 import {templateListApi} from "@/api/table";
+import {useModal} from "@/components/Modal";
+import NodeTemplateModal from "@/views/flow-definition/node-templetes/NodeTemplateModal.vue";
 
 export default defineComponent({
-  components: {TableAction, BasicTable, AAlert: Alert },
+  components: {TableAction, BasicTable, AAlert: Alert, Modal, NodeTemplateModal },
   setup() {
-    // const checkedKeys = ref<Array<string | number>>([]);
-    const [registerTable, { getForm }] = useTable({
+    const [templateRegister, { openModal: openTemplateModal }] = useModal();
+    const [registerTable, {  }] = useTable({
       title: '开启搜索区域',
-      // api: demoListApi,
       api: templateListApi,
       fetchSetting: {
         listField: "data"
@@ -53,17 +55,15 @@ export default defineComponent({
       },
     });
 
-    function getFormValues() {
-      console.log(getForm().getFieldsValue());
+    function handleEdit(record: Recordable) {
+      openTemplateModal(true);
     }
 
     return {
       registerTable,
+      handleEdit,
+      templateRegister,
     };
   },
 });
-
-function handleEdit(record: Recordable) {
-  console.log('点击了编辑', record);
-}
 </script>
