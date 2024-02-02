@@ -9,6 +9,7 @@ enum Api {
   DEFINITION_LIST = '/flow/bg/get_descriptor_ids.json?current=1',
   TEMPLATE_LIST = '/template/get_task_templates.json',
   UPDATE_TEMPLATE_LIST = '/template/update_task_template.json',
+  CREATE_TEMPLATE_LIST = '/template/create_task_template.json',
   BUSINESS_LIST = '/flow/bg/get_business_options.json',
   FEATURE_LIST = '/flow/bg/manage/descriptor/get_feature.json',
   INSTANCE_DETAIL = '/flow/bg/get_execution.json',
@@ -54,6 +55,16 @@ export const templateListApi = (params: DemoParams) =>
 export const updateTemplateListApi = (params: any) =>
   defHttp.post({
     url: Api.UPDATE_TEMPLATE_LIST,
+    params,
+    headers: {
+      // @ts-ignore
+      ignoreCancelToken: true,
+    },
+  });
+
+export const createTemplateListApi = (params: any) =>
+  defHttp.post({
+    url: Api.CREATE_TEMPLATE_LIST,
     params,
     headers: {
       // @ts-ignore

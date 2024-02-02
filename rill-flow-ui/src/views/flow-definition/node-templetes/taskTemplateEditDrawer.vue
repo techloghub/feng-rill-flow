@@ -15,7 +15,7 @@
 import { defineComponent } from 'vue';
 import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
 import {useForm, BasicForm} from "@/components/Form";
-import {updateTemplateListApi} from "@/api/table";
+import {createTemplateListApi, updateTemplateListApi} from "@/api/table";
 
 export default defineComponent({
   name: 'taskTemplateEditDrawer',
@@ -23,18 +23,10 @@ export default defineComponent({
     BasicDrawer,
     BasicForm,
   },
-  setup(_, { }) {
+  setup(_, { emit }) {
+    let action;
+    let id;
     const formSchemas = [
-      {
-        field: 'id',
-        component: 'Input',
-        label: 'id',
-        rules: [{ required: true }],
-        componentProps: {
-          disabled: true,
-          visible: false
-        },
-      },
       {
         field: 'name',
         component: 'Input',
@@ -70,12 +62,16 @@ export default defineComponent({
         component: 'InputTextArea',
         label: '模板任务默认 yaml',
       }, {
+        field: 'schema',
+        component: 'InputTextArea',
+        label: '模板输入结构',
+      }, {
         field: 'output',
         component: 'InputTextArea',
         label: '模板输出结构',
       }
     ]
-    const [registerForm, { setFieldsValue, validateFields }] = useForm({
+    const [registerForm, { setFieldsValue, validateFields, resetFields }] = useForm({
         layout: 'vertical',
         schemas: formSchemas,
         showResetButton: false,
@@ -84,16 +80,27 @@ export default defineComponent({
         baseColProps: { span: 24 },
       });
 
-    const [registerDrawer, { }] = useDrawerInner(async (data) => {
+    const [registerDrawer, { closeDrawer }] = useDrawerInner(async (data) => {
+      action = data.action
+      id = data.id
+      resetFields()
       setFieldsValue(data)
     });
 
     async function handleSubmit() {
-      try {
-        const res = await validateFields();
-        updateTemplateListApi(res);
-      } finally {
+      const data = await validateFields();
+      data.id = id
+      let res;
+      if (action == 'update') {
+        res = await updateTemplateListApi(data);
+      } else {
+        res = await createTemplateListApi(data);
       }
+      emit('response', res);
+      closeDrawer();
+      console.log(res);
+
+
     }
 
     return {
