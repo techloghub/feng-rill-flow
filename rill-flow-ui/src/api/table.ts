@@ -1,8 +1,5 @@
-import {defHttp} from '@/utils/http/axios';
-import {
-  DemoParams,
-  InstanceDetailParam
-} from './demo/model/tableModel';
+import { defHttp } from '@/utils/http/axios';
+import { DemoParams, InstanceDetailParam } from './demo/model/tableModel';
 
 enum Api {
   INSTANCE_LIST = '/flow/bg/get_execution_ids.json?current=1',
@@ -16,6 +13,8 @@ enum Api {
   DEFINITION_DETAIL = '/flow/bg/get_descriptor.json',
   FLOW_GROUP = '/flow/bg/edit/dag_op_groups.json',
   FLOW_VERSIONS = '/flow/bg/manage/descriptor/get_version.json',
+  FLOW_DETAIL = '/flow/bg/manage/descriptor/get_descriptor.json',
+  FLOW_SUBMIT = '/flow/bg/manage/descriptor/add_descriptor.json',
 }
 
 /**
@@ -92,7 +91,6 @@ export const flowInstanceDetailApi = (params: InstanceDetailParam) =>
     },
   });
 
-
 export const flowGroupDetailApi = () =>
   defHttp.get({
     url: Api.FLOW_GROUP,
@@ -123,3 +121,25 @@ export const getFlowVersionsApi = (params) =>
     },
   });
 
+export const getFlowDetailApi = (params) =>
+  defHttp.get({
+    url: Api.FLOW_DETAIL,
+    params,
+    headers: {
+      // @ts-ignore
+      ignoreCancelToken: true,
+    },
+  });
+
+export const getFlowSubmitApi = (params, yamlData) =>
+  defHttp.post({
+    url: Api.FLOW_SUBMIT,
+    params: params,
+    data: yamlData,
+    joinParamsToUrl: true,
+    headers: {
+      // @ts-ignore
+      ignoreCancelToken: true,
+      'Content-Type': 'text/plain',
+    },
+  });

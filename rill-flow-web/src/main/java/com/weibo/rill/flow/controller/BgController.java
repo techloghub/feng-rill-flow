@@ -99,8 +99,8 @@ public class BgController {
                                 .featureId(featureId)
                                 .alias(alia)
                                 .descriptorId(String.valueOf(versions.get(0).get("descriptor_id")))
-                                .createTime(Long.parseLong(String.valueOf(versions.get(0).get("create_time"))))
-                                .updateTime(Long.parseLong(String.valueOf(versions.get(versions.size()-1).get("create_time"))))
+                                .createTime(Long.parseLong(String.valueOf(versions.get(versions.size()-1).get("create_time"))))
+                                .updateTime(Long.parseLong(String.valueOf(versions.get(0).get("create_time"))))
                                 .build();
                         dagRecordList.add(record);
                     }
