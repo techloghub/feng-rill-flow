@@ -23,6 +23,7 @@ export default defineComponent({
     BasicDrawer,
     BasicForm,
   },
+
   setup(_, { emit }) {
     let action;
     let id;
