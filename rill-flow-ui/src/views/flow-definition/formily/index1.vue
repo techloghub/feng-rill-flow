@@ -3,7 +3,6 @@
 <!--    <SchemaField :schema="schema" />-->
 <!--    <Submit @submit="log">提交</Submit>-->
 <!--  </FormProvider>-->
-  <Test001/>
 </template>
 
 <script lang="ts">
@@ -20,7 +19,6 @@ import {
   ArrayItems,
 } from '@formily/antdv-x3'
 import { Button } from 'ant-design-vue'
-import Test001 from "@/views/flow-definition/formily/Test001.vue";
 
 const SchemaField = createSchemaField({
   components: {
@@ -30,7 +28,6 @@ const SchemaField = createSchemaField({
     Select,
     DatePicker,
     ArrayItems,
-    Test001
   },
 })
 
