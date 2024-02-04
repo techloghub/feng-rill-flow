@@ -1,9 +1,7 @@
-
-
 export const getJsonSchema = (rule) => {
   // console.log("rule:", rule, rule.data)
 
-  if(rule.type === 'object' && rule.data === undefined) {
+  if (rule.type === 'object' && rule.data === undefined) {
     return {
       type: 'void',
       title: rule.name,
@@ -45,10 +43,10 @@ export const getJsonSchema = (rule) => {
           },
         },
       },
-    }
+    };
   }
 
-  if(rule.data && rule.data.type === 'object') {
+  if (rule.data && rule.data.type === 'object') {
     for (const optionsKey in rule.data) {
       // TODO inputMapping
       // console.log("getJsonSchema ", optionsKey, rule.data[optionsKey])
@@ -123,14 +121,14 @@ export const getJsonSchema = (rule) => {
       properties: {
         add: {
           type: 'void',
-          title: '添加'+rule.name,
+          title: '添加' + rule.name,
           'x-component': 'ArrayItems.Addition',
         },
       },
-    }
+    };
   }
 
-  if(rule.data && rule.data.type === 'string') {
+  if (rule.data && rule.data.type === 'string') {
     for (const optionsKey in rule.data) {
       // TODO 失败条件
       // console.log("getJsonSchema ", optionsKey, rule.data[optionsKey])
@@ -170,10 +168,10 @@ export const getJsonSchema = (rule) => {
           'x-component': 'ArrayItems.Addition',
         },
       },
-    }
+    };
   }
 
-  if(rule.options) {
+  if (rule.options) {
     const item = {
       type: 'string',
       title: rule.name,
@@ -193,24 +191,24 @@ export const getJsonSchema = (rule) => {
       'x-component-props': {
         style: 'width: 240px;',
       },
-    }
-    const options = rule.options
-    let enums = []
+    };
+    const options = rule.options;
+    const enums = [];
     for (const optionsKey in options) {
-      enums.push({label: options[optionsKey].name, value: options[optionsKey].value})
+      enums.push({ label: options[optionsKey].name, value: options[optionsKey].value });
     }
-    item.enum = enums
-    return item
+    item.enum = enums;
+    return item;
   }
 
-  if(rule.type === 'boolean') {
+  if (rule.type === 'boolean') {
     return {
       type: 'boolean',
       title: rule.name,
       required: rule.required,
       'x-decorator': 'FormItem',
       'x-component': 'Switch',
-    }
+    };
   }
 
   return {
@@ -219,12 +217,11 @@ export const getJsonSchema = (rule) => {
     required: rule.required,
     'x-decorator': 'FormItem',
     'x-component': 'Input',
-  }
-}
+  };
+};
 export const getJsonData = (data) => {
-  return data
-}
-
+  return data;
+};
 
 export const convertJSON = (json) => {
   function traverse(obj, parentKey = '') {
@@ -257,24 +254,51 @@ export const convertJSON = (json) => {
   }
 
   return traverse(json);
+};
 
+export const getGraphNodeTemplateReferenceMap = (tasks) => {
+  console.log('graph props dagRefererce', tasks);
 
-  return result;
-}
-
-// const json = {
-//   "statuses": [
-//     {
-//       "visible": {
-//         "type": "integer",
-//         "list_id": "integer"
-//       },
-//       "created_at": "string",
-//       "id": "integer",
-//       "mid": "string"
-//     }
-//   ]
-// };
-//
-// const converted = convertJSON(json);
-// console.log(converted);
+  return {
+    node1: [
+      {
+        title: 'statuses',
+        value: 'statuses',
+        children: [
+          {
+            title: 'visible',
+            value: 'visible',
+            children: [
+              {
+                title: 'type',
+                value: 'type',
+              },
+              {
+                title: 'list_id',
+                value: 'list_id',
+              },
+            ],
+          },
+          {
+            title: 'created_at',
+            value: 'created_at',
+          },
+          {
+            title: 'id',
+            value: 'id',
+          },
+          {
+            title: 'mid',
+            value: 'mid',
+          },
+        ],
+      },
+    ],
+    node3: [
+      {
+        title: 'video_id',
+        value: 'video_id',
+      },
+    ],
+  };
+};

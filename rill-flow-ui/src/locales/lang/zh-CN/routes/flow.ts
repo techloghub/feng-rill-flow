@@ -9,6 +9,7 @@ export default {
     opt: "操作",
     option: {
       versions: "版本",
+      showYaml: "展示yaml",
       edit: "编辑"
     },
     columns: {

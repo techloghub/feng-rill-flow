@@ -372,6 +372,7 @@ export const generateRelations = (nodes) => {
   const relations = [];
   for (const node of nodes) {
     const sourceId = node.id;
+    console.log("generateRelations sourceNode", node);
     const sourcePortId = node.ports.items.find(port => port.group === 'bottom').id;
     if (node.next === undefined) {
       continue
@@ -385,6 +386,7 @@ export const generateRelations = (nodes) => {
     for (const nextNodeName of nexts) {
       const targetNode = nodes.find(n => n.name === nextNodeName);
       const targetId = targetNode.id;
+      console.log("generateRelations targetNode", targetNode);
       const targetPortId = targetNode.ports.items.find(port => port.group === 'top').id;
 
       const relation = {
@@ -397,7 +399,7 @@ export const generateRelations = (nodes) => {
           port: targetPortId
         }
       };
-
+      console.log("generateRelations relation", relation);
       relations.push(relation);
     }
   }

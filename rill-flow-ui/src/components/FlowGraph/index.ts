@@ -1,15 +1,17 @@
-import {Addon, Graph, Shape} from "@antv/x6";
+import { Addon, Graph, Shape } from '@antv/x6';
 import {
   defaultEdge,
   defaultNode,
   generatePorts,
-  generatePositions, generateRelations, groupNode
-} from "./shape";
-import {buildUUID} from "@/utils/uuid";
-import {cloneDeep} from 'lodash-es';
-import {Options as GraphOptions} from "@antv/x6/src/graph/options";
-import {getVueNode} from "@/components/Dag/src/common/transform";
-import {nodeList} from "@/components/Dag/src/components/NodesBar/data";
+  generatePositions,
+  generateRelations,
+  groupNode,
+} from './shape';
+import { buildUUID } from '@/utils/uuid';
+import { cloneDeep } from 'lodash-es';
+import { Options as GraphOptions } from '@antv/x6/src/graph/options';
+import { getVueNode } from '@/components/Dag/src/common/transform';
+import { nodeList } from '@/components/Dag/src/components/NodesBar/data';
 
 const defaultGraphConfig: Partial<GraphOptions.Manual> = {
   container: null,
@@ -80,35 +82,36 @@ const defaultGraphConfig: Partial<GraphOptions.Manual> = {
   keyboard: {
     enabled: true,
   },
-}
+};
 
-export function initGraph(dagInfo, nodeGroups, container, readonly) {
-  if(readonly) {
+export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta) {
+  if (readonly) {
     defaultGraphConfig.connecting.validateConnection = () => {
       return false;
-    }
+    };
   }
-  defaultGraphConfig.container = container
-  const graph = new Graph(defaultGraphConfig)
-  initGraphShape(graph, dagInfo, nodeGroups)
-  initGraphEvent(graph)
-  console.log("isKeyboardEnabled", graph.isKeyboardEnabled())
-  initStencil(graph, nodeGroups)
+  defaultGraphConfig.container = container;
+  defaultGraphConfig.meta = graphMeta;
+  const graph = new Graph(defaultGraphConfig);
+  initGraphShape(graph, dagInfo, nodeGroups);
+  initGraphEvent(graph);
+  console.log('isKeyboardEnabled', graph.isKeyboardEnabled());
+  initStencil(graph, nodeGroups);
   graph.resize(document.body.offsetWidth, document.body.offsetHeight);
-  return graph
+  return graph;
 }
 
 function initStencil(graph, nodeGroups) {
-  console.log("nodeGroups", nodeGroups)
+  console.log('nodeGroups', nodeGroups);
 
   // 挂载到页面
-  let groups = []
+  const groups = [];
   for (const nodeGroupsKey in nodeGroups) {
     groups.push({
       name: nodeGroups[nodeGroupsKey]?.groupName,
       title: nodeGroups[nodeGroupsKey]?.groupName,
       graphHeight: 380,
-    })
+    });
   }
   const stencil = new Addon.Stencil({
     target: graph,
@@ -123,15 +126,18 @@ function initStencil(graph, nodeGroups) {
   // 装载模板节点
   for (const nodeGroupsKey in nodeGroups) {
     // console.log("nodeGroupsKey",nodeGroupsKey,nodeGroups[nodeGroupsKey]?.operatorList)
-    const operatorList = nodeGroups[nodeGroupsKey]?.operatorList
-    const nodeList = []
+    const operatorList = nodeGroups[nodeGroupsKey]?.operatorList;
+    const nodeList = [];
     for (const operator in operatorList) {
-      let name = operatorList[operator].name !== '' ? operatorList[operator].name : operatorList[operator].category
-      defaultNode.attrs.label={"text": name}
-      defaultNode.attrs.body={"rx":0, "ry":100*(operator+1)}
-      const cell = graph.createNode(defaultNode)
-      console.log("operatorList operator ",name, operatorList[operator].name, defaultNode)
-      nodeList.push(cell)
+      const name =
+        operatorList[operator].name !== ''
+          ? operatorList[operator].name
+          : operatorList[operator].category;
+      defaultNode.attrs.label = { text: name };
+      defaultNode.attrs.body = { rx: 0, ry: 100 * (operator + 1) };
+      const cell = graph.createNode(defaultNode);
+      console.log('operatorList operator ', name, operatorList[operator].name, defaultNode);
+      nodeList.push(cell);
     }
     const r2 = graph.createNode({
       shape: 'flow-chart-rect',
@@ -210,76 +216,86 @@ function initStencil(graph, nodeGroups) {
         },
       },
     });
-    nodeList.push(r3.clone())
-    nodeList.push(r2.clone())
-    nodeList.push(r1.clone())
-    console.log("stencil nodeList", nodeList, nodeGroups[nodeGroupsKey]?.groupName, r1, r2, r3)
+    nodeList.push(r3.clone());
+    nodeList.push(r2.clone());
+    nodeList.push(r1.clone());
+    console.log('stencil nodeList', nodeList, nodeGroups[nodeGroupsKey]?.groupName, r1, r2, r3);
 
-    stencil.load(nodeList, nodeGroups[nodeGroupsKey]?.groupName)
+    stencil.load(nodeList, nodeGroups[nodeGroupsKey]?.groupName);
     // stencil.load(nodeList)
   }
 }
 
 function initGraphShape(graphInstance, tasks, nodeGroups) {
-  const cells = []
+  const cells = [];
 
-  let data = JsonToGraphCell(tasks, nodeGroups)
-  console.log("cell:contextmenu data", data, nodeGroups)
+  const data = JsonToGraphCell(tasks, nodeGroups);
+  console.log('cell:contextmenu data', data, nodeGroups);
   data.forEach((item) => {
     if (item.shape === 'edge') {
-      cells.push(graphInstance.createEdge(item))
+      console.log('generateRelations edge', item);
+      cells.push(graphInstance.createEdge(item));
     } else if (item.shape === 'groupNode') {
-      groupNode.id = item.id
-      groupNode.position = item.position
-      groupNode.ports = item.ports
-      groupNode.attrs = item.attrs
-      groupNode.children = item.children
-      groupNode.toggleCollapseResize = item.toggleCollapseResize
-      cells.push(graphInstance.createNode(groupNode))
+      groupNode.id = item.id;
+      groupNode.position = item.position;
+      groupNode.ports = item.ports;
+      groupNode.attrs = item.attrs;
+      groupNode.children = item.children;
+      groupNode.toggleCollapseResize = item.toggleCollapseResize;
+      cells.push(graphInstance.createNode(groupNode));
     } else {
-      defaultNode.id = item.id
-      defaultNode.position = item.position
-      defaultNode.ports = item.ports
-      defaultNode.attrs = item.attrs
-      defaultNode.visible = item.visible
-      defaultNode.parent = item.parent
-      defaultNode.shape = item.shape
-      delete item.component
+      defaultNode.id = item.id;
+      defaultNode.position = item.position;
+      defaultNode.ports = item.ports;
+      defaultNode.attrs = item.attrs;
+      defaultNode.visible = item.visible;
+      defaultNode.parent = item.parent;
+      defaultNode.shape = item.shape;
+      delete item.component;
+
+      console.log("tasks[item.attrs.label.text].task", tasks[item.attrs.label.text].task)
+      let nodeDetailSchema = nodeList().function[0]
+
+      // TODO 从模版列表接口中获取指定类型的
+      if (tasks[item.attrs.label.text].task.id) {
+        console.log("initGraphShape 展示图", tasks[item.attrs.label.text].task.id)
+        nodeDetailSchema = nodeList().plugin[0];
+      }
+
       const json = getVueNode({
-        shape: "rect",
+        shape: 'rect',
         tooltip: item.attrs.label.text,
-        size: {width: 200, height: 50},
+        size: { width: 200, height: 50 },
         actionType: 'Vue-node',
         initialization: true,
-        // TODO 从模版列表接口中获取指定类型的
-        nodeDetailSchema: nodeList().function[0],
-        nodeDetailParams: tasks[item.attrs.label.text],
-        id:item.id,
+        nodeDetailSchema: nodeDetailSchema,
+        nodeDetailParams: tasks[item.attrs.label.text].task,
+        id: item.id,
         position: item.position,
         icon: {
-          type: "icon",
-          value:"ant-design:api-outlined",
-        }
-      })
-      const cell = graphInstance.createNode(json)
-      console.log("initGraphShape 展示图", cell, defaultNode, json, item.attrs.label)
-      cells.push(cell)
+          type: 'icon',
+          value: 'ant-design:api-outlined',
+        },
+        ports: item.ports
+      });
+      const cell = graphInstance.createNode(json);
+      console.log('generateRelations initGraphShape 展示图', cell, defaultNode, json, item);
+      cells.push(cell);
     }
-  })
-  graphInstance.resetCells(cells)
-
+  });
+  graphInstance.resetCells(cells);
 }
 
 function initGraphEvent(graph) {
-  graph.on('node:mouseenter', ({e, node, view}) => {
+  graph.on('node:mouseenter', ({ e, node, view }) => {
     const ports = view.container.querySelectorAll('.x6-port-body') as NodeListOf<SVGAElement>;
     showPorts(ports, true);
   });
-  graph.on('node:mouseleave', ({e, node, view}) => {
+  graph.on('node:mouseleave', ({ e, node, view }) => {
     const ports = view.container.querySelectorAll('.x6-port-body') as NodeListOf<SVGAElement>;
     showPorts(ports, false);
   });
-  graph.on('node:collapse', ({node, e}: any) => {
+  graph.on('node:collapse', ({ node, e }: any) => {
     e.stopPropagation();
     node.toggleCollapse();
     const collapsed = node.isCollapsed();
@@ -294,10 +310,22 @@ function initGraphEvent(graph) {
     });
   });
   graph.on('cell:removed', ({ cell, index, options }) => {
-    console.log("cell:removed", cell)
+    console.log('cell:removed', cell, index, options);
+  });
+
+  graph.on('node:removed', ({ node, index, options }) => {
+    console.log('node:removed', node, index, options );
+  });
+
+  graph.bindKey('backspace', ({ e, node, view }) => {
+    console.log('backspace key', e, node, view);
+  });
+
+  graph.on('edge:click', ({ e, x, y, edge, view }) => {
+    console.log('generateRelations edge:click key', edge);
+    // console.log('edge:click key', e, x, y,edge, view);
   })
 
-  graph.bindKey('backspace', (e) => { console.log("backspace key", e)})
   // // backspace
   // graph.bindKey('delete', () => {
   //   const cells = graph.getSelectedCells();
@@ -305,7 +333,6 @@ function initGraphEvent(graph) {
   //     graph.removeCells(cells);
   //   }
   // });
-
 }
 
 function showPorts(ports: NodeListOf<SVGAElement>, show: boolean) {
@@ -315,245 +342,275 @@ function showPorts(ports: NodeListOf<SVGAElement>, show: boolean) {
 }
 
 function JsonToGraphCell(tasks, nodeGroups) {
-  const cells = []
+  const cells = [];
 
-  let nodeList = []
-  console.log("======> JsonToGraphCell", tasks)
-  for (let task in tasks) {
-    console.log("tasks:", task, tasks[task])
-    nodeList.push({"name": task, "next": tasks[task]?.next})
+  const nodeList = [];
+  console.log('======> JsonToGraphCell', tasks);
+  for (const task in tasks) {
+    console.log('tasks:', task, tasks[task]);
+    nodeList.push({ name: task, next: tasks[task]?.next });
   }
 
-  let nodePositions = generatePositions(nodeList, document.body.offsetWidth / 2, false)
+  const nodePositions = generatePositions(nodeList, document.body.offsetWidth / 2, false);
 
-  for (let task in tasks) {
-    let taskInfo = tasks[task]
-    let icon
+  for (const task in tasks) {
+    const taskInfo = tasks[task];
+    let icon;
     for (const key in nodeGroups[2]?.operatorList) {
-      console.log('taskInfo===>', taskInfo)
+      console.log('taskInfo===>', taskInfo);
       if (nodeGroups[2]?.operatorList[key].name === taskInfo.task.resourceProtocol) {
-        icon = nodeGroups[2]?.operatorList[key].icon
+        icon = nodeGroups[2]?.operatorList[key].icon;
       }
     }
 
-    let type = (taskInfo?.task?.category !== "function") ? taskInfo?.task?.category : ((taskInfo?.task?.resourceProtocol === undefined || taskInfo?.task?.resourceProtocol === "") ? taskInfo?.task?.resourceName?.split(":")[0] : taskInfo?.task?.resourceProtocol)
+    const type =
+      taskInfo?.task?.category !== 'function'
+        ? taskInfo?.task?.category
+        : taskInfo?.task?.resourceProtocol === undefined || taskInfo?.task?.resourceProtocol === ''
+        ? taskInfo?.task?.resourceName?.split(':')[0]
+        : taskInfo?.task?.resourceProtocol;
     if (taskInfo.contains_sub) {
       if (taskInfo?.task?.category === 'foreach') {
         const groupId = buildUUID();
-        let childrenIds = []
-        let toggleCollapseResize
+        const childrenIds = [];
+        let toggleCollapseResize;
         if (taskInfo?.task?.tasks !== undefined) {
-          let subTasks = taskInfo?.task?.tasks
-          let subTaskNodeList = []
-          for (let task in subTasks) {
+          const subTasks = taskInfo?.task?.tasks;
+          const subTaskNodeList = [];
+          for (const task in subTasks) {
             subTaskNodeList.push({
-              "name": subTasks[task].name,
-              "next": subTasks[task]?.next === undefined ? [] : subTasks[task]?.next.split(",")
-            })
+              name: subTasks[task].name,
+              next: subTasks[task]?.next === undefined ? [] : subTasks[task]?.next.split(','),
+            });
           }
 
-          let subTaskNodePositions = generatePositions(subTaskNodeList, nodePositions[task]?.position.x, true)
-          for (let subTask in subTasks) {
-            let subTaskInfo = subTasks[subTask]
+          const subTaskNodePositions = generatePositions(
+            subTaskNodeList,
+            nodePositions[task]?.position.x,
+            true,
+          );
+          for (const subTask in subTasks) {
+            const subTaskInfo = subTasks[subTask];
             for (const key in nodeGroups[1]?.operatorList) {
               if (nodeGroups[2]?.operatorList[key].name === subTaskInfo.resourceProtocol) {
-                icon = nodeGroups[2]?.operatorList[key].icon
+                icon = nodeGroups[2]?.operatorList[key].icon;
               }
             }
-            const x = subTaskNodePositions[subTaskInfo.name].position.x
-            const y = subTaskNodePositions[subTaskInfo.name].position.y + nodePositions[task]?.position.y
-            let subTaskType = (subTaskInfo?.category !== "function") ? subTaskInfo?.category : ((subTaskInfo?.resourceProtocol === undefined || subTaskInfo?.resourceProtocol === "") ? subTaskInfo?.resourceName?.split(":")[0] : subTaskInfo?.resourceProtocol)
-            let subCell = {
-              "id": buildUUID(),
-              "name": subTaskInfo.name,
-              "shape": "flow-node",
-              "ports": generatePorts,
-              "attrs": {
-                "label": {"text": subTaskInfo.name},
-                "status": subTaskInfo?.status,
-                "icon": icon,
+            const x = subTaskNodePositions[subTaskInfo.name].position.x;
+            const y =
+              subTaskNodePositions[subTaskInfo.name].position.y + nodePositions[task]?.position.y;
+            const subTaskType =
+              subTaskInfo?.category !== 'function'
+                ? subTaskInfo?.category
+                : subTaskInfo?.resourceProtocol === undefined ||
+                  subTaskInfo?.resourceProtocol === ''
+                ? subTaskInfo?.resourceName?.split(':')[0]
+                : subTaskInfo?.resourceProtocol;
+            const subCell = {
+              id: buildUUID(),
+              name: subTaskInfo.name,
+              shape: 'flow-node',
+              ports: generatePorts,
+              attrs: {
+                label: { text: subTaskInfo.name },
+                status: subTaskInfo?.status,
+                icon: icon,
                 type: subTaskType,
                 category: subTaskInfo?.category,
-                nodeDetail: subTaskInfo
+                nodeDetail: subTaskInfo,
               },
-              "position": {x: x, y: y},
-              "parent": groupId,
-              "next": subTaskInfo.next,
-              "visible": false,
-            }
+              position: { x: x, y: y },
+              parent: groupId,
+              next: subTaskInfo.next,
+              visible: false,
+            };
             toggleCollapseResize = {
               width: subTaskNodePositions[subTaskInfo.name].position.width_total,
-              height: subTaskNodePositions[subTaskInfo.name].position.height_total
-            }
-            childrenIds.push(subCell.id)
-            cells.push(subCell)
+              height: subTaskNodePositions[subTaskInfo.name].position.height_total,
+            };
+            childrenIds.push(subCell.id);
+            cells.push(subCell);
           }
         }
 
-        let cell = {
-          "id": groupId,
-          "name": task,
-          "shape": "groupNode",
-          "children": childrenIds,
-          "data": {parent: true,},
-          "ports": generatePorts,
-          "attrs": {
-            "label": {"text": task},
-            "text": {"text": task},
-            "status": taskInfo?.status,
-            "icon": icon,
+        const cell = {
+          id: groupId,
+          name: task,
+          shape: 'groupNode',
+          children: childrenIds,
+          data: { parent: true },
+          ports: generatePorts,
+          attrs: {
+            label: { text: task },
+            text: { text: task },
+            status: taskInfo?.status,
+            icon: icon,
             type: type,
             category: taskInfo?.task?.category,
-            nodeDetail: taskInfo
+            nodeDetail: taskInfo,
           },
-          "position": nodePositions[task]?.position,
-          "next": taskInfo.next,
-          "toggleCollapseResize": toggleCollapseResize
-        }
-        cells.push(cell)
+          position: nodePositions[task]?.position,
+          next: taskInfo.next,
+          toggleCollapseResize: toggleCollapseResize,
+        };
+        cells.push(cell);
       } else if (taskInfo?.task?.category === 'choice') {
         const groupId = buildUUID();
-        let childrenIds = []
-        let toggleCollapseResize
+        const childrenIds = [];
+        let toggleCollapseResize;
         if (taskInfo?.task?.choices !== undefined) {
-          let choices = taskInfo?.task?.choices
-          let subTaskNodeList = []
-          let subTasksDatail = []
-
+          const choices = taskInfo?.task?.choices;
+          const subTaskNodeList = [];
+          const subTasksDatail = [];
 
           // 具体条件的子节点
-          const innerChoiceNext = []
-          for (let choice in choices) {
-
+          const innerChoiceNext = [];
+          for (const choice in choices) {
             if (choices[choice].tasks.length > 0) {
-              innerChoiceNext.push(choices[choice].tasks[0].name)
+              innerChoiceNext.push(choices[choice].tasks[0].name);
             }
             for (const task in choices[choice].tasks) {
               subTaskNodeList.push({
-                "name": choices[choice].tasks[task].name,
-                "next": choices[choice].tasks[task]?.next === undefined ? [] : choices[choice].tasks[task]?.next.split(",")
-              })
-              subTasksDatail.push(choices[choice].tasks[task])
+                name: choices[choice].tasks[task].name,
+                next:
+                  choices[choice].tasks[task]?.next === undefined
+                    ? []
+                    : choices[choice].tasks[task]?.next.split(','),
+              });
+              subTasksDatail.push(choices[choice].tasks[task]);
             }
           }
           // 选择节点
           subTaskNodeList.push({
-            "name": taskInfo?.task?.name + "choices",
-            "next": innerChoiceNext
-          })
-          let virtualNode = cloneDeep(taskInfo?.task)
-          virtualNode.name = taskInfo?.task?.name + "choices"
-          virtualNode.next = innerChoiceNext
-          subTasksDatail.push(virtualNode)
+            name: taskInfo?.task?.name + 'choices',
+            next: innerChoiceNext,
+          });
+          const virtualNode = cloneDeep(taskInfo?.task);
+          virtualNode.name = taskInfo?.task?.name + 'choices';
+          virtualNode.next = innerChoiceNext;
+          subTasksDatail.push(virtualNode);
 
-          let subTaskNodePositions = generatePositions(subTaskNodeList, nodePositions[task]?.position.x, true)
+          const subTaskNodePositions = generatePositions(
+            subTaskNodeList,
+            nodePositions[task]?.position.x,
+            true,
+          );
           // 开始布局choice节点
-          for (let subTask in subTasksDatail) {
-            let subTaskInfo = subTasksDatail[subTask]
+          for (const subTask in subTasksDatail) {
+            const subTaskInfo = subTasksDatail[subTask];
             for (const key in nodeGroups[1]?.operatorList) {
               if (nodeGroups[2]?.operatorList[key].name === subTaskInfo.resourceProtocol) {
-                icon = nodeGroups[2]?.operatorList[key].icon
+                icon = nodeGroups[2]?.operatorList[key].icon;
               }
             }
-            const x = subTaskNodePositions[subTaskInfo.name].position.x
-            const y = subTaskNodePositions[subTaskInfo.name].position.y + nodePositions[task]?.position.y
-            let subTaskType = (subTaskInfo?.category !== "function") ? subTaskInfo?.category : ((subTaskInfo?.resourceProtocol === undefined || subTaskInfo?.resourceProtocol === "") ? subTaskInfo?.resourceName?.split(":")[0] : subTaskInfo?.resourceProtocol)
-            let subCell = {
-              "id": buildUUID(),
-              "name": subTaskInfo.name,
-              "shape": "flow-node",
-              "ports": generatePorts,
-              "attrs": {
-                "label": {"text": subTaskInfo.name},
-                "status": subTaskInfo?.status,
-                "icon": icon,
+            const x = subTaskNodePositions[subTaskInfo.name].position.x;
+            const y =
+              subTaskNodePositions[subTaskInfo.name].position.y + nodePositions[task]?.position.y;
+            const subTaskType =
+              subTaskInfo?.category !== 'function'
+                ? subTaskInfo?.category
+                : subTaskInfo?.resourceProtocol === undefined ||
+                  subTaskInfo?.resourceProtocol === ''
+                ? subTaskInfo?.resourceName?.split(':')[0]
+                : subTaskInfo?.resourceProtocol;
+            const subCell = {
+              id: buildUUID(),
+              name: subTaskInfo.name,
+              shape: 'flow-node',
+              ports: generatePorts,
+              attrs: {
+                label: { text: subTaskInfo.name },
+                status: subTaskInfo?.status,
+                icon: icon,
                 type: subTaskType,
                 category: subTaskInfo?.category,
-                nodeDetail: subTaskInfo
+                nodeDetail: subTaskInfo,
               },
-              "position": {x: x, y: y},
-              "parent": groupId,
-              "next": subTaskInfo.next,
-              "visible": false,
-              "zIndex": 50,
-            }
+              position: { x: x, y: y },
+              parent: groupId,
+              next: subTaskInfo.next,
+              visible: false,
+              zIndex: 50,
+            };
             toggleCollapseResize = {
               width: subTaskNodePositions[subTaskInfo.name].position.width_total,
-              height: subTaskNodePositions[subTaskInfo.name].position.height_total
-            }
-            childrenIds.push(subCell.id)
-            cells.push(subCell)
+              height: subTaskNodePositions[subTaskInfo.name].position.height_total,
+            };
+            childrenIds.push(subCell.id);
+            cells.push(subCell);
           }
         }
-        let cell = {
-          "id": groupId,
-          "name": task,
-          "shape": "groupNode",
-          "children": childrenIds,
-          "data": {parent: true,},
-          "ports": generatePorts,
-          "attrs": {
-            "label": {"text": task},
-            "text": {"text": task},
-            "status": taskInfo?.status,
-            "icon": icon,
+        const cell = {
+          id: groupId,
+          name: task,
+          shape: 'groupNode',
+          children: childrenIds,
+          data: { parent: true },
+          ports: generatePorts,
+          attrs: {
+            label: { text: task },
+            text: { text: task },
+            status: taskInfo?.status,
+            icon: icon,
             type: type,
             category: taskInfo?.task?.category,
-            nodeDetail: taskInfo
+            nodeDetail: taskInfo,
           },
-          "position": nodePositions[task]?.position,
-          "next": taskInfo.next,
-          "toggleCollapseResize": toggleCollapseResize,
-          "zIndex": 50,
-        }
-        cells.push(cell)
+          position: nodePositions[task]?.position,
+          next: taskInfo.next,
+          toggleCollapseResize: toggleCollapseResize,
+          zIndex: 50,
+        };
+        cells.push(cell);
       }
-
     } else {
-      let cell = {
-        "id": buildUUID(),
-        "name": task,
-        "shape": "flow-node",
-        "ports": generatePorts,
-        "attrs": {
-          "label": {"text": task},
-          "status": taskInfo?.status,
-          "icon": icon,
+      const cell = {
+        id: buildUUID(),
+        name: task,
+        shape: 'flow-node',
+        ports: generatePorts,
+        attrs: {
+          label: { text: task },
+          status: taskInfo?.status,
+          icon: icon,
           type: type,
           category: taskInfo?.task?.category,
-          nodeDetail: taskInfo
+          nodeDetail: taskInfo,
         },
-        "position": nodePositions[task]?.position,
-        "next": taskInfo.next,
-        "zIndex": 1,
-      }
-      cells.push(cell)
+        position: nodePositions[task]?.position,
+        next: taskInfo.next,
+        zIndex: 1,
+      };
+      cells.push(cell);
     }
   }
 
-
   const relations = generateRelations(cells);
 
-  relations.forEach(relation => {
+  relations.forEach((relation) => {
     relation.id = buildUUID();
-    relation.shape = "edge";
-    relation.zIndex = 1;
+    relation.shape = 'edge';
+    relation.zIndex = 101;
     relation.router = defaultEdge.router;
-    relation.connector = "rounded";
+    relation.connector = 'rounded';
     relation.attrs = defaultEdge.attrs;
     relation.visible = true;
 
-    cells.filter(item => item.shape === 'groupNode').forEach(item => {
-      item.children.filter(node => {
-        return node === relation.source.cell || node === relation.target.cell
-      }).forEach(node => {
-        if (!item.children.includes(relation.id)) {
-          item.children.push(relation.id)
-        }
-        relation.parent = item.id
-      })
-    })
+    cells
+      .filter((item) => item.shape === 'groupNode')
+      .forEach((item) => {
+        item.children
+          .filter((node) => {
+            return node === relation.source.cell || node === relation.target.cell;
+          })
+          .forEach((node) => {
+            if (!item.children.includes(relation.id)) {
+              item.children.push(relation.id);
+            }
+            relation.parent = item.id;
+          });
+      });
     cells.push(relation);
-  })
-  return cells
+  });
+  return cells;
 }

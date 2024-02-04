@@ -41,7 +41,7 @@ export function getActionTypeTheme(type) {
  * 兼容x6/g6
  */
 function getBaseConfig(node) {
-    let { type, shape, tooltip, attrs, x, y, size, id, position, data, actionType, initialization, nodeDetailSchema, nodeDetailParams, icon } = node
+    let { type, shape, tooltip, attrs, x, y, size, id, position, data, actionType, initialization, nodeDetailSchema, nodeDetailParams, icon, ports } = node
     let _width,
         _height,
         _x = x,
@@ -78,11 +78,9 @@ function getBaseConfig(node) {
         _tooltip = attrs.label.text
     }
 
-    const cutLabel = fmtLabelOverflow(_tooltip)
-
     return {
         type: _shape,
-        label: cutLabel,
+        label: _tooltip,
         x: _x,
         y: _y,
         width: _width,
@@ -97,6 +95,7 @@ function getBaseConfig(node) {
         nodeDetailSchema,
         nodeDetailParams,
         icon,
+        ports,
         position:position,
     }
 }
@@ -397,7 +396,7 @@ export const defaultPorts = {
 
 // 获取Vue节点
 export function getVueNode(node) {
-    const { label, width, height, id, data, nodeDetailSchema,position, nodeDetailParams, icon } = getBaseConfig(node)
+    const { label, width, height, id, data, nodeDetailSchema,position, nodeDetailParams, icon, ports } = getBaseConfig(node)
     return {
         id,
         shape: "vue-shape",
@@ -410,11 +409,11 @@ export function getVueNode(node) {
         position,
         nodeDetailSchema,
         nodeDetailParams,
+        ports,
         "attrs": {
             "label": {"text": label},
             icon,
         },
-        ports: defaultPorts
     }
 }
 

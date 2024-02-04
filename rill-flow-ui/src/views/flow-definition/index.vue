@@ -16,10 +16,15 @@
                 label: t('routes.flow.definitions.option.versions'),
                 onClick: handleVersion.bind(null, record)
               },
+              {
+                label: t('routes.flow.definitions.option.showYaml'),
+                onClick: handleShowYaml.bind(null, record)
+              },
             ]"
           :dropDownActions="[]"
         />
         <Versions @register="register"/>
+        <FlowDetail @register="register1"/>
       </template>
     </template>
   </BasicTable>
@@ -29,12 +34,12 @@ import {BasicTable, useTable, TableAction} from '/@/components/Table';
 import {getInstanceColumns, getFormConfig} from './methods';
 import FlowStatus from "@/components/Dag/src/components/Templates/FlowStatus.vue";
 
-import {definitionListApi, getFlowVersionsApi} from '@/api/table';
+import {definitionListApi, getFlowDetailApi, getFlowVersionsApi} from '@/api/table';
 import {useGo} from "@/hooks/web/usePage";
 import {useI18n} from '/@/hooks/web/useI18n';
 import {useModal} from "@/components/Modal";
 import Versions from './Versions.vue';
-
+import FlowDetail from "@/views/flow-definition/FlowDetail.vue";
 const {t} = useI18n();
 const go = useGo();
 
@@ -68,6 +73,7 @@ function handleDetail(record: Recordable) {
 }
 
 const [register, {openModal: openModal}] = useModal();
+const [register1, {openModal: openModal1}] = useModal();
 function handleVersion(record: Recordable) {
 
   getFlowVersionsApi({
@@ -84,4 +90,18 @@ function handleVersion(record: Recordable) {
   })
 
 }
+
+function handleShowYaml(record: Recordable) {
+
+  getFlowDetailApi({
+    descriptor_id: record.descriptor_id,
+  }).then((result) => {
+    openModal1(true, {
+      data: result
+    })
+  })
+
+}
+
+
 </script>

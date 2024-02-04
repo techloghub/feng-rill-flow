@@ -3,94 +3,123 @@
 </template>
 
 <script lang="ts" setup>
-import {inject, ref, toRaw, watch} from 'vue';
-import '@antv/x6-vue-shape';
-import {MODE, RILL_CATEGORY} from "../../typing";
-import {initGraph} from "@/components/FlowGraph";
-import {Cell} from "@antv/x6";
-import moment from "moment";
+  import { inject, ref, toRaw, watch } from 'vue';
+  import '@antv/x6-vue-shape';
+  import { MODE } from '../../typing';
+  import { initGraph } from '@/components/FlowGraph';
+  import { Cell } from '@antv/x6';
+  import { useTemplateNodeReferenceCache } from '../../store/dagStore';
+  import { storeToRefs } from 'pinia';
+  import { getGraphNodeTemplateReferenceMap } from '@/components/Dag/src/components/Graph/methods';
 
-const container = ref(null);
+  const templateNodeReferenceCache = useTemplateNodeReferenceCache();
+  const { templateNodeReferenceMap } = storeToRefs(templateNodeReferenceCache);
+  const { setTemplateNodeReferenceMap } = templateNodeReferenceCache;
 
-const graph: any = inject('graph');
-const initGraphParams: any = inject('initGraphParams');
-const initGraphStatus: any = inject('initGraphStatus');
-const dagInfo: any = inject('dagInfo');
-const nodeGroups: any = inject('nodeGroups');
-const showNodeEditModal: any = inject('showNodeEditModal');
-const showNodeSchema: any = inject('showNodeSchema');
+  const container = ref(null);
 
-const props = defineProps({
-  mode: {
-    type: String as PropType<MODE>,
-    default: MODE.INSTANCE,
-  },
-  readonly: {
-    type: Boolean,
-  },
-  showNodeGroups: {
-    type: Boolean,
-  }
-})
+  const graph: any = inject('graph');
+  const initGraphStatus: any = inject('initGraphStatus');
+  const dagInfo: any = inject('dagInfo');
+  const nodeGroups: any = inject('nodeGroups');
+  const showNodeEditModal: any = inject('showNodeEditModal');
+  const showNodeSchema: any = inject('showNodeSchema');
 
-watch(() => dagInfo.value, (n) => {
-  console.log("graph props", props.mode, props.readonly, props.showNodeGroups, toRaw(dagInfo.value))
-  let tasks
-  if(props.mode === MODE.DEFINITION) {
-    tasks=dagInfo.value?.data?.tasks
-  } else if (props.mode === MODE.INSTANCE) {
-    tasks=dagInfo.value?.tasks
-  }
-  graph.value = initGraph(toRaw(tasks), nodeGroups.value, container.value, props.readonly)
-  console.log("getSelectedCells:",graph.value.getSelectedCells())
-
-
-  graph.value.on('cell:contextmenu', ({cell}) => {
-    showNodeEditModal.value = false
-    console.log("cell:contextmenu", cell)
-    showNodeEditModal.value = true
-    showNodeSchema.value = cell
-
+  const props = defineProps({
+    mode: {
+      type: String as PropType<MODE>,
+      default: MODE.INSTANCE,
+    },
+    readonly: {
+      type: Boolean,
+    },
+    showNodeGroups: {
+      type: Boolean,
+    },
   });
 
-  graph.value.on('cell:mouseup', ({cell}) => {
-    console.log("cell:mouseup", cell)
-  });
+  watch(
+    () => dagInfo.value,
+    () => {
+      console.log(
+        'graph props',
+        props.mode,
+        props.readonly,
+        props.showNodeGroups,
+        toRaw(dagInfo.value),
+      );
+      let tasks;
+      let dagDetail;
+      if (props.mode === MODE.DEFINITION) {
+        tasks = dagInfo.value?.data?.tasks;
+        dagDetail = dagInfo.value;
+      } else if (props.mode === MODE.INSTANCE) {
+        tasks = dagInfo.value?.tasks;
+        dagDetail = dagInfo.value;
+      }
 
-  graph.value.on('node:dblclick', ({node}) => {
-    console.log("node:dblclick", node)
-    showNodeEditModal.value = true
-  });
+      const referenceMap = getGraphNodeTemplateReferenceMap(dagInfo.value.tasks);
+      console.log('graph props dagRefererce', toRaw(dagInfo.value), referenceMap);
+      setTemplateNodeReferenceMap(referenceMap);
 
-  graph.value.on('cell:change:*', (args: {
-    cell: Cell
-    key: string   // 通过 key 来确定改变项
-    current: any  // 当前值，类型根据 key 指代的类型确定
-    previous: any // 改变之前的值，类型根据 key 指代的类型确定
-    options: any  // 透传的 options
-  }) => {
-    // console.log("cell:change", args)
-    console.log("cell:change", args)
+      graph.value = initGraph(
+        toRaw(tasks),
+        nodeGroups.value,
+        container.value,
+        props.readonly,
+        dagDetail,
+      );
+      console.log('getSelectedCells:', graph.value.getSelectedCells());
 
-    if (args.key === 'label') {
-      args.cell.setAttrs({ label: { text: args.current } })
-    } else if (args.key === 'nodeDetailParams') {
-      console.log("cell:change nodeDetailParams", args)
-    }
-  })
+      graph.value.on('node:dblclick', ({ cell }) => {
+        showNodeEditModal.value = false;
+        console.log('node:dblclick', cell);
+        showNodeEditModal.value = true;
+        showNodeSchema.value = cell;
+      });
+      graph.value.on('node:contextmenu', ({ node }) => {
+        console.log('node:contextmenu', node);
+      });
 
-  graph.value.on('node:added', ({ node }) => {
-    const { x, y } = node.position()
-    showNodeEditModal.value = true
-    console.log("node:added", x, y, node, showNodeEditModal.value)
-    showNodeSchema.value = node
-  })
+      graph.value.on('node:removed', ({ node }) => {
+        console.log('node:removed', node);
+      });
 
-  graph.value.on('cell:mousedown', ({cell}) => {
-    console.log("cell:mousedown", cell)
-  });
+      graph.value.on(
+        'cell:change:*',
+        (args: {
+          cell: Cell;
+          key: string; // 通过 key 来确定改变项
+          current: any; // 当前值，类型根据 key 指代的类型确定
+          previous: any; // 改变之前的值，类型根据 key 指代的类型确定
+          options: any; // 透传的 options
+        }) => {
 
-  initGraphStatus.value = true
-}, {deep: true})
+          if (args.key === 'label') {
+            args.cell.setAttrs({ label: { text: args.current } });
+          } else if (args.key === 'nodeDetailParams') {
+            console.log('cell:change nodeDetailParams', args);
+          } else if (args.key === 'templateNodeDetailParams') {
+            console.log('cell:change templateNodeDetailParams', args);
+          } else if (args.key === 'nodeDelete') {
+            console.log('cell:change nodeDelete', args, graph.value);
+            // 节点删除
+            args.cell.remove();
+          } else if (args.key === 'taskYamlData') {
+            console.log('cell:change taskYamlData', args);
+          }
+        },
+      );
 
+      graph.value.on('node:added', ({ node }) => {
+        const { x, y } = node.position();
+        showNodeEditModal.value = true;
+        console.log('node:added', x, y, node, showNodeEditModal.value);
+        showNodeSchema.value = node;
+      });
+
+      initGraphStatus.value = true;
+    },
+    { deep: true },
+  );
 </script>
