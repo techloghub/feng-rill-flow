@@ -1,5 +1,6 @@
 import { FormProps } from '/@/components/Table';
 import { BasicColumn } from '/@/components/Table/src/types/table';
+import {ref} from "vue";
 
 export function getBasicColumns(): BasicColumn[] {
   return [
@@ -23,14 +24,24 @@ export function getBasicColumns(): BasicColumn[] {
       title: '节点类型',
       dataIndex: 'node_type',
       width: 100,
+      slots: { customRender: 'node_type' },
     },
     {
       title: 'category',
       dataIndex: 'category',
       width: 100,
     },
+    {
+      title: '是否启用',
+      dataIndex: 'enable',
+      width: 100,
+      slots: { customRender: 'enable' },
+    }
   ];
 }
+
+export const templateEnable = ref(1)
+
 export function getFormConfig(): Partial<FormProps> {
   return {
     labelWidth: 100,
@@ -92,6 +103,24 @@ export function getFormConfig(): Partial<FormProps> {
             { label: "元数据", value: "meta"},
             { label: "模板", value: "template"},
           ]
+        },
+        colProps: {
+          xl: 3,
+          xxl: 3,
+        }
+      }, {
+        field: 'enable',
+        label: '是否启用',
+        component: 'Select',
+        componentProps: {
+          options: [
+            { label: "启用", value: 1},
+            { label: "禁用", value: 0}
+          ],
+          defaultValue: 1,
+          onChange: (e: number) => {
+            templateEnable.value = e
+          }
         },
         colProps: {
           xl: 3,

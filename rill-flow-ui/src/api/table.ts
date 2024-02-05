@@ -1,12 +1,15 @@
 import { defHttp } from '@/utils/http/axios';
 import { DemoParams, InstanceDetailParam } from './demo/model/tableModel';
+import {templateEnable} from "@/views/flow-definition/node-templetes/tableData";
 
 enum Api {
   INSTANCE_LIST = '/flow/bg/get_execution_ids.json?current=1',
   DEFINITION_LIST = '/flow/bg/get_descriptor_ids.json?current=1',
   TEMPLATE_LIST = '/template/get_task_templates.json',
-  UPDATE_TEMPLATE_LIST = '/template/update_task_template.json',
-  CREATE_TEMPLATE_LIST = '/template/create_task_template.json',
+  UPDATE_TEMPLATE = '/template/update_task_template.json',
+  CREATE_TEMPLATE = '/template/create_task_template.json',
+  DISABLE_TEMPLATE = '/template/disable_task_template.json',
+  ENABLE_TEMPLATE = '/template/enable_task_template.json',
   BUSINESS_LIST = '/flow/bg/get_business_options.json',
   FEATURE_LIST = '/flow/bg/manage/descriptor/get_feature.json',
   INSTANCE_DETAIL = '/flow/bg/get_execution.json',
@@ -21,7 +24,7 @@ enum Api {
  * @description: Get sample list value
  */
 
-export const instanceListApi = (params: DemoParams) =>
+export const instanceListApi = (params: any) =>
   defHttp.get({
     url: Api.INSTANCE_LIST,
     params,
@@ -31,7 +34,7 @@ export const instanceListApi = (params: DemoParams) =>
     },
   });
 
-export const definitionListApi = (params: DemoParams) =>
+export const definitionListApi = (params: any) =>
   defHttp.get({
     url: Api.DEFINITION_LIST,
     params,
@@ -41,8 +44,9 @@ export const definitionListApi = (params: DemoParams) =>
     },
   });
 
-export const templateListApi = (params: DemoParams) =>
-  defHttp.get({
+export const templateListApi = (params: any) => {
+  params.enable = templateEnable.value
+  return defHttp.get({
     url: Api.TEMPLATE_LIST,
     params,
     headers: {
@@ -50,10 +54,11 @@ export const templateListApi = (params: DemoParams) =>
       ignoreCancelToken: true,
     },
   });
+}
 
-export const updateTemplateListApi = (params: any) =>
+export const updateTemplateApi = (params: any) =>
   defHttp.post({
-    url: Api.UPDATE_TEMPLATE_LIST,
+    url: Api.UPDATE_TEMPLATE,
     params,
     headers: {
       // @ts-ignore
@@ -61,10 +66,28 @@ export const updateTemplateListApi = (params: any) =>
     },
   });
 
-export const createTemplateListApi = (params: any) =>
+export const createTemplateApi = (params: any) =>
   defHttp.post({
-    url: Api.CREATE_TEMPLATE_LIST,
+    url: Api.CREATE_TEMPLATE,
     params,
+    headers: {
+      // @ts-ignore
+      ignoreCancelToken: true,
+    },
+  });
+
+export const enableTemplateApi = (id: number) =>
+  defHttp.post({
+    url: Api.ENABLE_TEMPLATE + "?id=" + id,
+    headers: {
+      // @ts-ignore
+      ignoreCancelToken: true,
+    },
+  });
+
+export const disableTemplateApi = (id: number) =>
+  defHttp.post({
+    url: Api.DISABLE_TEMPLATE + "?id=" + id,
     headers: {
       // @ts-ignore
       ignoreCancelToken: true,

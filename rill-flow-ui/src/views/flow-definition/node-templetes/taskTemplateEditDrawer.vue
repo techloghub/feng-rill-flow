@@ -15,7 +15,7 @@
 import { defineComponent } from 'vue';
 import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
 import {useForm, BasicForm} from "@/components/Form";
-import {createTemplateListApi, updateTemplateListApi} from "@/api/table";
+import {createTemplateApi, updateTemplateApi} from "@/api/table";
 
 export default defineComponent({
   name: 'taskTemplateEditDrawer',
@@ -93,15 +93,13 @@ export default defineComponent({
       data.id = id
       let res;
       if (action == 'update') {
-        res = await updateTemplateListApi(data);
+        res = await updateTemplateApi(data);
       } else {
-        res = await createTemplateListApi(data);
+        res = await createTemplateApi(data);
       }
       emit('response', res);
       closeDrawer();
       console.log(res);
-
-
     }
 
     return {

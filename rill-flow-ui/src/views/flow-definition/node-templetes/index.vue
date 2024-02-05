@@ -12,10 +12,30 @@
                   },
                   onClick: handleEdit.bind(null, record)
                 },
+                {
+                  label: '禁用',
+                  ifShow: (_action) => {
+                    return record.node_type !== 'meta' && record.enable === 1;
+                  },
+                  onClick: handleEnableDisable.bind(null, record.id, false)
+                },
+                {
+                  label: '启用',
+                  ifShow: (_action) => {
+                    return record.node_type !== 'meta' && record.enable === 0;
+                  },
+                  onClick: handleEnableDisable.bind(null, record.id, true)
+                }
               ]"
           :dropDownActions="[]"
         />
       </template>
+    </template>
+    <template #enable="{ record }">
+      {{ record.enable === 1 ? '启用' : '禁用' }}
+    </template>
+    <template #node_type="{ record }">
+      {{ record.node_type === 'meta' ? '元数据' : '模板' }}
     </template>
     <template #toolbar>
       <Tooltip>
@@ -35,7 +55,9 @@ import {BasicTable, TableAction, useTable} from '/@/components/Table';
 import { getBasicColumns, getFormConfig } from './tableData';
 import {Drawer} from 'ant-design-vue';
 
-import {templateListApi} from "@/api/table";
+import {
+  disableTemplateApi, enableTemplateApi, templateListApi,
+} from "@/api/table";
 import TaskTemplateEditDrawer
   from "@/views/flow-definition/node-templetes/taskTemplateEditDrawer.vue";
 import {useDrawer} from "@/components/Drawer";
@@ -79,6 +101,17 @@ export default defineComponent({
       })
     }
 
+    async function handleEnableDisable(id, enable) {
+      let res;
+      if (enable) {
+        res = await enableTemplateApi(id);
+      } else {
+        res = await disableTemplateApi(id);
+      }
+      console.log(res);
+      reloadPage();
+    }
+
     function reloadPage() {
       reload()
     }
@@ -88,7 +121,8 @@ export default defineComponent({
       registerTable,
       handleEdit,
       handleCreate,
-      reloadPage
+      handleEnableDisable,
+      reloadPage,
     };
   },
 });
