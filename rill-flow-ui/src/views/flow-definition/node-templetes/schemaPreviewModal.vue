@@ -5,13 +5,13 @@
     @register="register"
     title="预览模板输入结构"
   >
-    <vue-form
+    <VueForm
       :formData="formData"
       :schema="templateSchema"
       :formProps="formProps"
     >
       <div slot-scope="{}"/>
-    </vue-form>
+    </VueForm>
   </BasicModal>
 </template>
 <script lang="ts" setup>
