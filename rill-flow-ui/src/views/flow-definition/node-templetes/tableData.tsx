@@ -41,6 +41,7 @@ export function getBasicColumns(): BasicColumn[] {
 }
 
 export const templateEnable = ref(1)
+export const templateSchema = ref({});
 
 export function getFormConfig(): Partial<FormProps> {
   return {

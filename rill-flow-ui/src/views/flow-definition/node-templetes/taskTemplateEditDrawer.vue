@@ -7,19 +7,28 @@
     width="400"
     @ok="handleSubmit"
   >
-    <BasicForm @register="registerForm" autoFocusFirstItem :actionColOptions="{ span: 24 }" />
+    <BasicForm @register="registerForm" autoFocusFirstItem:true :actionColOptions="{ span: 24 }" />
+
+    <template #insertFooter>
+      <a-button @click="handlePreviewSchema">预览 schema</a-button>
+    </template>
   </BasicDrawer>
+  <SchemaPreviewModal @register="schemaPreviewModalRegister" :minHeight="100" />
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import {defineComponent} from 'vue';
 import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
 import {useForm, BasicForm} from "@/components/Form";
 import {createTemplateApi, updateTemplateApi} from "@/api/table";
+import {useModal} from "@/components/Modal";
+import SchemaPreviewModal from "@/views/flow-definition/node-templetes/schemaPreviewModal.vue";
+import {templateSchema} from "@/views/flow-definition/node-templetes/tableData";
 
 export default defineComponent({
   name: 'taskTemplateEditDrawer',
   components: {
+    SchemaPreviewModal,
     BasicDrawer,
     BasicForm,
   },
@@ -27,6 +36,9 @@ export default defineComponent({
   setup(_, { emit }) {
     let action;
     let id;
+
+    const [schemaPreviewModalRegister, { openModal }] = useModal();
+
     const formSchemas = [
       {
         field: 'name',
@@ -65,14 +77,14 @@ export default defineComponent({
       }, {
         field: 'schema',
         component: 'InputTextArea',
-        label: '模板输入结构',
+        label: '模板输入结构(schema)',
       }, {
         field: 'output',
         component: 'InputTextArea',
         label: '模板输出结构',
       }
     ]
-    const [registerForm, { setFieldsValue, validateFields, resetFields }] = useForm({
+    const [registerForm, { getFieldsValue, setFieldsValue, validateFields, resetFields }] = useForm({
         layout: 'vertical',
         schemas: formSchemas,
         showResetButton: false,
@@ -99,13 +111,20 @@ export default defineComponent({
       }
       emit('response', res);
       closeDrawer();
-      console.log(res);
+    }
+
+    function handlePreviewSchema() {
+      const data = getFieldsValue()
+      templateSchema.value = JSON.parse(data.schema)
+      openModal(true);
     }
 
     return {
       registerDrawer,
       handleSubmit,
       registerForm,
+      handlePreviewSchema,
+      schemaPreviewModalRegister,
     };
   }
 
