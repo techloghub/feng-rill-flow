@@ -1,83 +1,128 @@
 <template>
   <BasicTable @register="registerTable">
-    <template #form-custom> custom-slot </template>
-    <template #headerTop>
-      <a-alert type="info" show-icon>
-        <template #message>
-          <template v-if="checkedKeys.length > 0">
-            <span>已选中{{ checkedKeys.length }}条记录(可跨页)</span>
-            <a-button type="link" @click="checkedKeys = []" size="small">清空</a-button>
-          </template>
-          <template v-else>
-            <span>未选中任何项目</span>
-          </template>
-        </template>
-      </a-alert>
+    <template #bodyCell="{ column, record }">
+      <template v-if="column.key === 'action'">
+        <TableAction
+          stopButtonPropagation
+          :actions="[
+                {
+                  label: '编辑',
+                  ifShow: (_action) => {
+                    return record.node_type !== 'meta';
+                  },
+                  onClick: handleEdit.bind(null, record)
+                },
+                {
+                  label: '禁用',
+                  ifShow: (_action) => {
+                    return record.node_type !== 'meta' && record.enable === 1;
+                  },
+                  onClick: handleEnableDisable.bind(null, record.id, false)
+                },
+                {
+                  label: '启用',
+                  ifShow: (_action) => {
+                    return record.node_type !== 'meta' && record.enable === 0;
+                  },
+                  onClick: handleEnableDisable.bind(null, record.id, true)
+                }
+              ]"
+          :dropDownActions="[]"
+        />
+      </template>
+    </template>
+    <template #enable="{ record }">
+      {{ record.enable === 1 ? '启用' : '禁用' }}
+    </template>
+    <template #node_type="{ record }">
+      {{ record.node_type === 'meta' ? '元数据' : '模板' }}
     </template>
     <template #toolbar>
-      <a-button type="primary" @click="getFormValues">获取表单数据</a-button>
+      <Tooltip>
+        <template #title>
+          <p>创建模板</p>
+        </template>
+        <a-button type="primary" @click="handleCreate()"> 创建模板 </a-button>
+      </Tooltip>
     </template>
   </BasicTable>
+
+  <TaskTemplateEditDrawer @register="registerTaskTemplateEditDrawer" @response="reloadPage" />
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { BasicTable, useTable } from '/@/components/Table';
+import { defineComponent } from 'vue';
+import {BasicTable, TableAction, useTable} from '/@/components/Table';
 import { getBasicColumns, getFormConfig } from './tableData';
-import { Alert } from 'ant-design-vue';
+import {Drawer} from 'ant-design-vue';
 
-import {definitionListApi} from "@/api/table";
+import {
+  disableTemplateApi, enableTemplateApi, templateListApi,
+} from "@/api/table";
+import TaskTemplateEditDrawer
+  from "@/views/flow-definition/node-templetes/taskTemplateEditDrawer.vue";
+import {useDrawer} from "@/components/Drawer";
 
 export default defineComponent({
-  components: { BasicTable, AAlert: Alert },
+  components: {TableAction, BasicTable, Drawer, TaskTemplateEditDrawer },
   setup() {
-    const checkedKeys = ref<Array<string | number>>([]);
-    const [registerTable, { getForm }] = useTable({
+    const [registerTable, { reload }] = useTable({
       title: '开启搜索区域',
-      // api: demoListApi,
-      api: definitionListApi,
+      api: templateListApi,
+      fetchSetting: {
+        listField: "data"
+      },
       columns: getBasicColumns(),
       useSearchForm: true,
       formConfig: getFormConfig(),
       showTableSetting: true,
       tableSetting: { fullScreen: true },
       showIndexColumn: false,
-      rowKey: 'id',
-      rowSelection: {
-        type: 'checkbox',
-        selectedRowKeys: checkedKeys,
-        onSelect: onSelect,
-        onSelectAll: onSelectAll,
+      rowKey: 'name',
+      actionColumn: {
+        width: 100,
+        title: '操作',
+        dataIndex: 'action',
+        fixed: 'right',
       },
     });
 
-    function getFormValues() {
-      console.log(getForm().getFieldsValue());
+    const [registerTaskTemplateEditDrawer, { openDrawer }] = useDrawer();
+
+    function handleEdit(record: Recordable) {
+      openDrawer(true, {
+        action: "update",
+        ...record
+      })
     }
 
-    function onSelect(record, selected) {
-      if (selected) {
-        checkedKeys.value = [...checkedKeys.value, record.id];
-      } else {
-        checkedKeys.value = checkedKeys.value.filter((id) => id !== record.id);
-      }
+    function handleCreate() {
+      openDrawer(true, {
+        action: "create"
+      })
     }
-    function onSelectAll(selected, selectedRows, changeRows) {
-      const changeIds = changeRows.map((item) => item.id);
-      if (selected) {
-        checkedKeys.value = [...checkedKeys.value, ...changeIds];
+
+    async function handleEnableDisable(id, enable) {
+      let res;
+      if (enable) {
+        res = await enableTemplateApi(id);
       } else {
-        checkedKeys.value = checkedKeys.value.filter((id) => {
-          return !changeIds.includes(id);
-        });
+        res = await disableTemplateApi(id);
       }
+      console.log(res);
+      reloadPage();
+    }
+
+    function reloadPage() {
+      reload()
     }
 
     return {
+      registerTaskTemplateEditDrawer,
       registerTable,
-      getFormValues,
-      checkedKeys,
-      onSelect,
-      onSelectAll,
+      handleEdit,
+      handleCreate,
+      handleEnableDisable,
+      reloadPage,
     };
   },
 });
