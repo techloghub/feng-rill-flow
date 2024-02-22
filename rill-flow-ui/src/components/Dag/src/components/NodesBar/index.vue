@@ -19,7 +19,6 @@
             )
           "
         >
-          <!--        {{node}}-->
           <NodeTemplate :label="node.category" :icon="node.icon" />
         </div>
 
@@ -46,42 +45,8 @@
           />
         </div>
       </a-tab-pane>
-      <a-tab-pane key="3" tab="逻辑节点">
-        <!--        <div class="tab-pane py-2" v-for="(node, index) in nodeList().logical" :key="index"-->
-        <!--             @mousedown="startDrag(-->
-        <!--            {-->
-        <!--              label: node.category,-->
-        <!--              shape: 'rect',-->
-        <!--              actionType: 'Vue-node',-->
-        <!--              nodeDetailSchema: node-->
-        <!--            },-->
-        <!--            $event-->
-        <!--          )"-->
-        <!--        >-->
-        <!--          &lt;!&ndash;        {{node}}&ndash;&gt;-->
-        <!--          <NodeTemplate :label="node.category"-->
-        <!--                        :icon="node.icon"/>-->
-        <!--        </div>-->
-        待添加
-      </a-tab-pane>
-      <a-tab-pane key="4" tab="插件节点">
-        <!--        <div class="tab-pane py-2" v-for="(node, index) in nodeList().logical" :key="index"-->
-        <!--             @mousedown="startDrag(-->
-        <!--            {-->
-        <!--              label: node.category,-->
-        <!--              shape: 'rect',-->
-        <!--              actionType: 'Vue-node',-->
-        <!--              nodeDetailSchema: node-->
-        <!--            },-->
-        <!--            $event-->
-        <!--          )"-->
-        <!--        >-->
-        <!--          &lt;!&ndash;        {{node}}&ndash;&gt;-->
-        <!--          <NodeTemplate :label="node.category"-->
-        <!--                        :icon="node.icon"/>-->
-        <!--        </div>-->
-        待添加
-      </a-tab-pane>
+      <a-tab-pane key="3" tab="逻辑节点"> 待添加 </a-tab-pane>
+      <a-tab-pane key="4" tab="插件节点"> 待添加 </a-tab-pane>
     </a-tabs>
   </div>
 </template>
@@ -99,8 +64,13 @@
   } from '@/components/Dag/src/common/transform';
   import { Addon } from '@antv/x6';
   import { nodeList } from './data';
+  import { defaultPorts } from '@/components/FlowGraph/shape';
+  import { useProvideGraph } from '@/components/Dag/src/store/graph';
+  import { storeToRefs } from 'pinia';
 
-  const graph: any = inject('graph');
+  const provideGraph = useProvideGraph();
+  const { graphRef } = storeToRefs(provideGraph);
+
   const showNodeEditModal: any = inject('showNodeEditModal');
   const props = defineProps({
     nodes: {},
@@ -122,10 +92,6 @@
     key: 2,
     tab: '2',
   });
-  // watch(() => props.nodes, (n) => {
-  //   console.log("NodesBar ===> init", n, props.nodes)
-  // })
-
   function startDrag(currentTarget, e) {
     console.log('currentTarget:', currentTarget, e);
     const { actionType, shape, label, nodeDetailSchema } = currentTarget;
@@ -171,27 +137,21 @@
           initialization: true,
           nodeDetailSchema: nodeDetailSchema,
           nodeDetailParams: { task: {} },
+          ports: defaultPorts,
         });
         showNodeEditModal.value = false;
         break;
       default:
         break;
     }
-    const node = graph.value.createNode(json);
+    const node = graphRef.value.createNode(json);
     if (!data.freeze) data.dnd.start(node, e);
     console.log('startDrag', currentTarget, node);
   }
 
-  function mouseupHandle(currentTarget, e) {
-    console.log('mouseupHandle', currentTarget, e);
-  }
-  function mousedownHandle(currentTarget, e) {
-    console.log('mousedownHandle', currentTarget, e);
-  }
-
   function initDnd() {
     data.dnd = new Addon.Dnd({
-      target: graph.value,
+      target: graphRef.value,
       validateNode() {
         return true;
       },
@@ -199,7 +159,7 @@
   }
 
   watch(
-    () => graph.value,
+    () => graphRef.value,
     (n) => {
       console.log('graph value', n);
       initDnd();

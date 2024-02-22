@@ -13,20 +13,20 @@
         class="yaml flex-auto w-64"
         v-model:value="value"
         :mode="modeValue"
-        readonly="true"
+        :readonly="true"
       />
       <hr />
       <CodeEditor
         class="json flex-auto w-64"
         v-model:value="value1"
         :mode="modeValue1"
-        readonly="true"
+        :readonly="true"
       />
     </div>
   </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, watch } from 'vue';
+  import { defineComponent, ref } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { CodeEditor, MODE } from '@/components/CodeEditor';
 
@@ -41,22 +41,13 @@
       const newString = ref();
 
       const [register] = useModalInner((data) => {
-        console.log('xxxx', data);
         value.value = data.yaml;
         value1.value = data.json;
         newString.value = data.newString;
         oldString.value = data.oldString;
-        console.log('xxxx value.value', value.value);
       });
 
       return { register, modeValue, modeValue1, value, value1, newString, oldString };
     },
   });
 </script>
-<style scoped>
-  .empty-tips {
-    height: 100px;
-    line-height: 100px;
-    text-align: center;
-  }
-</style>

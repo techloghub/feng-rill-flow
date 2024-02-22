@@ -12,6 +12,8 @@ import { cloneDeep } from 'lodash-es';
 import { Options as GraphOptions } from '@antv/x6/src/graph/options';
 import { getVueNode } from '@/components/Dag/src/common/transform';
 import { nodeList } from '@/components/Dag/src/components/NodesBar/data';
+import { useProvideGraph } from '@/components/Dag/src/store/graph';
+import { storeToRefs } from 'pinia';
 
 const defaultGraphConfig: Partial<GraphOptions.Manual> = {
   container: null,
@@ -98,7 +100,12 @@ export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta) {
   console.log('isKeyboardEnabled', graph.isKeyboardEnabled());
   initStencil(graph, nodeGroups);
   graph.resize(document.body.offsetWidth, document.body.offsetHeight);
-  return graph;
+
+  // 写入本地缓存
+  const provideGraph = useProvideGraph();
+  const { setGraphRef, getGraphRef } = provideGraph;
+  setGraphRef(graph);
+  return getGraphRef;
 }
 
 function initStencil(graph, nodeGroups) {
@@ -120,8 +127,6 @@ function initStencil(graph, nodeGroups) {
     collapsable: true,
     groups: groups,
   });
-  const stencilContainer = document.querySelector('#stencil');
-  // stencilContainer?.appendChild(stencil.container);
 
   // 装载模板节点
   for (const nodeGroupsKey in nodeGroups) {
@@ -253,12 +258,12 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
       defaultNode.shape = item.shape;
       delete item.component;
 
-      console.log("tasks[item.attrs.label.text].task", tasks[item.attrs.label.text].task)
-      let nodeDetailSchema = nodeList().function[0]
+      console.log('tasks[item.attrs.label.text].task', tasks[item.attrs.label.text].task);
+      let nodeDetailSchema = nodeList().function[0];
 
       // TODO 从模版列表接口中获取指定类型的
       if (tasks[item.attrs.label.text].task.id) {
-        console.log("initGraphShape 展示图", tasks[item.attrs.label.text].task.id)
+        console.log('initGraphShape 展示图', tasks[item.attrs.label.text].task.id);
         nodeDetailSchema = nodeList().plugin[0];
       }
 
@@ -276,7 +281,7 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
           type: 'icon',
           value: 'ant-design:api-outlined',
         },
-        ports: item.ports
+        ports: item.ports,
       });
       const cell = graphInstance.createNode(json);
       console.log('generateRelations initGraphShape 展示图', cell, defaultNode, json, item);
@@ -314,7 +319,7 @@ function initGraphEvent(graph) {
   });
 
   graph.on('node:removed', ({ node, index, options }) => {
-    console.log('node:removed', node, index, options );
+    console.log('node:removed', node, index, options);
   });
 
   graph.bindKey('backspace', ({ e, node, view }) => {
@@ -324,7 +329,7 @@ function initGraphEvent(graph) {
   graph.on('edge:click', ({ e, x, y, edge, view }) => {
     console.log('generateRelations edge:click key', edge);
     // console.log('edge:click key', e, x, y,edge, view);
-  })
+  });
 
   // // backspace
   // graph.bindKey('delete', () => {

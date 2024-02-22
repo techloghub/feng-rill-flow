@@ -43,6 +43,12 @@ export function nodeList() {
         meta_data: {
           icon: '',
           fields: {
+            category: {
+              type: 'string',
+              name: '节点类型',
+              required: true,
+              default_value: 'function',
+            },
             resource_name: {
               type: 'string',
               name: '资源名称',
@@ -295,29 +301,26 @@ export function nodeList() {
           },
         },
         output: {
-          statuses: [
-            {
-              visible: {
-                type: 'integer',
-                list_id: 'integer',
+          type: 'object',
+          properties: {
+            statuses: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  visible: {
+                    type: 'object',
+                    properties: {
+                      type: { type: 'string' },
+                      list_id: { type: 'string' },
+                    },
+                  },
+                  created_at: { type: 'string' },
+                  id: { type: 'integer' },
+                  mid: { type: 'string' },
+                },
               },
-              created_at: 'string',
-              id: 'integer',
-              mid: 'string',
             },
-            {
-              visible1: {
-                type1: 'integer',
-                list_id1: 'integer',
-              },
-              created_at1: 'string',
-              id1: 'integer',
-              mid1: 'string',
-            },
-          ],
-          video: {
-            id: 'long',
-            file_size: 'long',
           },
         },
       },

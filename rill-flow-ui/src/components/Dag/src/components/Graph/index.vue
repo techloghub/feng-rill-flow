@@ -11,14 +11,14 @@
   import { useTemplateNodeReferenceCache } from '../../store/dagStore';
   import { storeToRefs } from 'pinia';
   import { getGraphNodeTemplateReferenceMap } from '@/components/Dag/src/components/Graph/methods';
+  import { useProvideGraph } from '@/components/Dag/src/store/graph';
 
   const templateNodeReferenceCache = useTemplateNodeReferenceCache();
-  const { templateNodeReferenceMap } = storeToRefs(templateNodeReferenceCache);
   const { setTemplateNodeReferenceMap } = templateNodeReferenceCache;
 
   const container = ref(null);
 
-  const graph: any = inject('graph');
+  // const graph: any = inject('graph');
   const initGraphStatus: any = inject('initGraphStatus');
   const dagInfo: any = inject('dagInfo');
   const nodeGroups: any = inject('nodeGroups');
@@ -60,32 +60,33 @@
 
       const referenceMap = getGraphNodeTemplateReferenceMap(dagInfo.value.tasks);
       console.log('graph props dagRefererce', toRaw(dagInfo.value), referenceMap);
+      // TODO 测试完成后 该行代码删除
       setTemplateNodeReferenceMap(referenceMap);
 
-      graph.value = initGraph(
-        toRaw(tasks),
-        nodeGroups.value,
-        container.value,
-        props.readonly,
-        dagDetail,
-      );
-      console.log('getSelectedCells:', graph.value.getSelectedCells());
+      initGraph(toRaw(tasks), nodeGroups.value, container.value, props.readonly, dagDetail);
 
-      graph.value.on('node:dblclick', ({ cell }) => {
+      const provideGraph = useProvideGraph();
+      const { graphRef } = storeToRefs(provideGraph);
+      if (graphRef.value == undefined) {
+        return;
+      }
+      console.log('getSelectedCells:', graphRef.value.getSelectedCells());
+
+      graphRef.value.on('node:dblclick', ({ cell }) => {
         showNodeEditModal.value = false;
         console.log('node:dblclick', cell);
         showNodeEditModal.value = true;
         showNodeSchema.value = cell;
       });
-      graph.value.on('node:contextmenu', ({ node }) => {
+      graphRef.value.on('node:contextmenu', ({ node }) => {
         console.log('node:contextmenu', node);
       });
 
-      graph.value.on('node:removed', ({ node }) => {
+      graphRef.value.on('node:removed', ({ node }) => {
         console.log('node:removed', node);
       });
 
-      graph.value.on(
+      graphRef.value.on(
         'cell:change:*',
         (args: {
           cell: Cell;
@@ -94,15 +95,16 @@
           previous: any; // 改变之前的值，类型根据 key 指代的类型确定
           options: any; // 透传的 options
         }) => {
-
           if (args.key === 'label') {
             args.cell.setAttrs({ label: { text: args.current } });
+            args.cell.getData().tooltip = args.current;
+            console.log('cell:change label', args.cell, args.cell.getData());
           } else if (args.key === 'nodeDetailParams') {
             console.log('cell:change nodeDetailParams', args);
           } else if (args.key === 'templateNodeDetailParams') {
             console.log('cell:change templateNodeDetailParams', args);
           } else if (args.key === 'nodeDelete') {
-            console.log('cell:change nodeDelete', args, graph.value);
+            console.log('cell:change nodeDelete', args, graphRef.value);
             // 节点删除
             args.cell.remove();
           } else if (args.key === 'taskYamlData') {
@@ -111,7 +113,7 @@
         },
       );
 
-      graph.value.on('node:added', ({ node }) => {
+      graphRef.value.on('node:added', ({ node }) => {
         const { x, y } = node.position();
         showNodeEditModal.value = true;
         console.log('node:added', x, y, node, showNodeEditModal.value);

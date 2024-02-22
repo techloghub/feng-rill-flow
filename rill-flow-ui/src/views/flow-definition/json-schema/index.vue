@@ -3,16 +3,7 @@
     v-model="formData"
     :schema="schema"
     :formProps="formProps"
-    @on-submit="
-      $showJson({
-        componentProps: {
-          jsonString: formData,
-        },
-      })
-    "
   />
-
-  {{ formData }}
 </template>
 
 <script lang="ts" setup>

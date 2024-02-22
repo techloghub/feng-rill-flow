@@ -90,7 +90,10 @@ function getBaseConfig(node) {
         data: {
             actionType: _actionType,
             initialization,
-            tooltip: _tooltip
+            tooltip: _tooltip,
+            nodeDetailSchema: nodeDetailSchema,
+            nodeDetailParams: nodeDetailParams,
+            icon :icon,
         },
         nodeDetailSchema,
         nodeDetailParams,

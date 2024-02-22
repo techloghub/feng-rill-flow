@@ -60,7 +60,7 @@
 
   const templateNodeReferenceCache = useTemplateNodeReferenceCache();
 
-  const { setTemplateNodeReferenceMap } = templateNodeReferenceCache;
+  const { setTemplateNodeReferenceMap,templateNodeReferenceMap } = templateNodeReferenceCache;
   const route = useRoute();
   const { createMessage } = useMessage();
   const go = useGo();
