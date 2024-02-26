@@ -14,22 +14,19 @@
  *    limitations under the License.
  */
 
-package com.weibo.rill.flow.impl.service;
+package com.weibo.rill.flow.service.util;
 
-import com.weibo.rill.flow.olympicene.traversal.notify.MailNotify;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import com.weibo.rill.flow.common.constant.ReservedConstant;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.Map;
+public class DescriptorIdUtil {
 
-
-@Slf4j
-@Component
-public class MailNotifyImpl implements MailNotify {
-
-    public void sendMail(String businessId, String featureName,
-                         String receiver, String subject, String mainBody,
-                         Map<String, String> attachments) {
-        // to be filled
+    /**
+     * change descriptorId to businessId
+     */
+    public static String changeDescriptorIdToBusinessId(String descriptorId) {
+        return StringUtils.substringBefore(descriptorId, ReservedConstant.COLON);
     }
+
+    private DescriptorIdUtil() { }
 }

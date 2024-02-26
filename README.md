@@ -1,6 +1,6 @@
 # Rill Flow
 
-[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) [![EN doc](https://img.shields.io/badge/document-中文-red.svg)](README_zh_CN.md)
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html) ![codecov](https://codecov.io/gh/weibocom/rill-flow/branch/main/graph/badge.svg) [![CN doc](https://img.shields.io/badge/document-中文-blue.svg)](README_zh_CN.md)
 
 ## Overview
 
@@ -42,6 +42,7 @@ services:
       - RILL_FLOW_DEFAULT_REDIS_HOST=cache
       - RILL_FLOW_TRACE_ENDPOINT=http://jaeger:4317
       - RILL_FLOW_CALLBACK_URL=http://rill-flow:8080/flow/finish.json
+      - RILL_FLOW_TRACE_QUERY_HOST=http://jaeger:16686
   cache:
     image: redis:6.2-alpine
     restart: always
@@ -55,13 +56,11 @@ services:
     image: weibocom/rill-flow-ui
     ports:
       - "8088:80"
-      - "8089:8089"
     depends_on:
       - rill-flow
       - jaeger
     environment:
       - BACKEND_SERVER=http://rill-flow:8080
-      - TRACE_SERVER=http://jaeger:16686
   sample-executor:
     image: weibocom/rill-flow-sample:sample-executor 
 EOF
@@ -104,7 +103,7 @@ tasks:
 - Step 2: Submit a task to execute the workflow
   
 ```curl
-curl -XPOST 'http://127.0.0.1:8080/flow/submit.json?descriptor_id=rillFlowSimple:greet'  -d '{"Bob":"Hello, I am Bob!", "Alice": "Hi, I am Alice"}' -H 'Content-Type:application/json'
+curl -X POST 'http://127.0.0.1:8080/flow/submit.json?descriptor_id=rillFlowSimple:greet'  -d '{"Bob":"Hello, I am Bob!", "Alice": "Hi, I am Alice"}' -H 'Content-Type:application/json'
 ```
 
 - Step 3：Query the task execution results
@@ -115,24 +114,28 @@ curl -XPOST 'http://127.0.0.1:8080/flow/submit.json?descriptor_id=rillFlowSimple
 http://127.0.0.1:8088/#/flow-instance/list
 ```
 
+![preview](https://rill-flow.github.io/img/flow_sample.jpg)
+
 ## Document
-https://rill-flow.github.io/en/docs/intro
+
+- [Document](https://rill-flow.github.io/en/docs/intro)
+- [中文文档](https://rill-flow.github.io/docs/intro)
 
 ## Contributors
 
 The following are contributors to the project along with their GitHub links:
 
-- axb       ([@qdaxb](https://github.com/qdaxb))
+- axb       ([@qdaxb](https://github.com/qdaxb)) *Maintainer*
+- techlog   ([@techloghub](https://github.com/techloghub)) *Maintainer*
+- ch15084   ([@ch15084](https://github.com/ch15084)) *Maintainer*
 - Ocean     ([@hhh041](https://github.com/hhh041))
 - xilong-t  ([@xilong-t](https://github.com/xilong-t))
-- techlog   ([@techloghub](https://github.com/techloghub))
-- ch15084   ([@ch15084](https://github.com/ch15084))
 - qfl       ([@qiaofenlin](https://github.com/qiaofenlin))
 - Kylen     ([@Kylen](https://github.com/Kylen0714))
 - zzfzzf    ([@zzfzzf](https://github.com/zzfzzf))
-- feifei    ([@feifei325](https://github.com/feifei325)
+- feifei    ([@feifei325](https://github.com/feifei325))
 - moqimoqidea    ([@moqimoqidea](https://github.com/moqimoqidea))
-- Guo, Jiansheng ([@guojiansheng0925](https://github.com/guojiansheng0925)))
+- Guo, Jiansheng ([@guojiansheng0925](https://github.com/guojiansheng0925))
 
 ## License
 

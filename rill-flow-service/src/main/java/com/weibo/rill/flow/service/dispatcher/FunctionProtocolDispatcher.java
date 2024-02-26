@@ -22,24 +22,22 @@ import com.weibo.rill.flow.interfaces.dispatcher.DispatcherExtension;
 import com.weibo.rill.flow.interfaces.model.http.HttpParameter;
 import com.weibo.rill.flow.interfaces.model.resource.Resource;
 import com.weibo.rill.flow.interfaces.model.strategy.DispatchInfo;
-import com.weibo.rill.flow.interfaces.model.task.TaskInfo;
 import com.weibo.rill.flow.interfaces.model.task.FunctionTask;
+import com.weibo.rill.flow.interfaces.model.task.TaskInfo;
+import com.weibo.rill.flow.olympicene.core.switcher.SwitcherManager;
 import com.weibo.rill.flow.service.invoke.HttpInvokeHelper;
 import com.weibo.rill.flow.service.statistic.DAGResourceStatistic;
-import com.weibo.rill.flow.olympicene.core.switcher.SwitcherManager;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.util.Map;
 import java.util.Optional;
 
 
-@Slf4j
 @Service("functionDispatcher")
 public class FunctionProtocolDispatcher implements DispatcherExtension {
     @Autowired
@@ -56,7 +54,7 @@ public class FunctionProtocolDispatcher implements DispatcherExtension {
         TaskInfo taskInfo = dispatchInfo.getTaskInfo();
         String taskInfoName = taskInfo.getName();
         String requestType = ((FunctionTask) taskInfo.getTask()).getRequestType();
-        HttpHeaders header = dispatchInfo.getHeaders();
+        MultiValueMap<String, String> header = dispatchInfo.getHeaders();
 
         try {
             HttpParameter requestParams = httpInvokeHelper.functionRequestParams(executionId, taskInfoName, resource, input);

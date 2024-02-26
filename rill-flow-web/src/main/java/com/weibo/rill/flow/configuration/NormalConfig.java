@@ -19,7 +19,6 @@ package com.weibo.rill.flow.configuration;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.weibo.rill.flow.service.decorator.ShareMdcFeatureDecoratorAssembler;
 import com.weibo.rill.flow.service.decorator.TaskDecoratingExecutorServiceDecorator;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.concurrent.*;
 
 
-@Slf4j
 @Configuration
 public class NormalConfig {
     @Bean(destroyMethod = "shutdown")
@@ -47,6 +45,17 @@ public class NormalConfig {
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(60000), namedThreadFactory, new ThreadPoolExecutor.CallerRunsPolicy());
         TaskDecoratingExecutorServiceDecorator decorator = new TaskDecoratingExecutorServiceDecorator(threadPoolExecutor);
         decorator.setTaskDecoratorAssemblerList(List.of(new ShareMdcFeatureDecoratorAssembler()));
+        return decorator;
+    }
+
+    @Bean(destroyMethod = "shutdown")
+    public ExecutorService statisticExecutor() {
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("olympicene-statistic-%d").build();
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(20, 100, 100000,
+                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(10000), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+        TaskDecoratingExecutorServiceDecorator decorator = new TaskDecoratingExecutorServiceDecorator(threadPoolExecutor);
+        decorator.setTaskDecoratorAssemblerList(List.of(new ShareMdcFeatureDecoratorAssembler()));
+
         return decorator;
     }
 }

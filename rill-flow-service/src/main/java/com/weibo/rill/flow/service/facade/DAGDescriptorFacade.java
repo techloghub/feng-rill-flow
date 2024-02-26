@@ -19,7 +19,6 @@ package com.weibo.rill.flow.service.facade;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.beust.jcommander.internal.Lists;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -27,15 +26,16 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.weibo.rill.flow.common.exception.TaskException;
 import com.weibo.rill.flow.common.model.BizError;
 import com.weibo.rill.flow.common.model.Node;
 import com.weibo.rill.flow.common.model.NodeType;
-import com.weibo.rill.flow.service.manager.DescriptorManager;
-import com.weibo.rill.flow.service.service.ProtocolPluginService;
 import com.weibo.rill.flow.olympicene.core.model.event.DAGDescriptorEvent;
 import com.weibo.rill.flow.olympicene.storage.redis.api.RedisClient;
+import com.weibo.rill.flow.service.manager.DescriptorManager;
+import com.weibo.rill.flow.service.service.ProtocolPluginService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
@@ -345,8 +345,8 @@ public class DAGDescriptorFacade {
         }
     }
 
-    public List<Map> getDagOpGroups() {
-        List<Map> groups = new ArrayList<>();
+    public List<Map<String, Object>> getDagOpGroups() {
+        List<Map<String, Object>> groups = new ArrayList<>();
         Node function = Node.builder()
                 .id(1)
                 .name("")

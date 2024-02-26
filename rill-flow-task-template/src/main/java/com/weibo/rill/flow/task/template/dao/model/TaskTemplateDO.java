@@ -14,10 +14,23 @@
  *    limitations under the License.
  */
 
-package com.weibo.rill.flow.olympicene.traversal.notify;
+package com.weibo.rill.flow.task.template.dao.model;
 
-import java.util.Map;
+import lombok.Data;
 
-public interface MailNotify {
-    void sendMail(String businessId, String featureName, String receiver, String subject, String mainBody, Map<String, String> attachments);
+import java.util.Date;
+
+@Data
+public class TaskTemplateDO {
+    private Long id;
+    private String name;
+    private Integer type; // 模板类型，0. 函数模板，1. 插件模板，2. 逻辑模板
+    private String category;
+    private String icon;
+    private String taskYaml;
+    private String schema;
+    private Integer enable;
+    private String output;
+    private Date createTime;
+    private Date updateTime;
 }
