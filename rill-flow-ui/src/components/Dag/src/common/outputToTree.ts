@@ -1,28 +1,22 @@
-function convertSchemaToTreeData(schema) {
+export function convertSchemaToTreeData(schema, currentPath = '$') {
   const treeData = [];
 
   if (schema.type === 'object') {
     for (const [key, value] of Object.entries(schema.properties)) {
+      currentPath += '.' + key;
       const node = {
-        title: key,
-        value: key,
-        children: convertSchemaToTreeData(value),
+        title: key + '【' + value.type + '】',
+        value: currentPath,
+        children: convertSchemaToTreeData(value, currentPath),
       };
-
       treeData.push(node);
     }
   } else if (schema.type === 'array') {
     const arrayItems = schema.items;
 
     if (arrayItems && arrayItems.type === 'object') {
-      const node = {
-        title: 'Item',
-        value: 'item',
-        children: convertSchemaToTreeData(arrayItems),
-      };
-      // const node = convertSchemaToTreeData(arrayItems);
-
-      treeData.push(node);
+      currentPath += '.*';
+      return convertSchemaToTreeData(arrayItems, currentPath);
     }
   }
 

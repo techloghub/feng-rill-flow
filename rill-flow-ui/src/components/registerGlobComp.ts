@@ -1,5 +1,5 @@
-import type {App} from 'vue';
-import {Button} from './Button';
+import type { App } from 'vue';
+import { Button } from './Button';
 import {
   Input,
   Layout,
@@ -13,12 +13,14 @@ import {
   AutoComplete,
   Rate,
   Switch,
+  Card,
 } from 'ant-design-vue';
 import VXETable from 'vxe-table';
 import CodeDiff from 'v-code-diff';
 
 export function registerGlobComp(app: App) {
-  app.use(Input)
+  app
+    .use(Input)
     .use(Button)
     .use(Layout)
     .use(VXETable)
@@ -33,5 +35,5 @@ export function registerGlobComp(app: App) {
     .use(Switch)
     .use(Tabs)
     .use(CodeDiff)
-  ;
+    .use(Card);
 }

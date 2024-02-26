@@ -2,7 +2,6 @@
   <BasicModal
     v-bind="$attrs"
     title="节点编辑"
-    :helpMessage="['提示1', '提示2']"
     @register="registerModal"
     @ok="handleOk"
     width="40%"
@@ -11,12 +10,17 @@
       <Form :form="nodeForm">
         <SchemaField :schema="nodeSchema" />
       </Form>
-      <a-tabs v-model:activeKey="activeKey">
+      <a-tabs v-modgit adel:activeKey="activeKey">
         <a-tab-pane key="1" tab="基础设置">
-          <VueForm v-model="jsonSchemaFormData" :schema="jsonSchema" :formProps="formProps">
-            <div slot-scope="{ jsonSchemaFormData }"></div>
-          </VueForm>
-          <BasicTree title="Output" :treeData="treeData" defaultExpandLevel="1" />
+          <a-card title="Input">
+            <VueForm v-model="jsonSchemaFormData" :schema="jsonSchema" :formProps="formProps">
+              <div slot-scope="{ jsonSchemaFormData }"></div>
+            </VueForm>
+            {{jsonSchemaFormData}}
+          </a-card>
+          <a-card title="Output">
+            <BasicTree :treeData="treeData" />
+          </a-card>
         </a-tab-pane>
         <a-tab-pane key="3" tab="高级设置">
           <FormProvider :form="advancedSettingsForm">
@@ -28,11 +32,12 @@
   </BasicModal>
 </template>
 <script lang="ts" setup>
-  import { inject, onMounted, ref, Ref, toRaw } from 'vue';
+  import { inject, onMounted, ref, Ref, toRaw, reactive } from 'vue';
   import VueForm from '@lljj/vue3-form-ant';
   import { BasicTree } from '@/components/Tree';
   import { createForm } from '@formily/core';
   import { createSchemaField, FormProvider } from '@formily/vue';
+  import { cloneDeep } from 'lodash-es';
   import {
     Form,
     FormItem,
@@ -51,27 +56,24 @@
     replaceUIWidget,
   } from '@/components/Dag/src/common/replaceJsonSchemaConfig';
   import {
-    convertJSON,
     getJsonData,
     getJsonSchema,
   } from '@/components/Dag/src/components/Graph/methods';
   import { useTemplateNodeReferenceCache } from '@/components/Dag/src/store/dagStore';
   import { storeToRefs } from 'pinia';
   import { useProvideGraph } from '@/components/Dag/src/store/graph';
-  import {
-    getNodeReferences,
-  } from '@/components/Dag/src/common/graphTransform';
+  import { GraphNodeReferenceUpdateParam } from "@/components/Dag/src/models/global";
+  import { Cell } from "@antv/x6";
 
   const provideGraph = useProvideGraph();
   const { graphRef } = storeToRefs(provideGraph);
-  const { getReferences } = provideGraph;
+  const { getReferences, getNodeOutput, updateTemplateNodeParams } = provideGraph;
   const showNodeEditModal: any = inject('showNodeEditModal');
 
-  const modelRef = ref({});
-  const cellRef = ref({});
-  const formSchemas: Ref<any | undefined> = ref([]);
+  const cellRef: Ref<Cell> = ref();
+
   const jsonSchemaFormType = ref(false);
-  const jsonSchemaFormData = ref({});
+  let jsonSchemaFormData = reactive({});
 
   const treeData = ref();
   const formProps = ref({});
@@ -118,7 +120,6 @@
 
   // 获取reference
   const templateNodeReferenceCache = useTemplateNodeReferenceCache();
-  const { getTemplateNodeReferenceByKey } = templateNodeReferenceCache;
   const { templateNodeReferenceMap } = storeToRefs(templateNodeReferenceCache);
 
   // Modal初始化配置
@@ -135,8 +136,10 @@
     // 获取指定节点的reference end
 
     // 初始化基本数据
-    cellRef.value = cell;
     activeKey.value = '1';
+    cellRef.value = cell;
+    // jsonSchemaFormData.value = {}
+    jsonSchemaFormData = reactive({});
     console.log(
       'useModalInner schemaInfo init',
       cell,
@@ -154,13 +157,20 @@
 
     // 通过节点信息生成对应的jsonSchema
 
-    const data = cell.store.data.nodeDetailSchema?.schema;
+    // const data = Object.assign({}, cell.store.data.nodeDetailSchema?.schema);
+    console.log('replaceUIWidget init', cell.store.data.nodeDetailSchema?.schema.properties.appkey.properties.reference['ui:widget']);
+    const data = cloneDeep(cell.store.data.nodeDetailSchema?.schema);
+
+    console.log('replaceUIWidget start', data, cell.store.data.nodeDetailSchema?.schema.properties.appkey.properties.reference['ui:widget']);
     replaceUIWidget(data);
+    console.log('replaceUIWidget end', data, cell.store.data.nodeDetailSchema?.schema.properties.appkey.properties.reference['ui:widget']);
 
     // 需要将该节点最新的reference数据更新到data中
-    replaceUItreeData(data, getReferences(cell.id));
-    console.log('replaceUiTreeData', data, templateNodeReferenceMap);
+    const references1 = getReferences(cell.id);
+    replaceUItreeData(data, references1);
+    console.log('replaceUiTreeData', data, templateNodeReferenceMap, references1, cell.store.data.nodeDetailSchema?.schema, cell);
     jsonSchema.value = data;
+
     // 基础参数设置
     nodeForm.value.setFormState((state) => {
       state.values['name'] = cell.store.data.label;
@@ -177,23 +187,28 @@
       );
       let inputMappings = cell.store.data.nodeDetailParams.inputMappings;
       for (const inputKey in inputMappings) {
-        console.log(
-          'useModalInner schemaInfo jsonSchemaFormData schemaParams',
-          key,
-          schemaParams[key],
-          inputKey,
-          inputMappings[inputKey],
-        );
         let inputTargetParam = inputMappings[inputKey].target.split('$.input.')[1];
+
         if (inputTargetParam === key) {
           if (inputMappings[inputKey].source.startsWith('$')) {
-            jsonSchemaFormData.value[key] = {
+            jsonSchemaFormData[key] = {
               attr: 'reference',
-              reference: inputMappings[inputKey].source,
+              reference: inputMappings[inputKey].source.replace(".context", ""),
               input: '',
             };
+
+            console.log(
+              'useModalInner schemaInfo jsonSchemaFormData schemaParams',
+              key,
+              schemaParams[key],
+              inputKey,
+              inputMappings[inputKey],
+              inputTargetParam,
+              inputMappings[inputKey].source.replace(".context", ""),
+              jsonSchemaFormData[key],
+            );
           } else {
-            jsonSchemaFormData.value[key] = {
+            jsonSchemaFormData[key] = {
               attr: 'input',
               input: inputMappings[inputKey].source,
               reference: '',
@@ -203,11 +218,8 @@
       }
     }
     console.log(
-      'useModalInner schemaInfo jsonSchemaFormData',
-      jsonSchemaFormData.value,
-      cell.store.data.nodeDetailParams.inputMappings,
-      cell.store.data.nodeDetailSchema?.schema,
-      cell.store.data.nodeDetailParams,
+      'useModalInner schemaInfo jsonSchemaFormData end',
+      jsonSchemaFormData,
     );
 
     // 高级参数初始化设置
@@ -239,31 +251,19 @@
       });
     }
 
-    // TODO formOutput 需要通过接口返回的output数据生成
-    const output = cell.store.data.nodeDetailSchema?.output;
-    // output.name = cell.store.data.label;
-    const outputList = convertJSON(output);
-    treeData.value = outputList;
+    treeData.value = getNodeOutput(cell.id);
   });
   const activeKey = ref('1');
 
   const handleOk = () => {
     //更新普通节点中的数据
 
-    console.log(
-      'handleOk',
-      jsonSchemaFormData.value,
-      modelRef.value?.formModel,
-      formSchemas.value,
-      cellRef.value,
-    );
-
     // 更新模版节点中的数据
     console.log(
-      'handleOk',
+      'handleOk start',
       cellRef.value,
-      jsonSchemaFormData.value,
-      toRaw(jsonSchemaFormData.value),
+      jsonSchemaFormData,
+      toRaw(jsonSchemaFormData),
       nodeSchema.value,
       advancedSettingsForm.value.getFormState().values,
       nodeForm.value.getFormState().values,
@@ -275,24 +275,36 @@
 
     let nodeDetailParams = advancedSettingsForm.value.getFormState().values;
     // nodeDetailParams['parameters'] = jsonSchemaFormData.value;
-    for (const formKey in jsonSchemaFormData.value) {
+    const referenceUpdateParams: GraphNodeReferenceUpdateParam[] = [];
+    for (const formKey in jsonSchemaFormData) {
       let updateInputMapping = false;
       let formItemValue =
-        jsonSchemaFormData.value[formKey].reference !== ''
-          ? jsonSchemaFormData.value[formKey].reference
-          : jsonSchemaFormData.value[formKey].input;
+        jsonSchemaFormData[formKey].reference !== ''
+          ? jsonSchemaFormData[formKey].reference
+          : jsonSchemaFormData[formKey].input;
       console.log(
         'templateNode nodeDetailParams formKey',
         formKey,
-        jsonSchemaFormData.value[formKey],
+        jsonSchemaFormData[formKey],
       );
+
+      const item = new GraphNodeReferenceUpdateParam(
+        cellRef.value.id,
+        formKey,
+        formItemValue,
+        jsonSchemaFormData[formKey].attr,
+      );
+      referenceUpdateParams.push(item);
+      // 变更节点参数
+      updateTemplateNodeParams(referenceUpdateParams);
+
       for (const key in nodeDetailParams.inputMappings) {
         console.log(
           'templateNode nodeDetailParams key',
           key,
           nodeDetailParams.inputMappings[key],
           nodeDetailParams.inputMappings[key]['target'].split('$.input.')[1],
-          jsonSchemaFormData.value,
+          jsonSchemaFormData,
         );
         let input = nodeDetailParams.inputMappings[key]['target'].split('$.input.')[1];
         if (input === formKey) {
@@ -310,11 +322,12 @@
     }
 
     console.log('templateNode nodeDetailParams', nodeDetailParams);
-    cellRef.value.prop('nodeDetailParams', nodeDetailParams);
+    // cellRef.value.prop('nodeDetailParams', nodeDetailParams);
     // cellRef.value.prop('taskYamlData', jsonSchemaFormData.value);
 
     closeModal();
     showNodeEditModal.value = false;
+    console.log('handleOk end',cellRef.value, graphRef.value?.getCellById(cellRef.value.id))
   };
 
   const jsonSchema = ref({});

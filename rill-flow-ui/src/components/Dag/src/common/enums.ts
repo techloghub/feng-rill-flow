@@ -77,3 +77,10 @@ export const ActionType = {
     /**@type {String} 动作 */
     ACTION: 'ACTION',
 }
+
+export const TemplateNodeParamType = {
+  /**@type {String} input 常量 */
+  INPUT: 'input',
+  /**@type {String} 引用其他节点数据类型 */
+  REFERENCE: 'reference',
+}
