@@ -17,9 +17,10 @@ import { setupRouterGuard } from '@/router/guard';
 import { setupStore } from '@/store';
 
 import App from './App.vue';
+import { createLifecyle, getMicroApp } from 'vite-plugin-legacy-qiankun'
+const app = createApp(App);
 
 async function bootstrap() {
-  const app = createApp(App);
 
   // Configure store
   // 配置 store
@@ -61,4 +62,41 @@ async function bootstrap() {
   app.mount('#app');
 }
 
-bootstrap();
+import { createRouter, createWebHistory } from 'vue-router'
+import pkg from '../package.json' // your micro app name (pkg.name)
+
+const microApp = getMicroApp(pkg.name)
+
+const router1 = createRouter({
+  history: createWebHistory(microApp.__POWERED_BY_QIANKUN__ ? pkg.name : '/'),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: () => import('@/views/flow-definition/details/index.vue')
+    }
+  ]
+})
+
+const render = () => {
+  createApp(App)
+    .use(router1)
+    .mount(`#app`)
+}
+
+if (microApp.__POWERED_BY_QIANKUN__) {
+  createLifecyle(pkg.name, {
+    mount(props) {
+      console.log('mount', pkg.name);
+      render();
+    },
+    bootstrap() {
+      console.log('bootstrap', pkg.name);
+    },
+    unmount() {
+      console.log('unmount', pkg.name)
+    }
+  })
+} else {
+  bootstrap();
+}

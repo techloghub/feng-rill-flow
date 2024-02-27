@@ -23,6 +23,13 @@
       </template>
       <a-button name="save" @click="handleClick" class="item-space" size="small"> save</a-button>
     </a-tooltip>
+
+    <a-tooltip placement="bottom">
+      <template #title>
+        <span>Test Run</span>
+      </template>
+      <a-button name="save" @click="handleClick" class="item-space" size="small"> Test Run</a-button>
+    </a-tooltip>
     <DagShow @register="register1" />
   </div>
 </template>

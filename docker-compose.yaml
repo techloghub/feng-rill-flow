@@ -2,21 +2,41 @@ version: '3'
 services:
   rill-flow:
 #    image: weibocom/rill-flow
-    image: rill-flow-web:v0.0.1
+    image: registry.api.weibo.com/weibo_rd_video/rill-flow-web:v0.0.1
     depends_on:
       - cache
       - jaeger
+      - rill-flow-mysql
     ports:
       - "8080:8080"
+      - "15005:15005"
     environment:
       - RILL_FLOW_DESCRIPTOR_REDIS_HOST=cache
       - RILL_FLOW_DEFAULT_REDIS_HOST=cache
       - RILL_FLOW_TRACE_ENDPOINT=http://jaeger:4317
       - RILL_FLOW_CALLBACK_URL=http://rill-flow:8080/flow/finish.json
+      - RILL_FLOW_TRACE_QUERY_HOST=http://jaeger:16686
+      - JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:15005"
   cache:
     image: redis:6.2-alpine
     restart: always
     command: redis-server --save 20 1 --loglevel warning
+  rill-flow-mysql:
+    image: mysql:5.7
+    stdin_open: true
+    tty: true
+    container_name: rill-flow-mysql
+    restart: always
+    command: --init-file /data/application/init.sql --bind-address=0.0.0.0 --default-authentication-plugin=mysql_native_password
+    volumes:
+        - ./docker/init.sql:/data/application/init.sql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=rill_flow
+      - MYSQL_ROOT_HOST=%
+
   jaeger:
     image: jaegertracing/all-in-one:1.39
     restart: always

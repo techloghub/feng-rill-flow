@@ -162,7 +162,7 @@ export const useProvideGraph = defineStore('graph', () => {
           // 根据referenceNode获取outputMappings，并将source为param.nodeParamValue的source替换为referenceNodeOutputMappings中的source
           const referenceNodeOutputMappings =
             referenceNode?.getData().nodeDetailParams.outputMappings;
-          let refSourceValue = param.nodeParamValue.replace(referenceNodeName, 'output');
+          const refSourceValue = param.nodeParamValue.replace(referenceNodeName, 'output');
           const refTargetValue = refSourceValue.replace('output', 'context');
           let cotainOutputMapping = false;
           for (const outputKey in referenceNodeOutputMappings) {
