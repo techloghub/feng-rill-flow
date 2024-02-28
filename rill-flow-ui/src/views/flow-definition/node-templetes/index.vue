@@ -45,15 +45,15 @@
         <a-button type="primary" @click="handleCreate()"> 创建模板 </a-button>
       </Tooltip>
     </template>
+    <TaskTemplateEditDrawer @register="registerTaskTemplateEditDrawer" @response="reloadPage" />
   </BasicTable>
 
-  <TaskTemplateEditDrawer @register="registerTaskTemplateEditDrawer" @response="reloadPage" />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
 import {BasicTable, TableAction, useTable} from '/@/components/Table';
 import { getBasicColumns, getFormConfig } from './tableData';
-import {Drawer} from 'ant-design-vue';
+import {Drawer, Tooltip} from 'ant-design-vue';
 
 import {
   disableTemplateApi, enableTemplateApi, templateListApi,
@@ -63,7 +63,7 @@ import TaskTemplateEditDrawer
 import {useDrawer} from "@/components/Drawer";
 
 export default defineComponent({
-  components: {TableAction, BasicTable, Drawer, TaskTemplateEditDrawer },
+  components: {TableAction, BasicTable, Drawer, TaskTemplateEditDrawer, Tooltip },
   setup() {
     const [registerTable, { reload }] = useTable({
       title: '开启搜索区域',

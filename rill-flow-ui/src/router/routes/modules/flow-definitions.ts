@@ -36,68 +36,22 @@ const flowDefinitions: { redirect: string; path: string; component: () => Promis
       },
     },
     {
+      path: 'node-templete',
+      name: 'FlowNodeTemplete',
+      component: () => import('@/views/flow-definition/node-templete/index.vue'),
+      meta: {
+        title: t('routes.flow.definitions.node_templete'),
+        open: true,
+      },
+    },
+    {
       path: 'node-templetes',
       name: 'FlowNodeTempletes',
       component: () => import('@/views/flow-definition/node-templetes/index.vue'),
       meta: {
         title: t('routes.flow.definitions.node_templetes'),
-        open: true
+        open: true,
       },
-    },
-    {
-      path: 'json-schema',
-      name: 'FlowJsonSchema',
-      component: () => import('@/views/flow-definition/json-schema/index.vue'),
-      meta: {
-        title: t('routes.flow.definitions.json_schema'),
-        open: true
-      },
-    },
-    {
-      path: 'formily',
-      name: 'Formily',
-      // component: () => import('@/views/flow-definition/formily/index.vue'),
-      // component: () => import('@/views/flow-definition/formily/index_tree.vue'),
-      // component: () => import('@/views/flow-definition/formily/index_tab.vue'),
-      // component: () => import('@/views/flow-definition/demo/yaml_show.vue'),
-      component: () => import('@/views/flow-definition/demo/code_editor.vue'),
-      // component: () => import('@/views/flow-definition/formily/index_array.vue'),
-      // component: () => import('@/views/flow-definition/formily/switch.vue'),
-      meta: {
-        title: t('routes.flow.definitions.formily'),
-        open: true
-      },
-    },
-    {
-      path: 'demo',
-      name: 'Demo',
-      // component: () => import('@/views/flow-definition/formily/index.vue'),
-      // component: () => import('@/views/flow-definition/formily/index_tree.vue'),
-      // component: () => import('@/views/flow-definition/formily/index_tab.vue'),
-      // component: () => import('@/views/flow-definition/formily/index_array.vue'),
-      // component: () => import('@/views/flow-definition/formily/switch.vue'),
-      meta: {
-        title: "demo",
-        open: true
-      },
-      children: [
-        {
-          path: 'yaml_show',
-          name: 'YamlShow',
-          meta: {
-            title: "yamlShow",
-          },
-          component: () => import('@/views/flow-definition/demo/yaml_show.vue'),
-        },
-        {
-          path: 'codeEditor',
-          name: 'codeEditor',
-          meta: {
-            title: "codeEditor",
-          },
-          component: () => import('@/views/flow-definition/demo/code_editor.vue'),
-        },
-      ]
     },
   ],
 };
