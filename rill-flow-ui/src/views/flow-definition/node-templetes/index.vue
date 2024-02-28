@@ -29,6 +29,7 @@
               ]"
           :dropDownActions="[]"
         />
+        <TaskTemplateEditDrawer @register="registerTaskTemplateEditDrawer" @response="reloadPage" />
       </template>
     </template>
     <template #enable="{ record }">
@@ -45,10 +46,9 @@
         <a-button type="primary" @click="handleCreate()"> 创建模板 </a-button>
       </Tooltip>
     </template>
-    <TaskTemplateEditDrawer @register="registerTaskTemplateEditDrawer" @response="reloadPage" />
   </BasicTable>
-
 </template>
+
 <script lang="ts">
 import { defineComponent } from 'vue';
 import {BasicTable, TableAction, useTable} from '/@/components/Table';
