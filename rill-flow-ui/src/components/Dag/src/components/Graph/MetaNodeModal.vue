@@ -77,11 +77,11 @@
         console.log(
           'useModalInner schemaInfo ',
           cell,
-          cell.store.data.nodeDetailSchema.fields,
+          cell.store.data.nodeDetailSchema,
           cell.store.data.nodeDetailParams,
         );
         cellRef.value = cell;
-        const schemas = cell.store.data.nodeDetailSchema.fields;
+        const schemas = cell.store.data.nodeDetailSchema.meta_data.fields;
         const params = cell.store.data.nodeDetailParams;
 
 

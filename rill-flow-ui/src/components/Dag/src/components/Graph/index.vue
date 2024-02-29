@@ -36,37 +36,42 @@
     showNodeGroups: {
       type: Boolean,
     },
-    nodesGroups: {
-      type: {},
+    nodeGroups: {
+      type: Object,
+    },
+    dagInfo: {
+      type: Object,
     }
   });
 
   watch(
-    () => dagInfo.value,
+    () => props.dagInfo,
     () => {
       console.log(
         'graph props',
         props.mode,
         props.readonly,
         props.showNodeGroups,
-        toRaw(dagInfo.value),
+        props.dagInfo,
+        toRaw(props.dagInfo),
+        toRaw(props.nodeGroups)
       );
       let tasks;
       let dagDetail;
       if (props.mode === MODE.DEFINITION) {
-        tasks = dagInfo.value?.data?.tasks;
-        dagDetail = dagInfo.value;
+        tasks = props.dagInfo?.data?.tasks;
+        dagDetail = props.dagInfo;
       } else if (props.mode === MODE.INSTANCE) {
-        tasks = dagInfo.value?.tasks;
-        dagDetail = dagInfo.value;
+        tasks = props.dagInfo?.tasks;
+        dagDetail = props.dagInfo;
       }
 
-      const referenceMap = getGraphNodeTemplateReferenceMap(dagInfo.value.tasks);
-      console.log('graph props dagRefererce', toRaw(dagInfo.value), referenceMap);
+      const referenceMap = getGraphNodeTemplateReferenceMap(props.dagInfo?.tasks);
+      console.log('graph props dagRefererce', props.dagInfo, referenceMap, toRaw(props.nodeGroups));
       // TODO 测试完成后 该行代码删除
       setTemplateNodeReferenceMap(referenceMap);
 
-      initGraph(toRaw(tasks), nodeGroups.value, container.value, props.readonly, dagDetail, props.mode);
+      initGraph(toRaw(tasks), toRaw(props.nodeGroups), container.value, props.readonly, dagDetail, props.mode);
 
       const provideGraph = useProvideGraph();
       const { graphRef } = storeToRefs(provideGraph);
@@ -127,4 +132,6 @@
     },
     { deep: true },
   );
+
+
 </script>

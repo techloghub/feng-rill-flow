@@ -150,20 +150,22 @@
     // const data = Object.assign({}, cell.store.data.nodeDetailSchema?.schema);
     console.log(
       'replaceUIWidget init',
-      cell.store.data.nodeDetailSchema?.schema.properties.appkey.properties.reference['ui:widget'],
+      cell.store.data.nodeDetailSchema,
     );
-    const data = cloneDeep(cell.store.data.nodeDetailSchema?.schema);
+    const newSchema = JSON.parse(cell.store.data.nodeDetailSchema?.schema)
+    console.log('replaceUIWidget init test', newSchema)
+    console.log('replaceUIWidget init test1', newSchema.properties)
+    const data = cloneDeep(newSchema);
 
     console.log(
       'replaceUIWidget start',
-      JSON.stringify(data),
-      cell.store.data.nodeDetailSchema?.schema.properties.appkey.properties.reference['ui:widget'],
+      newSchema.properties.appkey.properties.reference['ui:widget'],
     );
     replaceUIWidget(data);
     console.log(
       'replaceUIWidget end',
       data,
-      cell.store.data.nodeDetailSchema?.schema.properties.appkey.properties.reference['ui:widget'],
+      newSchema.properties.appkey.properties.reference['ui:widget'],
     );
 
     // 需要将该节点最新的reference数据更新到data中

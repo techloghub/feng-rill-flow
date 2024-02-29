@@ -21,28 +21,6 @@
         >
           <NodeTemplate :label="node.name" :icon="node.icon" />
         </div>
-
-        <div
-          class="tab-pane px-4 py-2"
-          v-for="(node, index) in nodeList().plugin"
-          :key="index"
-          @mousedown="
-            startDrag(
-              {
-                label: node.node_type === 'meta' ? node.category : node.name,
-                shape: 'rect',
-                actionType: 'Vue-node',
-                nodeDetailSchema: node,
-              },
-              $event,
-            )
-          "
-        >
-          <NodeTemplate
-            :label="node.node_type === 'meta' ? node.category : node.name"
-            :icon="node.icon.value"
-          />
-        </div>
       </a-tab-pane>
       <a-tab-pane key="4" tab="插件节点">
         <div
@@ -155,6 +133,7 @@
           nodeDetailSchema: nodeDetailSchema,
           nodeDetailParams: { task: {} },
           ports: defaultPorts,
+          icon: nodeDetailSchema.icon,
         });
         showNodeEditModal.value = false;
         break;

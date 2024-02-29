@@ -7,13 +7,14 @@
     :showToolBar="true"
     :dagMeta="dagMeta"
     :methods="methods"
-    :nodesGroups="nodeGroups"
+    :nodeGroups="nodeGroups"
+    :dagInfo="dagInfo"
   />
 </template>
 
 <script lang="ts" setup>
   import { Dag, MODE } from '/@/components/Dag';
-  import { onMounted, provide, ref, watch } from 'vue';
+  import { onMounted, ref, toRaw } from "vue";
 
   import {
     flowDefinitionDetailApi,
@@ -25,7 +26,6 @@
   import { useMessage } from '@/hooks/web/useMessage';
   import { useGo } from '@/hooks/web/usePage';
   import { useI18n } from '@/hooks/web/useI18n';
-  import { useModal } from '/@/components/Modal';
 
   const route = useRoute();
   const { createMessage } = useMessage();
@@ -40,7 +40,6 @@
   const dagMeta = ref();
   const nodesBar = ref();
 
-  const [register, { openModal: openModal }] = useModal();
   const submitDag = (params, yamlData) => {
     getFlowSubmitApi(params, yamlData).then((res) => {
       console.log('SubmitDag getFlowSubmitApi', params, yamlData, res);
@@ -98,30 +97,18 @@
     }
 
     const response = await flowDefinitionDetailApi({ id: route.query.descriptor_id }, {});
-    console.log('xxx', response);
     if (response.tasks === '{}') {
       createMessage.error(t('routes.flow.instances.graph.execution_detail_expire_message'));
       go('/flow-instance/list');
       return;
     }
-    const metaNodeResult = await flowGroupDetailApi({node_type: 'meta'});
+    const metaNodeResult = await flowGroupDetailApi({ node_type: 'meta'});
     nodeGroups.value.basicNodes = metaNodeResult.data;
-    const templateNodeResult = await flowGroupDetailApi({ node_type: 'template'});
+    const templateNodeResult = await flowGroupDetailApi({ node_type: 'template' });
     nodeGroups.value.plugins = templateNodeResult.data;
     response.id = route.query.descriptor_id;
     dagInfo.value = response;
     console.log('===> dagInfo', nodeGroups.value);
-
   });
 
-  watch(
-    () => dagInfo.value,
-    () => {
-      console.log('dagInfo watch', dagInfo.value, nodesBar.value);
-    },
-    { deep: true },
-  );
-
-  provide('nodeGroups', nodeGroups);
-  provide('dagInfo', dagInfo);
 </script>

@@ -284,10 +284,8 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
         nodeDetailParams: tasks[item.attrs.label.text].task,
         id: item.id,
         position: item.position,
-        icon: {
-          type: 'icon',
-          value: 'ant-design:api-outlined',
-        },
+        icon: item.attrs.icon,
+        status: item.attrs.status,
         ports: item.ports,
         executionDetail: tasks[item.attrs.label.text],
       });
@@ -369,12 +367,20 @@ function JsonToGraphCell(tasks, nodeGroups) {
   for (const task in tasks) {
     const taskInfo = tasks[task];
     let icon;
-    for (const key in nodeGroups[2]?.operatorList) {
-      console.log('taskInfo===>', taskInfo);
-      if (nodeGroups[2]?.operatorList[key].name === taskInfo.task.resourceProtocol) {
-        icon = nodeGroups[2]?.operatorList[key].icon;
-      }
+    if (taskInfo.task.id) {
+      nodeGroups.plugins.forEach((item) => {
+        if (item.id === taskInfo.task.id) {
+          icon = item.icon;
+        }
+      });
+    } else {
+      nodeGroups.basicNodes.forEach((item) => {
+        if (item.name === taskInfo.task.category) {
+          icon = item.icon;
+        }
+      });
     }
+    console.log('taskInfo===>', taskInfo, nodeGroups, taskInfo.task.category, icon);
 
     const type =
       taskInfo?.task?.category !== 'function'
@@ -404,11 +410,6 @@ function JsonToGraphCell(tasks, nodeGroups) {
           );
           for (const subTask in subTasks) {
             const subTaskInfo = subTasks[subTask];
-            for (const key in nodeGroups[1]?.operatorList) {
-              if (nodeGroups[2]?.operatorList[key].name === subTaskInfo.resourceProtocol) {
-                icon = nodeGroups[2]?.operatorList[key].icon;
-              }
-            }
             const x = subTaskNodePositions[subTaskInfo.name].position.x;
             const y =
               subTaskNodePositions[subTaskInfo.name].position.y + nodePositions[task]?.position.y;
@@ -511,11 +512,6 @@ function JsonToGraphCell(tasks, nodeGroups) {
           // 开始布局choice节点
           for (const subTask in subTasksDatail) {
             const subTaskInfo = subTasksDatail[subTask];
-            for (const key in nodeGroups[1]?.operatorList) {
-              if (nodeGroups[2]?.operatorList[key].name === subTaskInfo.resourceProtocol) {
-                icon = nodeGroups[2]?.operatorList[key].icon;
-              }
-            }
             const x = subTaskNodePositions[subTaskInfo.name].position.x;
             const y =
               subTaskNodePositions[subTaskInfo.name].position.y + nodePositions[task]?.position.y;

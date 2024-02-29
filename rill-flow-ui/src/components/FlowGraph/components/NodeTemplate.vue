@@ -35,13 +35,15 @@
   const logoSwitch = ref(true);
   const getNode = inject<() => any>('getNode');
   if (getNode !== undefined) {
+    console.log("===> nodeTemplate", getNode().store.data)
     status.value = getNode().store.data.attrs.status;
     const type = getNode().store.data.attrs.type;
     const icon = getNode().store.data.attrs.icon;
 
     if (getNode().store.data.attrs.icon !== undefined) {
-      logo.value = NodeLogo.prefix + getNode().store.data.attrs.icon;
-      logoSwitch.value = true;
+      logo.value = getNode().store.data.attrs.icon;
+      // logo.value = NodeLogo.prefix + getNode().store.data.attrs.icon;
+      logoSwitch.value = getNode().store.data.attrs.icon.startsWith('data');
     } else if (type !== undefined && NodeLogo[type] !== undefined) {
       logo.value = NodeLogo[type];
       logoSwitch.value = false;

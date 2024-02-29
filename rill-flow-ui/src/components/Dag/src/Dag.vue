@@ -2,7 +2,7 @@
   <div class="wrap">
     <div class="content flex">
       <div class="sider w-75" v-if="showNodeGroups">
-        <NodesBar :nodes="nodesGroups" />
+        <NodesBar :nodes="nodeGroups" />
       </div>
 
       <div class="panel flex-auto w-50">
@@ -11,12 +11,12 @@
           <ToolBar v-if="showToolBar" :methods="methods" />
         </div>
         <!--流程图画板-->
-        <graph :mode="mode" :readonly="readonly" :showNodeGroups="showNodeGroups" />
+        <graph :mode="mode" :readonly="readonly" :showNodeGroups="showNodeGroups" :nodeGroups="nodeGroups" :dagInfo="dagInfo" />
       </div>
       <!--右侧工具栏-->
       <div v-if="showRightTool">
         <div class="config w-100" v-if="isConfigPanelShow">
-          <config-panel v-if="initGraphStatus" />
+          <config-panel v-if="initGraphStatus" :nodeGroups="nodeGroups" :dagInfo="dagInfo"/>
         </div>
         <div class="show-config">
           <span class="button" @click="toggleConfigPanel">
@@ -60,7 +60,7 @@
 
   const templateNodeReferenceCache = useTemplateNodeReferenceCache();
 
-  const { setTemplateNodeReferenceMap,templateNodeReferenceMap } = templateNodeReferenceCache;
+  const { setTemplateNodeReferenceMap } = templateNodeReferenceCache;
   const route = useRoute();
   const { createMessage } = useMessage();
   const go = useGo();
@@ -71,8 +71,6 @@
   const initGraphParams = ref();
   const graph = ref();
 
-  const dagInfo: any = inject('dagInfo');
-  const nodeGroups: any = inject('nodeGroups');
   console.log('Dag ===> start');
   const props = defineProps({
     mode: {
@@ -93,12 +91,15 @@
       type: Boolean,
     },
     showRightTool: false,
-    nodesGroups: {
+    nodeGroups: {
       type: Object,
     },
     methods: {
       type: Object,
     },
+    dagInfo: {
+      type: Object,
+    }
   });
 
   const showNodeEditModal = ref<boolean>(false);
@@ -112,6 +113,7 @@
   provide('initGraphParams', initGraphParams);
   provide('showNodeEditModal', showNodeEditModal);
   provide('showNodeSchema', showNodeSchema);
+  provide('dagInfo', props.dagInfo);
 
   watch(
     () => showNodeEditModal.value,
@@ -120,9 +122,6 @@
       if (type === 'template') {
         openTemplateNodeModal(showNodeEditModal.value, showNodeSchema.value);
       } else {
-        // TODO 调试节点临时默认为原数据节点
-        // } else if (type === 'meta') {
-        // console.log("Dag showNodeEditModal", showNodeSchema.value.store.data.nodeDetailParams)
         openMetaNodeModal(showNodeEditModal.value, showNodeSchema.value);
       }
       console.log('Dag showNodeEditModal', showNodeEditModal.value, showNodeSchema.value, type);
@@ -132,9 +131,5 @@
 
   const toggleConfigPanel = () => {
     isConfigPanelShow.value = !isConfigPanelShow.value;
-  };
-
-  const updateData = () => {
-    setTemplateNodeReferenceMap({ a: 'ccc' });
   };
 </script>

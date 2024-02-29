@@ -643,7 +643,7 @@ export function nodeList() {
         node_type: 'meta', // or template
         icon: {
           type: 'icon',
-          value: 'ant-design:api-outlined',
+          value: 'ant-design:api-outlined1',
         },
         fields: {
           name: {

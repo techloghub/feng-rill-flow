@@ -83,7 +83,7 @@ export const useProvideGraph = defineStore('graph', () => {
       const cell = graphRef.value?.getCellById(nodeId);
       console.log('getReferences foreach cell', cell);
       const nodePath = '$.' + cell?.data.tooltip;
-      const treeData = convertSchemaToTreeData(cell?.data.nodeDetailSchema.output, nodePath);
+      const treeData = convertSchemaToTreeData(JSON.parse(cell?.data.nodeDetailSchema.output), nodePath);
       return { title: cell?.data.tooltip, value: nodePath, children: treeData };
     });
     console.log('getReferences output ', outputs);
@@ -92,7 +92,7 @@ export const useProvideGraph = defineStore('graph', () => {
 
   function getNodeOutput(nodeId) {
     const cell = graphRef.value?.getCellById(nodeId);
-    return convertSchemaToTreeData(cell?.data.nodeDetailSchema.output);
+    return convertSchemaToTreeData(JSON.parse(cell?.data.nodeDetailSchema.output));
   }
 
   function updateTemplateNodeParams(params: GraphNodeReferenceUpdateParam[]) {

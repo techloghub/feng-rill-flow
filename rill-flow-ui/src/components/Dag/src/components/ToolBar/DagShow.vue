@@ -10,18 +10,18 @@
   >
     <div class="context flex">
       <CodeEditor
-        class="yaml flex-auto w-64"
+        class="yaml flex-auto"
         v-model:value="value"
         :mode="modeValue"
         :readonly="true"
       />
-      <hr />
-      <CodeEditor
-        class="json flex-auto w-64"
-        v-model:value="value1"
-        :mode="modeValue1"
-        :readonly="true"
-      />
+<!--      <hr />-->
+<!--      <CodeEditor-->
+<!--        class="json flex-auto w-64"-->
+<!--        v-model:value="value1"-->
+<!--        :mode="modeValue1"-->
+<!--        :readonly="true"-->
+<!--      />-->
     </div>
 <!--    <div>-->
 <!--      <code-diff-->

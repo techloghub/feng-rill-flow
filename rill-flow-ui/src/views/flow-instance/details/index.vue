@@ -5,24 +5,28 @@
     :showNodeGroups="false"
     :showToolBar="false"
     :showRightTool="true"
+    :nodeGroups="nodeGroups"
+    :dagInfo="dagInfo"
   />
 </template>
 
 <script lang="ts" setup>
   import { Dag, MODE } from '/@/components/Dag'
   import {onMounted, provide, ref} from "vue";
-  const route = useRoute()
-  const { createMessage } = useMessage();
-  const go = useGo();
-  const {t} = useI18n();
-
   import {flowGroupDetailApi, flowInstanceDetailApi} from "@/api/table";
   import {useRoute} from "vue-router";
   import {useMessage} from "@/hooks/web/useMessage";
   import {useGo} from "@/hooks/web/usePage";
   import {useI18n} from "@/hooks/web/useI18n";
 
-  const nodeGroups = ref();
+  const route = useRoute()
+  const { createMessage } = useMessage();
+  const go = useGo();
+  const {t} = useI18n();
+  const nodeGroups = ref({
+    basicNodes: [],
+    plugins: [],
+  });
   const dagInfo = ref();
   console.log("flow-instance start ====>")
   onMounted(async () => {
@@ -38,13 +42,15 @@
       go("/flow-instance/list");
       return;
     }
+    dagInfo.value = response;
 
-    const groups = await flowGroupDetailApi();
-    dagInfo.value = response
-    nodeGroups.value = groups.data
+    const metaNodeResult = await flowGroupDetailApi({ node_type: 'meta'});
+    nodeGroups.value.basicNodes = metaNodeResult.data;
+    const templateNodeResult = await flowGroupDetailApi({ node_type: 'template' });
+    nodeGroups.value.plugins = templateNodeResult.data;
   });
 
-  provide("nodeGroups", nodeGroups)
-  provide("dagInfo", dagInfo)
+  // provide("nodeGroups", nodeGroups)
+  // provide("dagInfo", dagInfo)
 
 </script>

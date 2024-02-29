@@ -1,6 +1,6 @@
 <template>
   <div>
-    <config-grid v-if="type === 'grid' || type === 'edge'" />
+    <config-grid v-if="type === 'grid' || type === 'edge'"  :nodeGroups="nodeGroups" :dagInfo="dagInfo"/>
     <config-node v-if="type === 'node'" />
   </div>
 </template>
@@ -10,12 +10,23 @@
   import ConfigNode from './ConfigNode/index.vue';
   import { ref, inject, onMounted, provide } from 'vue';
   import moment from 'moment';
-  import { RILL_CATEGORY } from '@/components/Dag';
+  import { MODE, RILL_CATEGORY } from "@/components/Dag";
   import {useProvideGraph} from "@/components/Dag/src/store/graph";
   import {storeToRefs} from "pinia";
+  import Graph from "@/components/Dag/src/components/Graph/index.vue";
 
   // const dagInfo: any = inject('dagInfo');
   // const graph: any = inject('graph');
+
+
+  const props = defineProps({
+    nodeGroups: {
+      type: Object,
+    },
+    dagInfo: {
+      type: Object,
+    }
+  });
 
   const provideGraph = useProvideGraph();
   const { graphRef } = storeToRefs(provideGraph);
@@ -24,6 +35,7 @@
   const type = ref('grid');
 
   onMounted(() => {
+    console.log("config panel ", props.nodeGroups, props.dagInfo)
     graphRef.value.on('blank:click', () => {
       type.value = 'grid';
     });
