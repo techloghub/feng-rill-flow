@@ -62,9 +62,18 @@ export default defineComponent({
       },
       {
         field: 'category',
-        component: 'Input',
+        component: 'Select',
         label: 'category',
         rules: [{ required: true }],
+        componentProps: {
+          options: [
+            { label: "function", value: "function"},
+            { label: "suspense", value: "suspense"},
+            { label: "pass", value: "pass"},
+            { label: "return", value: "return"},
+            { label: "foreach", value: "foreach"},
+          ]
+        }
       },
       {
         field: 'icon',
