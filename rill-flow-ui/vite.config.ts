@@ -18,13 +18,13 @@ export default defineApplicationConfig({
       host: true,
       proxy: {
         '/flow': {
-          target: 'http://10.182.20.87:8081',
+          target: 'http://127.0.0.1:8080',
           changeOrigin: true,
           ws: true,
           rewrite: (path) => path.replace(new RegExp(`^/basic-api`), ''),
         },
         '/template': {
-          target: 'http://10.182.20.87:8081',
+          target: 'http://127.0.0.1:8080',
           changeOrigin: true,
           ws: true,
           rewrite: (path) => path.replace(new RegExp(`^/basic-api`), ''),
