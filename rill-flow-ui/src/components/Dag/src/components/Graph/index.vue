@@ -36,6 +36,9 @@
     showNodeGroups: {
       type: Boolean,
     },
+    nodesGroups: {
+      type: {},
+    }
   });
 
   watch(
@@ -63,7 +66,7 @@
       // TODO 测试完成后 该行代码删除
       setTemplateNodeReferenceMap(referenceMap);
 
-      initGraph(toRaw(tasks), nodeGroups.value, container.value, props.readonly, dagDetail);
+      initGraph(toRaw(tasks), nodeGroups.value, container.value, props.readonly, dagDetail, props.mode);
 
       const provideGraph = useProvideGraph();
       const { graphRef } = storeToRefs(provideGraph);

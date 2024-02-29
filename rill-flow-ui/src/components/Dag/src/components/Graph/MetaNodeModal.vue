@@ -83,12 +83,7 @@
         cellRef.value = cell;
         const schemas = cell.store.data.nodeDetailSchema.fields;
         const params = cell.store.data.nodeDetailParams;
-        console.log(
-          'useModalInner schemaInfo ',
-          cell,
-          cell.store.data.nodeDetailSchema,
-          cell.store.data.nodeDetailParams,
-        );
+
 
         for (const dataKey in schemas) {
           schema.value.properties[snakeToCamel(dataKey)] = getJsonSchema(schemas[dataKey]);
@@ -98,6 +93,13 @@
             state.values[snakeToCamel(dataKey)] = getJsonData(params[snakeToCamel(dataKey)]);
           });
         }
+        console.log(
+          'useModalInner schemaInfo ',
+          cell,
+          cell.store.data.nodeDetailSchema,
+          cell.store.data.nodeDetailParams,
+          schema.value
+        );
       });
 
       const handleOk = () => {

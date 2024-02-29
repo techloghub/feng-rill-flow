@@ -41,7 +41,7 @@ export function getActionTypeTheme(type) {
  * 兼容x6/g6
  */
 function getBaseConfig(node) {
-    let { type, shape, tooltip, attrs, x, y, size, id, position, data, actionType, initialization, nodeDetailSchema, nodeDetailParams, icon, ports } = node
+    let { type, shape, tooltip, attrs, x, y, size, id, position, data, actionType, initialization, nodeDetailSchema, nodeDetailParams, icon, ports,executionDetail } = node
     let _width,
         _height,
         _x = x,
@@ -94,6 +94,7 @@ function getBaseConfig(node) {
             nodeDetailSchema: nodeDetailSchema,
             nodeDetailParams: nodeDetailParams,
             icon :icon,
+            executionDetail: executionDetail,
         },
         nodeDetailSchema,
         nodeDetailParams,

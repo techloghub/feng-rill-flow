@@ -4,7 +4,6 @@
     :readonly="true"
     :showNodeGroups="false"
     :showToolBar="false"
-    :nodesBar="{}"
     :showRightTool="true"
   />
 </template>

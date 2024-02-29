@@ -1,13 +1,14 @@
 import yaml from 'js-yaml';
+import {DagMetaInfo} from "@/components/Dag/src/models/global";
 
-export function transferDagJson(graph) {
+export function transferDagJson(graph, dagMeta: DagMetaInfo) {
   const newDagDetail = {
-    version: graph.options.meta.data.version,
-    type: graph.options.meta.data.type,
-    workspace: graph.options.meta.data.workspace,
-    dagName: graph.options.meta.data.dagName,
-    // TODO 需要下发alias参数
-    alias: 'release',
+    version: dagMeta.version,
+    type: dagMeta.type,
+    workspace: dagMeta.workspace,
+    dagName: dagMeta.dagName,
+    alias: dagMeta.alias,
+    inputSchema: dagMeta.inputSchema,
   };
   // 从graph转成json
   // 节点 next
@@ -70,9 +71,13 @@ export function transferDagJson(graph) {
   return newDagDetail;
 }
 
-export function transferDagYaml(graph) {
-  const newDagDetail = transferDagJson(graph);
+export function transferDagYaml(graph, dagMeta: DagMetaInfo) {
+  const newDagDetail = transferDagJson(graph, dagMeta);
   return yaml.dump(newDagDetail);
+}
+
+export function transferJsonYaml(json) {
+  return yaml.dump(json);
 }
 
 export function getNodeReferences(graph, nodeName) {

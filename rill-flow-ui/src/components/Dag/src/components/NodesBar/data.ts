@@ -61,15 +61,15 @@ export function nodeList() {
               required: true,
               options: [
                 {
-                  name: 'http',
+                  label: 'http',
                   value: 'http',
                 },
                 {
-                  name: '阿里通义千问',
+                  label: '阿里通义千问',
                   value: 'ali_ai',
                 },
                 {
-                  name: 'k8s 服务',
+                  label: 'k8s 服务',
                   value: 'service',
                 },
               ],
@@ -81,11 +81,11 @@ export function nodeList() {
               default_value: 'POST',
               options: [
                 {
-                  name: 'POST',
+                  label: 'POST',
                   value: 'POST',
                 },
                 {
-                  name: 'GET',
+                  label: 'GET',
                   value: 'GET',
                 },
               ],
@@ -96,11 +96,11 @@ export function nodeList() {
               required: true,
               options: [
                 {
-                  name: '同步',
+                  label: '同步',
                   value: 'task_scheduler',
                 },
                 {
-                  name: '异步',
+                  label: '异步',
                   value: 'task_async',
                 },
               ],
@@ -252,11 +252,6 @@ export function nodeList() {
                 reference: {
                   title: 'reference',
                   type: 'string',
-                  // pattern: '^[0-9]+$',
-                  // message: {
-                  //   pattern: '输入正确得分'
-                  // },
-                  // default: JSON.stringify([{"title":"parent11111","value":"parent1","children":[{"title":"parent 1-0","value":"parent 1-0","children":[{"title":"my leaf","value":"leaf1"},{"title":"your leaf","value":"leaf2"}]},{"title":"parent 1-1","value":"parent 1-1"}]}]),
                   default: '',
                   'ui:hidden': "{{parentFormData.attr !== 'reference'}}",
                   'ui:width': '60%',
@@ -681,11 +676,11 @@ export function nodeList() {
             default_value: 'POST',
             options: [
               {
-                name: 'POST',
+                label: 'POST',
                 value: 'POST',
               },
               {
-                name: 'GET',
+                label: 'GET',
                 value: 'GET',
               },
             ],
@@ -696,11 +691,11 @@ export function nodeList() {
             required: true,
             options: [
               {
-                name: '同步',
+                label: '同步',
                 value: 'task_scheduler',
               },
               {
-                name: '异步',
+                label: '异步',
                 value: 'task_async',
               },
             ],
@@ -862,11 +857,11 @@ export function nodeList() {
             default_value: 'POST',
             options: [
               {
-                name: 'POST',
+                label: 'POST',
                 value: 'POST',
               },
               {
-                name: 'GET',
+                label: 'GET',
                 value: 'GET',
               },
             ],
@@ -877,11 +872,11 @@ export function nodeList() {
             required: true,
             options: [
               {
-                name: '同步',
+                label: '同步',
                 value: 'task_scheduler',
               },
               {
-                name: '异步',
+                label: '异步',
                 value: 'task_async',
               },
             ],
@@ -1011,6 +1006,64 @@ export function nodeList() {
           },
         },
       },
+      {
+        category: 'inputSchema',
+        node_type: 'meta', // or template
+        icon: {
+          type: 'icon',
+          value: 'ant-design:edit-outlined',
+        },
+        fields: {
+          input_schema: {
+            type: 'list',
+            name: '输入参数',
+            required: true,
+            data: {
+              type: 'object',
+              fields: {
+                paramsName: {
+                  type: 'string',
+                  name: '参数名',
+                  required: true,
+                },
+                paramsType: {
+                  type: 'string',
+                  name: '参数类型',
+                  required: true,
+                  options: [
+                    {
+                      label: 'String',
+                      value: 'String',
+                    },
+                    {
+                      label: 'Number',
+                      value: 'Number',
+                    },
+                    {
+                      label: 'Boolean',
+                      value: 'Boolean',
+                    },
+                    {
+                      label: 'JSON',
+                      value: 'JSON',
+                    },
+                  ],
+                },
+                paramsRequired: {
+                  type: 'boolean',
+                  name: '参数是否必填',
+                  required: true,
+                },
+                paramsDesc: {
+                  type: 'string',
+                  name: '参数描述',
+                  required: false,
+                },
+              },
+            },
+          },
+        },
+      },
     ],
   };
 }
@@ -1079,15 +1132,15 @@ export function templateNode() {
           required: true,
           options: [
             {
-              name: 'http',
+              label: 'http',
               value: 'http',
             },
             {
-              name: '阿里通义千问',
+              label: '阿里通义千问',
               value: 'ali_ai',
             },
             {
-              name: 'k8s 服务',
+              label: 'k8s 服务',
               value: 'service',
             },
           ],
@@ -1099,11 +1152,11 @@ export function templateNode() {
           default_value: 'POST',
           options: [
             {
-              name: 'POST',
+              label: 'POST',
               value: 'POST',
             },
             {
-              name: 'GET',
+              label: 'GET',
               value: 'GET',
             },
           ],
@@ -1114,11 +1167,11 @@ export function templateNode() {
           required: true,
           options: [
             {
-              name: '同步',
+              label: '同步',
               value: 'task_scheduler',
             },
             {
-              name: '异步',
+              label: '异步',
               value: 'task_async',
             },
           ],
@@ -1244,152 +1297,6 @@ export function templateNode() {
           type: 'string',
           name: '下一节点',
           required: false,
-        },
-      },
-    },
-  };
-}
-
-export function dagInfoDemo() {
-  return {
-    data: {
-      dagName: 'choiceSample',
-      workspace: 'rillFlowSample',
-      type: 'flow',
-      version: '0.0.1',
-      tasks: {
-        chatgptExecutor: {
-          next: ['randomNode'],
-          task: {
-            name: 'chatgptExecutor',
-            category: 'function',
-            template_id: 5,
-            pattern: 'task_async',
-            resourceName: 'chatgpt://',
-            inputMappings: [
-              {
-                source: '$.context.prompt',
-                target: '$.input.prompt',
-              },
-            ],
-            outputMappings: [
-              {
-                source: '$.output.result',
-                target: '$.context.gpt_response',
-              },
-              {
-                source: '$.output.error',
-                target: '$.context.error',
-              },
-            ],
-            resourceProtocol: 'chatgpt',
-            parameters: {
-              apikey: {
-                type: 'input',
-                source: '123',
-              },
-              random_num: {
-                type: 'reference',
-                source: '$.context.random_num',
-              },
-            },
-          },
-        },
-        randomNode: {
-          next: ['choiceOne', 'choiceTwo'],
-          task: {
-            next: 'choiceOne,choiceTwo',
-            name: 'randomNode',
-            outputMappings: [
-              {
-                transform: ' return rand(source) + 1;  ',
-                source: '$.context.input_num',
-                target: '$.context.random_num',
-              },
-            ],
-            category: 'pass',
-          },
-        },
-        choiceOnePass: {
-          next: ['printNode'],
-          task: {
-            next: 'printNode',
-            name: 'choiceOnePass',
-            outputMappings: [
-              {
-                transform: 'return 10 * source;',
-                source: '$.context.random_num',
-                target: '$.context.choice_num',
-              },
-            ],
-            category: 'pass',
-          },
-        },
-        startNode: {
-          next: ['randomNode'],
-          task: {
-            next: 'randomNode',
-            name: 'startNode',
-            category: 'pass',
-          },
-        },
-        choiceOne: {
-          next: ['choiceOnePass'],
-          task: {
-            next: 'choiceOnePass',
-            name: 'choiceOne',
-            inputMappings: [
-              {
-                source: '$.context.random_num',
-                target: '$.input.num',
-              },
-            ],
-            category: 'return',
-            conditions: ['$.input.[?(@.num < 5)]'],
-          },
-        },
-        choiceTwoPass: {
-          next: ['printNode'],
-          task: {
-            next: 'printNode',
-            name: 'choiceTwoPass',
-            outputMappings: [
-              {
-                transform: 'return -1 * source;',
-                source: '$.context.random_num',
-                target: '$.context.choice_num',
-              },
-            ],
-            category: 'pass',
-          },
-        },
-        choiceTwo: {
-          next: ['choiceTwoPass'],
-          task: {
-            next: 'choiceTwoPass',
-            name: 'choiceTwo',
-            inputMappings: [
-              {
-                source: '$.context.random_num',
-                target: '$.input.num',
-              },
-            ],
-            category: 'return',
-            conditions: ['$.input.[?(@.num >= 5)]'],
-          },
-        },
-        printNode: {
-          next: [],
-          task: {
-            name: 'printNode',
-            outputMappings: [
-              {
-                source: '$.context.choice_num',
-                target: '$.context.result',
-              },
-            ],
-            category: 'pass',
-          },
         },
       },
     },

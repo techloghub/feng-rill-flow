@@ -3,12 +3,13 @@ import { computed, ref } from 'vue';
 import { Graph } from '@antv/x6';
 
 import { convertSchemaToTreeData } from '@/components/Dag/src/common/outputToTree';
-import { GraphNodeReferenceUpdateParam } from '@/components/Dag/src/models/global';
+import { DagMetaInfo, GraphNodeReferenceUpdateParam } from '@/components/Dag/src/models/global';
 import { TemplateNodeParamType } from '@/components/Dag/src/common/enums';
-import { itemProps } from '@/components/Menu/src/props';
 
 export const useProvideGraph = defineStore('graph', () => {
   const graphRef = ref<Graph>();
+  const dagMeta = ref<DagMetaInfo>();
+  const oldDagInfo = ref({});
   const getGraphRef = computed(() => {
     console.log('getGraphRef', graphRef.value?.getNodes());
     return graphRef;
@@ -16,6 +17,23 @@ export const useProvideGraph = defineStore('graph', () => {
 
   function setGraphRef(value) {
     graphRef.value = value;
+  }
+
+  function setDagMeta(value: DagMetaInfo) {
+    if (value.alias == undefined) {
+      value.alias = 'release';
+    }
+    dagMeta.value = value;
+  }
+
+  function setOldDagInfo(value) {
+    oldDagInfo.value = value;
+  }
+
+  function setDagMetaInputSchema(value) {
+    console.log("setDagMetaInputSchema", dagMeta.value, dagMeta.value instanceof DagMetaInfo);
+    dagMeta.value?.setInputSchema(value);
+    console.log("setDagMetaInputSchema", dagMeta.value, dagMeta.value instanceof DagMetaInfo);
   }
 
   /**
@@ -226,12 +244,18 @@ export const useProvideGraph = defineStore('graph', () => {
     console.log('getNodeType', cell?.data.nodeDetailSchema.node_type);
     return cell?.data.nodeDetailSchema.node_type;
   }
+
   return {
+    dagMeta,
     graphRef,
+    oldDagInfo,
     setGraphRef,
     getGraphRef,
     getReferences,
     getNodeOutput,
     updateTemplateNodeParams,
+    setDagMeta,
+    setDagMetaInputSchema,
+    setOldDagInfo,
   };
 });

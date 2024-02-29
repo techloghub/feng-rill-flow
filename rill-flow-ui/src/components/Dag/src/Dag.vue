@@ -2,7 +2,7 @@
   <div class="wrap">
     <div class="content flex">
       <div class="sider w-75" v-if="showNodeGroups">
-        <NodesBar :nodes="nodesBar" />
+        <NodesBar :nodes="nodesGroups" />
       </div>
 
       <div class="panel flex-auto w-50">
@@ -93,7 +93,7 @@
       type: Boolean,
     },
     showRightTool: false,
-    nodesBar: {
+    nodesGroups: {
       type: Object,
     },
     methods: {

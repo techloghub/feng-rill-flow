@@ -23,31 +23,34 @@
         :readonly="true"
       />
     </div>
+<!--    <div>-->
+<!--      <code-diff-->
+<!--        :old-string="oldString"-->
+<!--        :new-string="newString"-->
+<!--        language="yaml"-->
+<!--        output-format="side-by-side"-->
+<!--        filename="文件名"-->
+<!--        theme="light"-->
+<!--      ></code-diff>-->
+<!--    </div>-->
   </BasicModal>
 </template>
-<script lang="ts">
-  import { defineComponent, ref } from 'vue';
+<script lang="ts" setup>
+  import { ref } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { CodeEditor, MODE } from '@/components/CodeEditor';
 
-  export default defineComponent({
-    components: { BasicModal, CodeEditor },
-    setup() {
-      const modeValue = ref<MODE>(MODE.JSON);
-      const modeValue1 = ref<MODE>(MODE.JSON);
-      const value = ref({});
-      const value1 = ref({});
-      const oldString = ref();
-      const newString = ref();
+  const modeValue = ref<MODE>(MODE.JSON);
+  const modeValue1 = ref<MODE>(MODE.JSON);
+  const value = ref({});
+  const value1 = ref({});
+  const oldString = ref();
+  const newString = ref();
 
-      const [register] = useModalInner((data) => {
-        value.value = data.yaml;
-        value1.value = data.json;
-        newString.value = data.newString;
-        oldString.value = data.oldString;
-      });
-
-      return { register, modeValue, modeValue1, value, value1, newString, oldString };
-    },
+  const [register] = useModalInner((data) => {
+    value.value = data.yaml;
+    value1.value = data.json;
+    newString.value = data.newString;
+    oldString.value = data.oldString;
   });
 </script>

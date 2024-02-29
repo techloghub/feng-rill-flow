@@ -2,15 +2,15 @@
   <div class="title">节点列表</div>
   <div class="context px-1" v-if="nodes">
     <a-tabs v-model:activeKey="activeKey">
-      <a-tab-pane key="1" tab="流程节点">
+      <a-tab-pane key="1" tab="基础节点">
         <div
           class="tab-pane px-4 py-2"
-          v-for="(node, index) in nodeList().function"
+          v-for="(node, index) in nodes?.basicNodes"
           :key="index"
           @mousedown="
             startDrag(
               {
-                label: node.category,
+                label: node.name,
                 shape: 'rect',
                 actionType: 'Vue-node',
                 nodeDetailSchema: node,
@@ -19,7 +19,7 @@
             )
           "
         >
-          <NodeTemplate :label="node.category" :icon="node.icon" />
+          <NodeTemplate :label="node.name" :icon="node.icon" />
         </div>
 
         <div
@@ -38,15 +38,32 @@
             )
           "
         >
-          <!--        {{node}}-->
           <NodeTemplate
             :label="node.node_type === 'meta' ? node.category : node.name"
-            :icon="node.icon"
+            :icon="node.icon.value"
           />
         </div>
       </a-tab-pane>
-      <a-tab-pane key="3" tab="逻辑节点"> 待添加 </a-tab-pane>
-      <a-tab-pane key="4" tab="插件节点"> 待添加 </a-tab-pane>
+      <a-tab-pane key="4" tab="插件节点">
+        <div
+          class="tab-pane px-4 py-2"
+          v-for="(node, index) in nodes?.plugins"
+          :key="index"
+          @mousedown="
+            startDrag(
+              {
+                label: node.name,
+                shape: 'rect',
+                actionType: 'Vue-node',
+                nodeDetailSchema: node,
+              },
+              $event,
+            )
+          "
+        >
+          <NodeTemplate :label="node.name" :icon="node.icon" />
+        </div>
+      </a-tab-pane>
     </a-tabs>
   </div>
 </template>

@@ -45,3 +45,32 @@ export class GraphNodeReferenceUpdateParam {
     this.type = type;
   }
 }
+
+export class DagMetaInfo {
+  workspace: string;
+  dagName: string;
+  type: string;
+  version: string;
+  alias: string;
+  inputSchema: string;
+
+  constructor(
+    workspace: string,
+    dagName: string,
+    type: string,
+    version: string,
+    inputSchema: string,
+    alias: string,
+  ) {
+    this.workspace = workspace;
+    this.dagName = dagName;
+    this.type = type;
+    this.version = version;
+    this.alias = alias;
+    this.inputSchema = inputSchema;
+  }
+
+  setInputSchema(inputSchema: []) {
+    this.inputSchema = JSON.stringify(inputSchema);
+  }
+}

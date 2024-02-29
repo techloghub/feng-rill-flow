@@ -14,6 +14,7 @@ import {
   Rate,
   Switch,
   Card,
+  Tooltip,
 } from 'ant-design-vue';
 import VXETable from 'vxe-table';
 import CodeDiff from 'v-code-diff';
@@ -35,5 +36,6 @@ export function registerGlobComp(app: App) {
     .use(Switch)
     .use(Tabs)
     .use(CodeDiff)
+    .use(Tooltip)
     .use(Card);
 }

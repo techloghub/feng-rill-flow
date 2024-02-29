@@ -14,6 +14,8 @@ import { getVueNode } from '@/components/Dag/src/common/transform';
 import { nodeList } from '@/components/Dag/src/components/NodesBar/data';
 import { useProvideGraph } from '@/components/Dag/src/store/graph';
 import { storeToRefs } from 'pinia';
+import {DagMetaInfo} from "@/components/Dag/src/models/global";
+import {MODE} from "@/components/Dag";
 
 const defaultGraphConfig: Partial<GraphOptions.Manual> = {
   container: null,
@@ -86,7 +88,7 @@ const defaultGraphConfig: Partial<GraphOptions.Manual> = {
   },
 };
 
-export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta) {
+export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta, mode) {
   if (readonly) {
     defaultGraphConfig.connecting.validateConnection = () => {
       return false;
@@ -97,14 +99,19 @@ export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta) {
   const graph = new Graph(defaultGraphConfig);
   initGraphShape(graph, dagInfo, nodeGroups);
   initGraphEvent(graph);
-  console.log('isKeyboardEnabled', graph.isKeyboardEnabled());
+
+  console.log('isKeyboardEnabled', graph.isKeyboardEnabled(), graphMeta);
   initStencil(graph, nodeGroups);
   graph.resize(document.body.offsetWidth, document.body.offsetHeight);
 
   // 写入本地缓存
   const provideGraph = useProvideGraph();
-  const { setGraphRef, getGraphRef } = provideGraph;
+  const { setGraphRef, getGraphRef, setDagMeta, setOldDagInfo } = provideGraph;
   setGraphRef(graph);
+  if (mode === MODE.DEFINITION) {
+    setDagMeta(new DagMetaInfo(graphMeta.data.workspace, graphMeta.data.dagName, graphMeta.data.type, graphMeta.data.version, graphMeta.data.inputSchema, graphMeta.data.alias));
+    setOldDagInfo(graphMeta.data);
+  }
   return getGraphRef;
 }
 
@@ -282,6 +289,7 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
           value: 'ant-design:api-outlined',
         },
         ports: item.ports,
+        executionDetail: tasks[item.attrs.label.text],
       });
       const cell = graphInstance.createNode(json);
       console.log('generateRelations initGraphShape 展示图', cell, defaultNode, json, item);
