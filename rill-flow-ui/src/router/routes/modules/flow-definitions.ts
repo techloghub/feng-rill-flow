@@ -36,15 +36,6 @@ const flowDefinitions: { redirect: string; path: string; component: () => Promis
       },
     },
     {
-      path: 'node-templete',
-      name: 'FlowNodeTemplete',
-      component: () => import('@/views/flow-definition/node-templete/index.vue'),
-      meta: {
-        title: t('routes.flow.definitions.node_templete'),
-        open: true,
-      },
-    },
-    {
       path: 'node-templetes',
       name: 'FlowNodeTempletes',
       component: () => import('@/views/flow-definition/node-templetes/index.vue'),
