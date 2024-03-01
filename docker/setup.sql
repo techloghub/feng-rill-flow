@@ -19,7 +19,7 @@ USE rill_flow;
 CREATE TABLE IF NOT EXISTS `task_template` (
     `id` bigint NOT NULL AUTO_INCREMENT,
     `name` varchar(64) NOT NULL DEFAULT '' COMMENT 'template name',
-    `type` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'template type: 0. function，1. plugin，2. logic',
+    `type` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'template type: 0. function, 1. plugin, 2. logic',
     `category` varchar(64) NOT NULL DEFAULT '' COMMENT 'template category: function, foreach, etc.',
     `icon` TEXT NOT NULL COMMENT 'icon base64 string',
     `task_yaml` TEXT NOT NULL COMMENT 'default task yaml configurations in dag',
@@ -33,7 +33,10 @@ CREATE TABLE IF NOT EXISTS `task_template` (
     KEY `idx_type_category` (`type`, `category`),
     KEY `idx_update_time` (`update_time`),
     KEY `idx_create_time` (`create_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='Rill Flow task template table';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Rill Flow task template table';
 
 grant all on *.* to 'root'@'%' identified by 'secret';
 flush privileges;
+
+DELETE FROM task_template where `name` = '通义千问文本AI模型';
+INSERT INTO task_template (`name`, `type`, `category`, `icon`, `task_yaml`, `schema`, `output`, `enable`, `create_time`, `update_time`) VALUES ('通义千问文本AI模型', 1, 'function', '', 'resourceName: "aliyun_ai://xxx"\nresourceProtocal: "aliyun_ai"', '{"type":"object","required":["appkey","model","prompt"],"properties":{"appkey":{"type":"string","title":"appkey"},"model":{"type":"string","title":"model"},"prompt":{"type":"string","title":"prompt"},"message_suffix":{"type":"string","title":"后缀信息"},"message_prefix":{"type":"string","title":"前缀信息"}}}', '', 1, now(), now());
