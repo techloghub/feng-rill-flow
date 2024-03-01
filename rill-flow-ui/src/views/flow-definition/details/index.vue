@@ -88,24 +88,22 @@
 
   onMounted(async () => {
     console.log('xxx', route.query);
+    const metaNodeResult = await flowGroupDetailApi({ node_type: 'meta'});
+    nodeGroups.value.basicNodes = metaNodeResult.data;
+    const templateNodeResult = await flowGroupDetailApi({ node_type: 'template' });
+    nodeGroups.value.plugins = templateNodeResult.data;
+
     if (route.query.type === 'create') {
-      dagMeta.value = route.query.dagMeta;
-    } else if (route.query.descriptor_id === undefined) {
-      createMessage.warn(t('routes.flow.instances.graph.execution_detail_none_message'));
-      go('/flow-definition/list');
+      dagInfo.value = {};
       return;
     }
-
     const response = await flowDefinitionDetailApi({ id: route.query.descriptor_id }, {});
     if (response.tasks === '{}') {
       createMessage.error(t('routes.flow.instances.graph.execution_detail_expire_message'));
       go('/flow-instance/list');
       return;
     }
-    const metaNodeResult = await flowGroupDetailApi({ node_type: 'meta'});
-    nodeGroups.value.basicNodes = metaNodeResult.data;
-    const templateNodeResult = await flowGroupDetailApi({ node_type: 'template' });
-    nodeGroups.value.plugins = templateNodeResult.data;
+
     response.id = route.query.descriptor_id;
     dagInfo.value = response;
     console.log('===> dagInfo', nodeGroups.value);

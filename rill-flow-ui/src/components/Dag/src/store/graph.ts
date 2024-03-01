@@ -83,7 +83,9 @@ export const useProvideGraph = defineStore('graph', () => {
       const cell = graphRef.value?.getCellById(nodeId);
       console.log('getReferences foreach cell', cell);
       const nodePath = '$.' + cell?.data.tooltip;
-      const treeData = convertSchemaToTreeData(JSON.parse(cell?.data.nodeDetailSchema.output), nodePath);
+      const output = (typeof cell?.data.nodeDetailSchema.output === 'string') ? JSON.parse(cell?.data.nodeDetailSchema.output) : cell?.data.nodeDetailSchema.output;
+
+      const treeData = convertSchemaToTreeData(output, nodePath);
       return { title: cell?.data.tooltip, value: nodePath, children: treeData };
     });
     console.log('getReferences output ', outputs);
@@ -92,7 +94,8 @@ export const useProvideGraph = defineStore('graph', () => {
 
   function getNodeOutput(nodeId) {
     const cell = graphRef.value?.getCellById(nodeId);
-    return convertSchemaToTreeData(JSON.parse(cell?.data.nodeDetailSchema.output));
+    const output = (typeof cell?.data.nodeDetailSchema.output === 'string') ? JSON.parse(cell?.data.nodeDetailSchema.output) : cell?.data.nodeDetailSchema.output;
+    return convertSchemaToTreeData(output);
   }
 
   function updateTemplateNodeParams(params: GraphNodeReferenceUpdateParam[]) {

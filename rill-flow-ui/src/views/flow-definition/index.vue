@@ -27,6 +27,15 @@
         <FlowDetail @register="register1"/>
       </template>
     </template>
+    <template #toolbar>
+      <Tooltip>
+        <template #title>
+          <p>新建</p>
+        </template>
+        <a-button type="primary" @click="handleCreate()"> 新建 </a-button>
+      </Tooltip>
+    </template>
+
   </BasicTable>
 </template>
 <script lang="ts" setup>
@@ -40,6 +49,7 @@ import {useI18n} from '/@/hooks/web/useI18n';
 import {useModal} from "@/components/Modal";
 import Versions from './Versions.vue';
 import FlowDetail from "@/views/flow-definition/FlowDetail.vue";
+import { Tooltip } from "ant-design-vue";
 const {t} = useI18n();
 const go = useGo();
 
@@ -68,8 +78,16 @@ function handleDetail(record: Recordable) {
       "descriptor_id": record.descriptor_id,
     }
   });
-
 }
+function handleCreate() {
+  go({
+    "path": "/flow-definition/detail",
+    "query": {
+      "type": 'create',
+    }
+  });
+}
+
 
 const [register, {openModal: openModal}] = useModal();
 const [register1, {openModal: openModal1}] = useModal();

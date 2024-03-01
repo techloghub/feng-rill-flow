@@ -108,8 +108,8 @@ export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta, m
   const provideGraph = useProvideGraph();
   const { setGraphRef, getGraphRef, setDagMeta, setOldDagInfo } = provideGraph;
   setGraphRef(graph);
-  if (mode === MODE.DEFINITION) {
-    setDagMeta(new DagMetaInfo(graphMeta.data.workspace, graphMeta.data.dagName, graphMeta.data.type, graphMeta.data.version, graphMeta.data.inputSchema, graphMeta.data.alias));
+  if (mode === MODE.DEFINITION && graphMeta.data !== undefined) {
+    setDagMeta(new DagMetaInfo(graphMeta.data.workspace, graphMeta.data.dagName, graphMeta.data.type, graphMeta.data.version, graphMeta.data.inputSchema, graphMeta.data.alias, graphMeta.id));
     setOldDagInfo(graphMeta.data);
   }
   return getGraphRef;
@@ -270,8 +270,25 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
 
       // TODO 从模版列表接口中获取指定类型的
       if (tasks[item.attrs.label.text].task.id) {
-        console.log('initGraphShape 展示图', tasks[item.attrs.label.text].task.id);
+        console.log('initGraphShape 展示图', tasks[item.attrs.label.text].task);
         nodeDetailSchema = nodeList().plugin[0];
+        // nodeGroups.plugins.forEach((item) => {
+        //   if (item.id === tasks[item.attrs.label.text].task.id) {
+        //     nodeDetailSchema = item.icon;
+        //   }
+        // });
+      } else {
+        console.log('initGraphShape meta ', nodeGroups, tasks[item.attrs.label.text].task.category);
+
+        // nodeGroups.basicNodes.forEach((item) => {
+        //   console.log('initGraphShape meta ', nodeGroups, tasks[item.attrs.label.text].task.category, item);
+        //
+        //   // if (item.name === tasks[item.attrs.label.text].task.category) {
+        //   //   // nodeDetailSchema = item.meta_data.fields;
+        //   //
+        //   // }
+        // });
+        // console.log('initGraphShape meta ', item.attrs.label.text, nodeDetailSchema);
       }
 
       const json = getVueNode({

@@ -152,7 +152,7 @@
       'replaceUIWidget init',
       cell.store.data.nodeDetailSchema,
     );
-    const newSchema = JSON.parse(cell.store.data.nodeDetailSchema?.schema)
+    const newSchema = (typeof cell.store.data.nodeDetailSchema?.schema === 'string') ? JSON.parse(cell.store.data.nodeDetailSchema?.schema) :cell.store.data.nodeDetailSchema?.schema;
     console.log('replaceUIWidget init test', newSchema)
     console.log('replaceUIWidget init test1', newSchema.properties)
     const data = cloneDeep(newSchema);

@@ -3,12 +3,12 @@ import {DagMetaInfo} from "@/components/Dag/src/models/global";
 
 export function transferDagJson(graph, dagMeta: DagMetaInfo) {
   const newDagDetail = {
-    version: dagMeta.version,
-    type: dagMeta.type,
-    workspace: dagMeta.workspace,
-    dagName: dagMeta.dagName,
-    alias: dagMeta.alias,
-    inputSchema: dagMeta.inputSchema,
+    version: dagMeta?.version,
+    type: dagMeta?.type,
+    workspace: dagMeta?.workspace,
+    dagName: dagMeta?.dagName,
+    alias: dagMeta?.alias,
+    inputSchema: dagMeta?.inputSchema,
   };
   // 从graph转成json
   // 节点 next

@@ -62,6 +62,7 @@
   import {storeToRefs} from "pinia";
   import {getInputSchema} from "@/components/Dag/src/components/ToolBar/data";
   import {transferDagYaml} from "@/components/Dag/src/common/graphTransform";
+  import { DagMetaInfo } from "@/components/Dag/src/models/global";
   const form = ref();
   form.value = createForm();
 
@@ -85,6 +86,7 @@
   })
   const provideGraph = useProvideGraph();
   const { graphRef, dagMeta } = storeToRefs(provideGraph);
+  const { setDagMeta, setDagMetaInputSchema } = provideGraph;
 
   const schema = ref({});
   schema.value = {
@@ -136,22 +138,21 @@
             },
             properties: getInputSchema(),
           },
-          step3: {
-            type: 'void',
-            'x-component': 'FormStep.StepPane',
-            'x-component-props': {
-              title: '第三步',
-            },
-            properties: {
-              yaml: {
-                type: 'string',
-                title: 'yaml',
-                required: true,
-                'x-decorator': 'FormItem',
-                'x-component': 'PreviewText.Input',
-              },
-            },
-          },
+          // step3: {
+          //   type: 'void',
+          //   'x-component': 'FormStep.StepPane',
+          //   'x-component-props': {
+          //     title: '第三步',
+          //   },
+          //   properties: {
+          //     yaml: {
+          //       type: 'string',
+          //       title: 'yaml',
+          //       'x-decorator': 'FormItem',
+          //       'x-component': 'PreviewText.Input',
+          //     },
+          //   },
+          // },
         },
       },
     }
@@ -173,8 +174,10 @@
 
   const handleOk = () => {
     //更新普通节点中的数据
-    console.log('handleOk', form.value.getFormState().values);
+    setDagMeta(new DagMetaInfo(form.value.getFormState().values.workspace, form.value.getFormState().values.dagName, 'flow', '1.0.0', form.value.getFormState().values.inputSchema, form.value.getFormState().values.alias, ''));
+    setDagMetaInputSchema(form.value.getFormState().values.inputSchema);
     let yamlData = transferDagYaml(graphRef.value, dagMeta.value);
+    console.log('handleOk', form.value.getFormState().values, dagMeta.value);
 
     submitDag.value({
         business_id: dagMeta.value.workspace,

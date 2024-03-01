@@ -53,6 +53,7 @@ export class DagMetaInfo {
   version: string;
   alias: string;
   inputSchema: string;
+  id: string;
 
   constructor(
     workspace: string,
@@ -61,6 +62,7 @@ export class DagMetaInfo {
     version: string,
     inputSchema: string,
     alias: string,
+    id: string,
   ) {
     this.workspace = workspace;
     this.dagName = dagName;
@@ -68,6 +70,7 @@ export class DagMetaInfo {
     this.version = version;
     this.alias = alias;
     this.inputSchema = inputSchema;
+    this.id = id;
   }
 
   setInputSchema(inputSchema: []) {

@@ -22,7 +22,7 @@
           <NodeTemplate :label="node.name" :icon="node.icon" />
         </div>
       </a-tab-pane>
-      <a-tab-pane key="4" tab="插件节点">
+      <a-tab-pane key="4" tab="模版节点">
         <div
           class="tab-pane px-4 py-2"
           v-for="(node, index) in nodes?.plugins"

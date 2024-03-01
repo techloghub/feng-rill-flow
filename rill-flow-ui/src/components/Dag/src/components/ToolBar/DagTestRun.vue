@@ -75,7 +75,7 @@
     console.log('handleOk', form.value.getFormState().values, executeDag.value);
 
     executeDag.value({
-        descriptor_id: 'rillFlowSimple2:greet:md5_0e0f2a84c5ec44d631528feacfadba62',
+        descriptor_id: dagMeta.value.id,
     },
       form.value.getFormState().values
     );
