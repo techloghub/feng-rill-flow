@@ -2,55 +2,69 @@
   <div class="bar">
     <a-tooltip placement="bottom">
       <template #title>
-        <span>清除 (Cmd + D)</span>
+        <span>保存已修改内容</span>
       </template>
-      <a-button name="delete" @click="handleClick" class="item-space" size="small">
-        delete
-      </a-button>
+      <a-button name="save" @click="handleClick" class="item-space" size="small">保存</a-button>
     </a-tooltip>
 
     <a-tooltip placement="bottom">
       <template #title>
-        <span>导出 (Cmd + P)</span>
+        <span>提交Dag的测试任务</span>
+      </template>
+      <a-button name="submitDagTestRun" @click="handleClick" class="item-space" size="small">测试</a-button>
+    </a-tooltip>
+
+    <a-tooltip placement="bottom">
+      <template #title>
+        <span>DagYaml信息</span>
       </template>
       <a-button name="toJSON" @click="handleClick" class="item-space" size="small">
-        toJSON
+        详情
       </a-button>
-    </a-tooltip>
-    <a-tooltip placement="bottom">
-      <template #title>
-        <span>save</span>
-      </template>
-      <a-button name="save" @click="handleClick" class="item-space" size="small"> save</a-button>
     </a-tooltip>
 
     <a-tooltip placement="bottom">
       <template #title>
-        <span>Test Run</span>
+        <span>Dag任务提交参数结构</span>
       </template>
-      <a-button name="save" @click="handleClick" class="item-space" size="small"> Test Run</a-button>
+      <a-button name="updateDagInputSchema" @click="handleClick" class="item-space" size="small">参数schema</a-button>
     </a-tooltip>
-    <DagShow @register="register1" />
+
+    <DagShow @register="registerDagShow" />
+    <DagSave @register="registerDagSave" />
+    <DagInputSchema @register="registerDagInputSchema" />
+    <DagTestRun @register="registerDagTestRun" />
   </div>
 </template>
 
 <script lang="ts">
-  import { defineComponent } from 'vue';
+import {defineComponent, toRaw} from 'vue';
   import { useModal } from '@/components/Modal';
   import DagShow from '@/components/Dag/src/components/ToolBar/DagShow.vue';
-  import { transferDagJson, transferDagYaml } from '@/components/Dag/src/common/graphTransform';
+  import DagSave from '@/components/Dag/src/components/ToolBar/DagSave.vue';
+  import DagInputSchema from '@/components/Dag/src/components/ToolBar/DagInputSchema.vue';
+  import DagTestRun from '@/components/Dag/src/components/ToolBar/DagTestRun.vue';
+import {
+  transferDagJson,
+  transferDagYaml,
+  transferJsonYaml
+} from '@/components/Dag/src/common/graphTransform';
   import { useProvideGraph } from '@/components/Dag/src/store/graph';
   import { storeToRefs } from 'pinia';
+  import { DagMetaInfo } from "@/components/Dag/src/models/global";
 
   export default defineComponent({
     name: 'Index',
-    components: { DagShow },
+    components: { DagShow, DagSave, DagInputSchema, DagTestRun },
     props: { methods: { type: Object } },
     setup: function (props) {
       const provideGraph = useProvideGraph();
-      const { graphRef } = storeToRefs(provideGraph);
+      const { graphRef, dagMeta, oldDagInfo } = storeToRefs(provideGraph);
 
-      const [register1, { openModal: openModal1 }] = useModal();
+      const [registerDagShow, { openModal: openDagShowModal }] = useModal();
+      const [registerDagSave, { openModal: openDagSaveModal }] = useModal();
+      const [registerDagInputSchema, { openModal: openDagInputSchemaModal }] = useModal();
+      const [registerDagTestRun, { openModal: openDagTestRunModal }] = useModal();
 
       const handleClick = (event: Event) => {
         // const { graph } = FlowGraph;
@@ -59,34 +73,31 @@
 
         switch (name) {
           case 'save':
-            let newDagDetail1 = transferDagJson(graphRef.value);
-            let yamlData1 = transferDagYaml(graphRef.value);
-
-            props.methods?.submitDag(
-              {
-                business_id: newDagDetail1.workspace,
-                feature_name: newDagDetail1.dagName,
-                alias: newDagDetail1?.alias,
-              },
-              yamlData1,
-            );
-            console.log(
-              'event save',
-              newDagDetail1,
-              newDagDetail1.workspace,
-              newDagDetail1.dagName,
-              props.methods,
-            );
+            openDagSaveModal(true, {method: props.methods?.submitDag });
             break;
           case 'toJSON':
-            console.log('toJSON====>', graphRef.value, graphRef.value);
-            let newDagDetail = transferDagJson(graphRef.value);
+            console.log('toJSON====>', graphRef.value, toRaw(dagMeta.value));
+            let newDagDetail = transferDagJson(graphRef.value, dagMeta.value);
 
-            console.log('toJSON====> newDagDetail ', graphRef.value, newDagDetail);
-            let yamlData = transferDagYaml(graphRef.value);
+            console.log('toJSON====> newDagDetail ', graphRef.value, newDagDetail, oldDagInfo.value);
+            let yamlData = transferDagYaml(graphRef.value, dagMeta.value);
+            let oldData = transferJsonYaml(toRaw(oldDagInfo.value));
+            // let oldData = transferJsonYaml(graphRef.value.options.meta.data);
+            openDagShowModal(true, {
+              yaml: yamlData,
+              json: JSON.stringify(newDagDetail),
+              newString: yamlData,
+              oldString: oldData,
+            });
 
-            openModal1(true, { yaml: yamlData, json: JSON.stringify(newDagDetail) });
-
+            break;
+          case 'updateDagInputSchema':
+            console.log('updateDagInputSchema====>', graphRef.value, dagMeta.value, toRaw(dagMeta.value));
+            openDagInputSchemaModal(true, toRaw(dagMeta.value));
+            break;
+          case 'submitDagTestRun':
+            console.log('updateDagInputSchema====>', graphRef.value, dagMeta.value, toRaw(dagMeta.value), props.methods.executeDag);
+            openDagTestRunModal(true, {data: dagMeta.value, executeDagMethod: props.methods.executeDag});;
             break;
           default:
             break;
@@ -95,8 +106,10 @@
 
       return {
         handleClick,
-        openModal1,
-        register1,
+        registerDagShow,
+        registerDagSave,
+        registerDagInputSchema,
+        registerDagTestRun,
       };
     },
   });
@@ -108,6 +121,7 @@
   }
 
   .item-space {
+    margin-top: 7px;
     margin-left: 16px;
   }
 </style>

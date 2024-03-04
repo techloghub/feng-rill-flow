@@ -14,10 +14,11 @@ enum Api {
   FEATURE_LIST = '/flow/bg/manage/descriptor/get_feature.json',
   INSTANCE_DETAIL = '/flow/bg/get_execution.json',
   DEFINITION_DETAIL = '/flow/bg/get_descriptor.json',
-  FLOW_GROUP = '/flow/bg/edit/dag_op_groups.json',
+  FLOW_GROUP = '/template/get_task_templates.json',
   FLOW_VERSIONS = '/flow/bg/manage/descriptor/get_version.json',
   FLOW_DETAIL = '/flow/bg/manage/descriptor/get_descriptor.json',
   FLOW_SUBMIT = '/flow/bg/manage/descriptor/add_descriptor.json',
+  FLOW_EXECUTE = '/flow/submit.json',
 }
 
 /**
@@ -114,9 +115,10 @@ export const flowInstanceDetailApi = (params: InstanceDetailParam) =>
     },
   });
 
-export const flowGroupDetailApi = () =>
+export const flowGroupDetailApi = (params) =>
   defHttp.get({
     url: Api.FLOW_GROUP,
+    params,
   });
 
 export const getBusinessIdsApi = () =>
@@ -164,5 +166,18 @@ export const getFlowSubmitApi = (params, yamlData) =>
       // @ts-ignore
       ignoreCancelToken: true,
       'Content-Type': 'text/plain',
+    },
+  });
+
+export const getFlowExecuteApi = (params, data) =>
+  defHttp.post({
+    url: Api.FLOW_EXECUTE,
+    params: params,
+    data: data,
+    joinParamsToUrl: true,
+    headers: {
+      // @ts-ignore
+      ignoreCancelToken: true,
+      'Content-Type': 'application/json',
     },
   });

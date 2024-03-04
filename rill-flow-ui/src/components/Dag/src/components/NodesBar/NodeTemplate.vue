@@ -1,21 +1,21 @@
 <template>
   <div class="node">
-    <img class="logo" v-if="icon.type === 'img_base64'" :src="icon.value" alt="" />
-    <Icon v-if="icon.type === 'icon'" :icon="icon.value" :size="18" class="logo pt-1" />
+    <img class="logo" v-if="icon?.startsWith('data')" :src="icon" alt="" />
+    <Icon v-if="icon?.startsWith('ant-design')" :icon="icon" :size="18" class="logo pt-1" />
     <span class="label"> {{ label }}</span>
-
   </div>
 </template>
-// 这里面定义图形
+
 <script lang="ts" setup>
   import Icon from '@/components/Icon/Icon.vue';
 
   const props = defineProps({
     label: { type: String },
-    icon: { type: Object },
+    icon: { type: String },
     options: { type: Object },
     optShow: { type: Boolean },
   });
+
 </script>
 
 <style lang="scss" scoped>

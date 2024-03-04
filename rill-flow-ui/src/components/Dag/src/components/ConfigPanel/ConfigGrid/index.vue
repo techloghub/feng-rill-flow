@@ -13,7 +13,7 @@
 
 
 <script lang="ts" setup>
-import {h, createVNode, inject, onMounted, ref} from 'vue';
+import { h, createVNode, inject, onMounted, ref, watch } from "vue";
 import {Description, DescItem, useDescription} from '@/components/Description';
 import moment from "moment";
 import {Typography, Progress} from "ant-design-vue";
@@ -45,18 +45,30 @@ const commonLinkRender = (text: string) => (href) => {
   }
 };
 
+const props = defineProps({
+  nodeGroups: {
+    type: Object,
+  },
+  dagInfo: {
+    type: Object,
+  }
+});
+
 
 onMounted(() => {
+  console.log("config grid ", props.nodeGroups, props.dagInfo, props.dagInfo.execution_id, props.dagInfo?.execution_id)
+
   dagInfo.value = {
-    execution_id: dagDetail.value?.execution_id,
-    status: dagDetail.value?.dag_status,
-    progress: dagDetail.value?.process,
-    start_time: moment(dagDetail.value?.dag_invoke_msg?.invoke_time_infos[0].start_time).format('YYYY-MM-DD HH:mm:ss'),
-    end_time: moment(dagDetail.value?.dag_invoke_msg?.invoke_time_infos[0].end_time).format('YYYY-MM-DD HH:mm:ss'),
-    context: JSON.stringify(dagDetail.value?.context),
-    result: dagDetail.value?.dag_invoke_msg?.msg,
-    trace: dagDetail.value?.trace_url
+    execution_id: props.dagInfo?.execution_id,
+    status: props.dagInfo?.dag_status,
+    progress: props.dagInfo?.process,
+    start_time: moment(props.dagInfo?.dag_invoke_msg?.invoke_time_infos[0].start_time).format('YYYY-MM-DD HH:mm:ss'),
+    end_time: moment(props.dagInfo?.dag_invoke_msg?.invoke_time_infos[0].end_time).format('YYYY-MM-DD HH:mm:ss'),
+    context: JSON.stringify(props.dagInfo?.context),
+    result: props.dagInfo?.dag_invoke_msg?.msg,
+    trace: props.dagInfo?.trace_url
   }
+
   const trace_schema = {
     field: 'trace',
     label: t('routes.flow.instances.graph.grid.schema.trace'),
@@ -138,6 +150,7 @@ onMounted(() => {
     schema.value.push(trace_schema)
   }
 
+  console.log('config grid  schema ', schema.value, dagInfo.value);
 });
 
 const [registerDes] = useDescription({

@@ -14,6 +14,8 @@ import { getVueNode } from '@/components/Dag/src/common/transform';
 import { nodeList } from '@/components/Dag/src/components/NodesBar/data';
 import { useProvideGraph } from '@/components/Dag/src/store/graph';
 import { storeToRefs } from 'pinia';
+import {DagMetaInfo} from "@/components/Dag/src/models/global";
+import {MODE} from "@/components/Dag";
 
 const defaultGraphConfig: Partial<GraphOptions.Manual> = {
   container: null,
@@ -86,7 +88,7 @@ const defaultGraphConfig: Partial<GraphOptions.Manual> = {
   },
 };
 
-export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta) {
+export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta, mode) {
   if (readonly) {
     defaultGraphConfig.connecting.validateConnection = () => {
       return false;
@@ -97,14 +99,19 @@ export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta) {
   const graph = new Graph(defaultGraphConfig);
   initGraphShape(graph, dagInfo, nodeGroups);
   initGraphEvent(graph);
-  console.log('isKeyboardEnabled', graph.isKeyboardEnabled());
+
+  console.log('isKeyboardEnabled', graph.isKeyboardEnabled(), graphMeta);
   initStencil(graph, nodeGroups);
   graph.resize(document.body.offsetWidth, document.body.offsetHeight);
 
   // 写入本地缓存
   const provideGraph = useProvideGraph();
-  const { setGraphRef, getGraphRef } = provideGraph;
+  const { setGraphRef, getGraphRef, setDagMeta, setOldDagInfo } = provideGraph;
   setGraphRef(graph);
+  if (mode === MODE.DEFINITION && graphMeta.data !== undefined) {
+    setDagMeta(new DagMetaInfo(graphMeta.data.workspace, graphMeta.data.dagName, graphMeta.data.type, graphMeta.data.version, graphMeta.data.inputSchema, graphMeta.data.alias, graphMeta.id));
+    setOldDagInfo(graphMeta.data);
+  }
   return getGraphRef;
 }
 
@@ -263,8 +270,25 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
 
       // TODO 从模版列表接口中获取指定类型的
       if (tasks[item.attrs.label.text].task.id) {
-        console.log('initGraphShape 展示图', tasks[item.attrs.label.text].task.id);
+        console.log('initGraphShape 展示图', tasks[item.attrs.label.text].task);
         nodeDetailSchema = nodeList().plugin[0];
+        // nodeGroups.plugins.forEach((item) => {
+        //   if (item.id === tasks[item.attrs.label.text].task.id) {
+        //     nodeDetailSchema = item.icon;
+        //   }
+        // });
+      } else {
+        console.log('initGraphShape meta ', nodeGroups, tasks[item.attrs.label.text].task.category);
+
+        // nodeGroups.basicNodes.forEach((item) => {
+        //   console.log('initGraphShape meta ', nodeGroups, tasks[item.attrs.label.text].task.category, item);
+        //
+        //   // if (item.name === tasks[item.attrs.label.text].task.category) {
+        //   //   // nodeDetailSchema = item.meta_data.fields;
+        //   //
+        //   // }
+        // });
+        // console.log('initGraphShape meta ', item.attrs.label.text, nodeDetailSchema);
       }
 
       const json = getVueNode({
@@ -277,11 +301,10 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
         nodeDetailParams: tasks[item.attrs.label.text].task,
         id: item.id,
         position: item.position,
-        icon: {
-          type: 'icon',
-          value: 'ant-design:api-outlined',
-        },
+        icon: item.attrs.icon,
+        status: item.attrs.status,
         ports: item.ports,
+        executionDetail: tasks[item.attrs.label.text],
       });
       const cell = graphInstance.createNode(json);
       console.log('generateRelations initGraphShape 展示图', cell, defaultNode, json, item);
@@ -361,12 +384,20 @@ function JsonToGraphCell(tasks, nodeGroups) {
   for (const task in tasks) {
     const taskInfo = tasks[task];
     let icon;
-    for (const key in nodeGroups[2]?.operatorList) {
-      console.log('taskInfo===>', taskInfo);
-      if (nodeGroups[2]?.operatorList[key].name === taskInfo.task.resourceProtocol) {
-        icon = nodeGroups[2]?.operatorList[key].icon;
-      }
+    if (taskInfo.task.id) {
+      nodeGroups.plugins.forEach((item) => {
+        if (item.id === taskInfo.task.id) {
+          icon = item.icon;
+        }
+      });
+    } else {
+      nodeGroups.basicNodes.forEach((item) => {
+        if (item.name === taskInfo.task.category) {
+          icon = item.icon;
+        }
+      });
     }
+    console.log('taskInfo===>', taskInfo, nodeGroups, taskInfo.task.category, icon);
 
     const type =
       taskInfo?.task?.category !== 'function'
@@ -396,11 +427,6 @@ function JsonToGraphCell(tasks, nodeGroups) {
           );
           for (const subTask in subTasks) {
             const subTaskInfo = subTasks[subTask];
-            for (const key in nodeGroups[1]?.operatorList) {
-              if (nodeGroups[2]?.operatorList[key].name === subTaskInfo.resourceProtocol) {
-                icon = nodeGroups[2]?.operatorList[key].icon;
-              }
-            }
             const x = subTaskNodePositions[subTaskInfo.name].position.x;
             const y =
               subTaskNodePositions[subTaskInfo.name].position.y + nodePositions[task]?.position.y;
@@ -503,11 +529,6 @@ function JsonToGraphCell(tasks, nodeGroups) {
           // 开始布局choice节点
           for (const subTask in subTasksDatail) {
             const subTaskInfo = subTasksDatail[subTask];
-            for (const key in nodeGroups[1]?.operatorList) {
-              if (nodeGroups[2]?.operatorList[key].name === subTaskInfo.resourceProtocol) {
-                icon = nodeGroups[2]?.operatorList[key].icon;
-              }
-            }
             const x = subTaskNodePositions[subTaskInfo.name].position.x;
             const y =
               subTaskNodePositions[subTaskInfo.name].position.y + nodePositions[task]?.position.y;

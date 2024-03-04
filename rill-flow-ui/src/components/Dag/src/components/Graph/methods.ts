@@ -1,5 +1,5 @@
 export const getJsonSchema = (rule) => {
-  // console.log("rule:", rule, rule.data)
+  console.log('rule:', rule, rule.data);
 
   if (rule.type === 'object' && rule.data === undefined) {
     return {
@@ -47,12 +47,8 @@ export const getJsonSchema = (rule) => {
   }
 
   if (rule.data && rule.data.type === 'object') {
-    for (const optionsKey in rule.data) {
-      // TODO inputMapping
-      // console.log("getJsonSchema ", optionsKey, rule.data[optionsKey])
-    }
-
-    return {
+    const fields = rule.data.fields;
+    const result = {
       type: 'array',
       'x-component': 'ArrayItems',
       'x-decorator': 'FormItem',
@@ -82,18 +78,18 @@ export const getJsonSchema = (rule) => {
               //     },
               //   },
               // },
-              source: {
-                type: 'string',
-                title: '输入来源',
-                'x-decorator': 'FormItem',
-                'x-component': 'Input',
-              },
-              target: {
-                type: 'string',
-                title: '输入目标',
-                'x-decorator': 'FormItem',
-                'x-component': 'Input',
-              },
+              // source: {
+              //   type: 'string',
+              //   title: '输入来源',
+              //   'x-decorator': 'FormItem',
+              //   'x-component': 'Input',
+              // },
+              // target: {
+              //   type: 'string',
+              //   title: '输入目标',
+              //   'x-decorator': 'FormItem',
+              //   'x-component': 'Input',
+              // },
               // select: {
               //   type: 'string',
               //   title: '下拉框',
@@ -109,11 +105,6 @@ export const getJsonSchema = (rule) => {
               //     },
               //   },
               // },
-              remove: {
-                type: 'void',
-                'x-decorator': 'FormItem',
-                'x-component': 'ArrayItems.Remove',
-              },
             },
           },
         },
@@ -126,14 +117,72 @@ export const getJsonSchema = (rule) => {
         },
       },
     };
+    let fileterFileds = [];
+    // TODO 需要将required_group实现切换
+    if (fields.required_group != undefined) {
+      fileterFileds = rule.data.fields.required_group[0];
+    }
+    for (const optionsKey in fields) {
+      if (fileterFileds.length > 0 && !fileterFileds.includes(optionsKey)) {
+        continue;
+      }
+      let filedSchema = {};
+      if (fields[optionsKey].type === 'string') {
+        filedSchema = {
+          type: 'string',
+          title: fields[optionsKey].name,
+          required: fields[optionsKey].required,
+          'x-decorator': 'FormItem',
+          'x-component': 'Input',
+        };
+        if (fields[optionsKey].options != undefined) {
+          filedSchema['x-component'] = 'Select';
+          filedSchema['enum'] = fields[optionsKey].options;
+          filedSchema['x-component-props'] = {
+            style: {
+              width: '100px',
+            },
+          };
+        }
+      } else if (fields[optionsKey].type === 'number') {
+        filedSchema = {
+          type: 'number',
+          title: fields[optionsKey].name,
+          'x-decorator': 'FormItem',
+          'x-component': 'InputNumber',
+          required: fields[optionsKey].required,
+          'x-component-props': {
+            style: {
+              width: '240px',
+            },
+          },
+        };
+      } else if (fields[optionsKey].type === 'boolean') {
+        filedSchema = {
+          type: 'boolean',
+          title: fields[optionsKey].name,
+          'x-decorator': 'FormItem',
+          'x-component': 'Switch',
+          required: fields[optionsKey].required,
+          'x-component-props': {
+            style: {
+              // width: '240px',
+            },
+          },
+        };
+      }
+      result.items.properties.space.properties[optionsKey] = filedSchema;
+    }
+    result.items.properties.space.properties['remove'] = {
+      type: 'void',
+      'x-decorator': 'FormItem',
+      'x-component': 'ArrayItems.Remove',
+    };
+    console.log('getJsonSchema result', result);
+    return result;
   }
 
   if (rule.data && rule.data.type === 'string') {
-    for (const optionsKey in rule.data) {
-      // TODO 失败条件
-      // console.log("getJsonSchema ", optionsKey, rule.data[optionsKey])
-    }
-
     return {
       type: 'array',
       'x-component': 'ArrayItems',
@@ -195,7 +244,7 @@ export const getJsonSchema = (rule) => {
     const options = rule.options;
     const enums = [];
     for (const optionsKey in options) {
-      enums.push({ label: options[optionsKey].name, value: options[optionsKey].value });
+      enums.push({ label: options[optionsKey].label, value: options[optionsKey].value });
     }
     item.enum = enums;
     return item;
@@ -221,39 +270,6 @@ export const getJsonSchema = (rule) => {
 };
 export const getJsonData = (data) => {
   return data;
-};
-
-export const convertJSON = (json) => {
-  function traverse(obj, parentKey = '') {
-    const result = [];
-
-    if (Array.isArray(obj)) {
-      obj.forEach((item, index) => {
-        const key = parentKey ? `${parentKey}-${index}` : `${index}`;
-        const title = `item ${index}`;
-        const children = traverse(item, key);
-
-        result.push({ title, key, children });
-      });
-    } else if (typeof obj === 'object') {
-      Object.keys(obj).forEach((key, index) => {
-        const currentKey = parentKey ? `${parentKey}-${index}` : `${index}`;
-        const currentTitle = key;
-
-        if (typeof obj[key] === 'object') {
-          const currentChildren = traverse(obj[key], currentKey);
-
-          result.push({ title: currentTitle, key: currentKey, children: currentChildren });
-        } else {
-          result.push({ title: currentTitle, key: currentKey });
-        }
-      });
-    }
-
-    return result;
-  }
-
-  return traverse(json);
 };
 
 export const getGraphNodeTemplateReferenceMap = (tasks) => {
