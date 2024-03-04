@@ -10,7 +10,8 @@
     <BasicForm @register="registerForm" autoFocusFirstItem:true :actionColOptions="{ span: 24 }" />
 
     <template #insertFooter>
-      <a-button @click="handlePreviewSchema">预览 schema</a-button>
+      <a-button @click="handlePreviewSchema">预览输入</a-button>
+      <a-button @click="handlePreviewOutput">预览输出</a-button>
     </template>
   </BasicDrawer>
   <SchemaPreviewModal @register="schemaPreviewModalRegister" :minHeight="100" />
@@ -128,12 +129,19 @@ export default defineComponent({
       openModal(true);
     }
 
+    function handlePreviewOutput() {
+      const data = getFieldsValue()
+      templateSchema.value = JSON.parse(data.output)
+      openModal(true);
+    }
+
     return {
       registerDrawer,
       handleSubmit,
       registerForm,
       handlePreviewSchema,
       schemaPreviewModalRegister,
+      handlePreviewOutput,
     };
   }
 

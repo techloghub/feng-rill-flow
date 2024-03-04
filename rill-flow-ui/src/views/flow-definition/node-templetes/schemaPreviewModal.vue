@@ -3,7 +3,7 @@
     v-bind="$attrs"
     destroyOnClose
     @register="register"
-    title="预览模板输入结构"
+    title="预览 jsonSchema"
   >
     <VueForm
       :formData="formData"
