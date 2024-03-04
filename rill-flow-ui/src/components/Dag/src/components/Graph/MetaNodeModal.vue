@@ -77,20 +77,23 @@
         console.log(
           'useModalInner schemaInfo ',
           cell,
-          cell.store.data.nodeDetailSchema.fields,
+          cell.store.data.nodeDetailSchema,
           cell.store.data.nodeDetailParams,
         );
         cellRef.value = cell;
-        const schemas = cell.store.data.nodeDetailSchema.fields;
+        const schemas = cell.store.data.nodeDetailSchema.fields === undefined ? cell.store.data.nodeDetailSchema.meta_data.fields : cell.store.data.nodeDetailSchema.fields;
         const params = cell.store.data.nodeDetailParams;
+
         console.log(
           'useModalInner schemaInfo ',
           cell,
           cell.store.data.nodeDetailSchema,
           cell.store.data.nodeDetailParams,
+          schemas,
         );
 
         for (const dataKey in schemas) {
+          console.log("===> dataKey", dataKey, snakeToCamel(dataKey), params)
           schema.value.properties[snakeToCamel(dataKey)] = getJsonSchema(schemas[dataKey]);
           // TODO 需要给没有设置值的参数设置默认值
           form.value.setFormState((state) => {
@@ -98,6 +101,13 @@
             state.values[snakeToCamel(dataKey)] = getJsonData(params[snakeToCamel(dataKey)]);
           });
         }
+        console.log(
+          'useModalInner schemaInfo ',
+          cell,
+          cell.store.data.nodeDetailSchema,
+          cell.store.data.nodeDetailParams,
+          schema.value
+        );
       });
 
       const handleOk = () => {
