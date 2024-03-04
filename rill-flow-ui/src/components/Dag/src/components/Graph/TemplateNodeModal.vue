@@ -48,7 +48,11 @@
     replaceUItreeData,
     replaceUIWidget,
   } from '@/components/Dag/src/common/replaceJsonSchemaConfig';
-  import { getJsonData, getJsonSchema } from '@/components/Dag/src/components/Graph/methods';
+  import {
+    getJsonData,
+    getJsonFromYaml,
+    getJsonSchema
+  } from "@/components/Dag/src/components/Graph/methods";
   import { useTemplateNodeReferenceCache } from '@/components/Dag/src/store/dagStore';
   import { storeToRefs } from 'pinia';
   import { useProvideGraph } from '@/components/Dag/src/store/graph';
@@ -114,31 +118,11 @@
 
   // Modal初始化配置
   const [registerModal, { closeModal }] = useModalInner((cell) => {
-    // 获取指定节点的reference start
-    if (graphRef.value !== undefined) {
-      // graph
-      // let newDagDetail1 = transferDagJson(graphRef.value);
-      // let newDagDetail2 = getNodeReferences(graphRef.value, cell.store.data.label);
-      // console.log('useModalInner schemaInfo init reference', newDagDetail2, cell);
-    } else {
-      console.log('useModalInner schemaInfo graphRef is undefined');
-    }
-    // 获取指定节点的reference end
 
-    // 初始化基本数据
+    // 1.1 初始化基础参数的schema
     activeKey.value = '1';
     cellRef.value = cell;
-    // jsonSchemaFormData.value = {}
     jsonSchemaFormData = reactive({});
-    console.log(
-      'useModalInner schemaInfo init',
-      cell,
-      cell.id,
-      cellRef.value,
-      nodeSchema.value,
-      cell.store.data.nodeDetailParams.parameters,
-      cell.store.data.nodeDetailSchema,
-    );
     jsonSchemaFormType.value = true;
     formProps.value = {
       labelPosition: 'left',
@@ -146,28 +130,14 @@
     };
 
     // 通过节点信息生成对应的jsonSchema
-
-    // const data = Object.assign({}, cell.store.data.nodeDetailSchema?.schema);
     console.log(
       'replaceUIWidget init',
       cell.store.data.nodeDetailSchema,
     );
     const newSchema = (typeof cell.store.data.nodeDetailSchema?.schema === 'string') ? JSON.parse(cell.store.data.nodeDetailSchema?.schema) :cell.store.data.nodeDetailSchema?.schema;
-    console.log('replaceUIWidget init test', newSchema)
-    console.log('replaceUIWidget init test1', newSchema.properties)
     const data = cloneDeep(newSchema);
 
-    console.log(
-      'replaceUIWidget start',
-      newSchema.properties.appkey.properties.reference['ui:widget'],
-    );
     replaceUIWidget(data);
-    console.log(
-      'replaceUIWidget end',
-      data,
-      newSchema.properties.appkey.properties.reference['ui:widget'],
-    );
-
     // 需要将该节点最新的reference数据更新到data中
     const references1 = getReferences(cell.id);
     replaceUItreeData(data, references1);
@@ -181,25 +151,27 @@
     );
     jsonSchema.value = data;
 
-    // 基础参数设置
+    // 1.2 初始化基础参数的具体值
     nodeForm.value.setFormState((state) => {
       state.values['name'] = cell.store.data.label;
     });
 
-    // jsonSchemaFormData.value = cell.store.data.nodeDetailParams.parameters;
     // TODO 将schema中的数据获取对应的inputmapping值
-    let schemaParams = cell.store.data.nodeDetailSchema?.schema.properties;
-    for (const key in schemaParams) {
+    let schemaParams = JSON.parse(cell.store.data.nodeDetailSchema.schema);
+    console.log('1.2 初始化基础参数的具体值 ', schemaParams, cell);
+    for (const key in schemaParams.properties) {
+      let inputMappings = cell.store.data.nodeDetailParams.inputMappings;
+      const property = schemaParams.properties[key].title;
       console.log(
         'useModalInner schemaInfo jsonSchemaFormData schemaParams',
         key,
-        schemaParams[key],
+        schemaParams.properties[key],
+        inputMappings,
+        property,
       );
-      let inputMappings = cell.store.data.nodeDetailParams.inputMappings;
       for (const inputKey in inputMappings) {
         let inputTargetParam = inputMappings[inputKey].target.split('$.input.')[1];
-
-        if (inputTargetParam === key) {
+        if (inputTargetParam === property) {
           if (inputMappings[inputKey].source.startsWith('$')) {
             jsonSchemaFormData[key] = {
               attr: 'reference',
@@ -207,16 +179,16 @@
               input: '',
             };
 
-            console.log(
-              'useModalInner schemaInfo jsonSchemaFormData schemaParams',
-              key,
-              schemaParams[key],
-              inputKey,
-              inputMappings[inputKey],
-              inputTargetParam,
-              inputMappings[inputKey].source.replace('.context', ''),
-              jsonSchemaFormData[key],
-            );
+            // console.log(
+            //   'useModalInner schemaInfo jsonSchemaFormData schemaParams inner',
+            //   key,
+            //   schemaParams[key],
+            //   inputKey,
+            //   inputMappings[inputKey],
+            //   inputTargetParam,
+            //   inputMappings[inputKey].source.replace('.context', ''),
+            //   jsonSchemaFormData[key],
+            // );
           } else {
             jsonSchemaFormData[key] = {
               attr: 'input',
@@ -237,9 +209,11 @@
       console.log(
         '===> advancedSettingsParams',
         advancedSettingsParams,
-        cell.store.data.nodeDetailParams.task,
+        cell.store.data.nodeDetailParams,
+        cell.store.data.nodeDetailSchema.task_yaml,
+        getJsonFromYaml(cell.store.data.nodeDetailSchema.task_yaml),
       );
-      advancedSettingsParams = cell.store.data.nodeDetailSchema.task_yaml;
+      advancedSettingsParams = getJsonFromYaml(cell.store.data.nodeDetailSchema.task_yaml);
     }
 
     function snakeToCamel(str) {
@@ -318,6 +292,9 @@
         }
       }
       if (!updateInputMapping) {
+        if (nodeDetailParams.inputMappings === undefined){
+          nodeDetailParams.inputMappings = [];
+        }
         nodeDetailParams.inputMappings.push({
           source: formItemValue,
           target: `$.input.${formKey}`,

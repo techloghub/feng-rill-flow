@@ -265,30 +265,21 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
       defaultNode.shape = item.shape;
       delete item.component;
 
-      console.log('tasks[item.attrs.label.text].task', tasks[item.attrs.label.text].task);
+      console.log('tasks[item.attrs.label.text].task', tasks[item.attrs.label.text].task, tasks[item.attrs.label.text].task.id);
       let nodeDetailSchema = nodeList().function[0];
 
-      // TODO 从模版列表接口中获取指定类型的
-      if (tasks[item.attrs.label.text].task.id) {
-        console.log('initGraphShape 展示图', tasks[item.attrs.label.text].task);
-        nodeDetailSchema = nodeList().plugin[0];
-        // nodeGroups.plugins.forEach((item) => {
-        //   if (item.id === tasks[item.attrs.label.text].task.id) {
-        //     nodeDetailSchema = item.icon;
-        //   }
-        // });
+      if (tasks[item.attrs.label.text].task.id != undefined) {
+        nodeGroups.plugins.forEach((node) => {
+          if (node.id === tasks[item.attrs.label.text].task.id) {
+            nodeDetailSchema = node;
+          }
+        });
       } else {
-        console.log('initGraphShape meta ', nodeGroups, tasks[item.attrs.label.text].task.category);
-
-        // nodeGroups.basicNodes.forEach((item) => {
-        //   console.log('initGraphShape meta ', nodeGroups, tasks[item.attrs.label.text].task.category, item);
-        //
-        //   // if (item.name === tasks[item.attrs.label.text].task.category) {
-        //   //   // nodeDetailSchema = item.meta_data.fields;
-        //   //
-        //   // }
-        // });
-        // console.log('initGraphShape meta ', item.attrs.label.text, nodeDetailSchema);
+        nodeGroups.basicNodes.forEach((node) => {
+          if (node.name === tasks[item.attrs.label.text].task.category) {
+            nodeDetailSchema = node;
+          }
+        });
       }
 
       const json = getVueNode({

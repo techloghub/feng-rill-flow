@@ -2,7 +2,10 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { Graph } from '@antv/x6';
 
-import { convertSchemaToTreeData } from '@/components/Dag/src/common/outputToTree';
+import {
+  convertInputSchemaToTreeData,
+  convertSchemaToTreeData
+} from "@/components/Dag/src/common/outputToTree";
 import { DagMetaInfo, GraphNodeReferenceUpdateParam } from '@/components/Dag/src/models/global';
 import { TemplateNodeParamType } from '@/components/Dag/src/common/enums';
 
@@ -76,17 +79,18 @@ export const useProvideGraph = defineStore('graph', () => {
 
     // 2. 根据依赖节点获取模版类型的节点
     const templateNodeIds = references?.filter((nodeId) => getNodeType(nodeId) === 'template');
-    console.log('templateNodeIds ', templateNodeIds);
+    console.log('templateNodeIds ', templateNodeIds, JSON.parse(dagMeta.value?.inputSchema));
 
-    // 3. 获取对应的output数据
-    const outputs = templateNodeIds?.map((nodeId) => {
+
+    // 3. 获取对应的output数据(含inputSchema数据)
+    const outputs = convertInputSchemaToTreeData(JSON.parse(dagMeta.value?.inputSchema));
+    templateNodeIds?.forEach((nodeId) => {
       const cell = graphRef.value?.getCellById(nodeId);
-      console.log('getReferences foreach cell', cell);
+      console.log('getReferences foreach cell', cell?.data.nodeDetailSchema.output);
       const nodePath = '$.' + cell?.data.tooltip;
       const output = (typeof cell?.data.nodeDetailSchema.output === 'string') ? JSON.parse(cell?.data.nodeDetailSchema.output) : cell?.data.nodeDetailSchema.output;
-
       const treeData = convertSchemaToTreeData(output, nodePath);
-      return { title: cell?.data.tooltip, value: nodePath, children: treeData };
+      outputs.push({ title: cell?.data.tooltip, value: nodePath, children: treeData });
     });
     console.log('getReferences output ', outputs);
     return outputs;
@@ -106,9 +110,9 @@ export const useProvideGraph = defineStore('graph', () => {
         if (param.type === TemplateNodeParamType.INPUT) {
           // 直接更新cell的data 转换成nodeDetailParams的inputMapping中对应的参数中
           // 这里需要注意，如果是数组类型，需要把数组转换成字符串
-          const inputMappings = cell.getData().nodeDetailParams.inputMappings;
+          const inputMappings = cell.getData().nodeDetailParams.inputMappings !== undefined ? cell.getData().nodeDetailParams.inputMappings : [];
+          console.log('updateTemplateNodeParams inputMappings', inputMappings);
           let cotainInputMapping = false;
-
           // 1.1 从inputMappings中找到target中的参数名，然后把source赋值
           for (const inputKey in inputMappings) {
             const inputTargetParam = inputMappings[inputKey].target.split('$.input.')[1];
