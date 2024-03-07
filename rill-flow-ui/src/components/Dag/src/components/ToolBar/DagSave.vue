@@ -164,10 +164,10 @@
     submitDag.value = data.method;
 
     form.value.setFormState((state) => {
-      state.values['workspace'] = dagMeta.value.workspace;
-      state.values['dagName'] = dagMeta.value.dagName;
-      state.values['alias'] = dagMeta.value.alias;
-      state.values['inputSchema'] = JSON.parse(dagMeta.value.inputSchema);
+      state.values['workspace'] = dagMeta.value?.workspace;
+      state.values['dagName'] = dagMeta.value?.dagName;
+      state.values['alias'] = dagMeta.value?.alias;
+      state.values['inputSchema'] = dagMeta.value?.inputSchema !== undefined ?  JSON.parse(dagMeta.value.inputSchema) : {};
       state.values['yaml'] = transferDagYaml(graphRef.value, dagMeta.value);
     })
   });

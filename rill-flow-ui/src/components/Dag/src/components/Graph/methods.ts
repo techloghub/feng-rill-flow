@@ -1,3 +1,5 @@
+import yaml from 'js-yaml';
+
 export const getJsonSchema = (rule) => {
   console.log('rule:', rule, rule.data);
 
@@ -15,9 +17,6 @@ export const getJsonSchema = (rule) => {
         retry: {
           type: 'void',
           'x-component': 'FormCollapse.CollapsePanel',
-          // 'x-component-props': {
-          //   header: '任务重试设置',
-          // },
           properties: {
             max_retry_times: {
               type: 'string',
@@ -66,45 +65,6 @@ export const getJsonSchema = (rule) => {
                 'x-decorator': 'FormItem',
                 'x-component': 'ArrayItems.SortHandle',
               },
-              // date: {
-              //   type: 'string',
-              //   title: '日期',
-              //   'x-decorator': 'FormItem',
-              //   'x-component': 'DatePicker',
-              //   'x-component-props': {
-              //     type: 'daterange',
-              //     style: {
-              //       width: '250px',
-              //     },
-              //   },
-              // },
-              // source: {
-              //   type: 'string',
-              //   title: '输入来源',
-              //   'x-decorator': 'FormItem',
-              //   'x-component': 'Input',
-              // },
-              // target: {
-              //   type: 'string',
-              //   title: '输入目标',
-              //   'x-decorator': 'FormItem',
-              //   'x-component': 'Input',
-              // },
-              // select: {
-              //   type: 'string',
-              //   title: '下拉框',
-              //   enum: [
-              //     { label: '选项1', value: 1 },
-              //     { label: '选项2', value: 2 },
-              //   ],
-              //   'x-decorator': 'FormItem',
-              //   'x-component': 'Select',
-              //   'x-component-props': {
-              //     style: {
-              //       width: '250px',
-              //     },
-              //   },
-              // },
             },
           },
         },
@@ -126,9 +86,9 @@ export const getJsonSchema = (rule) => {
       if (fileterFileds.length > 0 && !fileterFileds.includes(optionsKey)) {
         continue;
       }
-      let filedSchema = {};
+      let fieldSchema = {};
       if (fields[optionsKey].type === 'string') {
-        filedSchema = {
+        fieldSchema = {
           type: 'string',
           title: fields[optionsKey].name,
           required: fields[optionsKey].required,
@@ -136,16 +96,16 @@ export const getJsonSchema = (rule) => {
           'x-component': 'Input',
         };
         if (fields[optionsKey].options != undefined) {
-          filedSchema['x-component'] = 'Select';
-          filedSchema['enum'] = fields[optionsKey].options;
-          filedSchema['x-component-props'] = {
+          fieldSchema['x-component'] = 'Select';
+          fieldSchema['enum'] = fields[optionsKey].options;
+          fieldSchema['x-component-props'] = {
             style: {
               width: '100px',
             },
           };
         }
       } else if (fields[optionsKey].type === 'number') {
-        filedSchema = {
+        fieldSchema = {
           type: 'number',
           title: fields[optionsKey].name,
           'x-decorator': 'FormItem',
@@ -158,7 +118,7 @@ export const getJsonSchema = (rule) => {
           },
         };
       } else if (fields[optionsKey].type === 'boolean') {
-        filedSchema = {
+        fieldSchema = {
           type: 'boolean',
           title: fields[optionsKey].name,
           'x-decorator': 'FormItem',
@@ -171,7 +131,7 @@ export const getJsonSchema = (rule) => {
           },
         };
       }
-      result.items.properties.space.properties[optionsKey] = filedSchema;
+      result.items.properties.space.properties[optionsKey] = fieldSchema;
     }
     result.items.properties.space.properties['remove'] = {
       type: 'void',
@@ -244,7 +204,7 @@ export const getJsonSchema = (rule) => {
     const options = rule.options;
     const enums = [];
     for (const optionsKey in options) {
-      enums.push({ label: options[optionsKey].label, value: options[optionsKey].value });
+      enums.push({ label: options[optionsKey].name, value: options[optionsKey].value });
     }
     item.enum = enums;
     return item;
@@ -317,4 +277,8 @@ export const getGraphNodeTemplateReferenceMap = (tasks) => {
       },
     ],
   };
+};
+
+export const getJsonFromYaml = (data) => {
+  return yaml.load(data);
 };

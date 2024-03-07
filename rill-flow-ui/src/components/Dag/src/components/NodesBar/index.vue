@@ -34,6 +34,7 @@
                 shape: 'rect',
                 actionType: 'Vue-node',
                 nodeDetailSchema: node,
+                nodeDetailParams: getJsonFromYaml(node.task_yaml),
               },
               $event,
             )
@@ -62,6 +63,7 @@
   import { defaultPorts } from '@/components/FlowGraph/shape';
   import { useProvideGraph } from '@/components/Dag/src/store/graph';
   import { storeToRefs } from 'pinia';
+  import { getJsonFromYaml } from "@/components/Dag/src/components/Graph/methods";
 
   const provideGraph = useProvideGraph();
   const { graphRef } = storeToRefs(provideGraph);
@@ -89,7 +91,7 @@
   });
   function startDrag(currentTarget, e) {
     console.log('currentTarget:', currentTarget, e);
-    const { actionType, shape, label, nodeDetailSchema } = currentTarget;
+    const { actionType, shape, label, nodeDetailSchema, nodeDetailParams } = currentTarget;
     const { TRIGGER, CONDITION, ACTION } = ActionType;
     let json;
     switch (actionType) {
@@ -131,7 +133,8 @@
           actionType,
           initialization: true,
           nodeDetailSchema: nodeDetailSchema,
-          nodeDetailParams: { task: {} },
+          nodeDetailParams: nodeDetailParams !== undefined ? nodeDetailParams : {},
+          // nodeDetailParams: { task: {} },
           ports: defaultPorts,
           icon: nodeDetailSchema.icon,
         });

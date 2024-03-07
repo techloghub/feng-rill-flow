@@ -1,3 +1,5 @@
+import { forIn } from "lodash-es";
+
 export function convertSchemaToTreeData(schema, currentPath = '$') {
   const treeData = [];
 
@@ -20,6 +22,26 @@ export function convertSchemaToTreeData(schema, currentPath = '$') {
     }
   }
 
+  return treeData;
+}
+
+export function convertInputSchemaToTreeData(data) {
+  const treeData = [];
+  const inputSchemaData = {
+    title: 'context',
+    value: '$.context',
+    children: [],
+  };
+  const inputSchemaDataChildren = [];
+  for (const dataKey in data) {
+    inputSchemaDataChildren.push({
+      title: data[dataKey].paramsName + '【' + data[dataKey].paramsType+ '】',
+      value: '$.context.' + data[dataKey].paramsName,
+    })
+  }
+
+  inputSchemaData.children = inputSchemaDataChildren;
+  treeData.push(inputSchemaData);
   return treeData;
 }
 

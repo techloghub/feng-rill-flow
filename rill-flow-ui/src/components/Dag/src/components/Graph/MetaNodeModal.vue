@@ -81,7 +81,7 @@
           cell.store.data.nodeDetailParams,
         );
         cellRef.value = cell;
-        const schemas = cell.store.data.nodeDetailSchema.fields === undefined ? cell.store.data.nodeDetailSchema.meta_data.fields : cell.store.data.nodeDetailSchema.fields;
+        const schemas = cell.store.data.nodeDetailSchema.meta_data.fields;
         const params = cell.store.data.nodeDetailParams;
 
         console.log(
@@ -123,8 +123,10 @@
         // 更新节点名称
         // const nodeDetailParams = toRaw(modelRef.value?.formModel)
         cellRef.value.prop('label', form.value.getFormState().values.name);
-        cellRef.value.prop('nodeDetailParams', form.value.getFormState().values);
-        // console.log("=====> meta ", modelRef.value?.formModel, nodeDetailParams)
+        const nodeDetailParams = form.value.getFormState().values;
+        nodeDetailParams.category = cellRef.value.store.data.nodeDetailSchema.category;
+        cellRef.value.prop('nodeDetailParams', nodeDetailParams);
+        console.log("=====> meta ", cellRef.value)
 
         closeModal();
         showNodeEditModal.value = false;
