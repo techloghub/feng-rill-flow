@@ -50,7 +50,7 @@ export function getFormConfig(): Partial<FormProps> {
         component: 'ApiSelect',
         label: t('routes.flow.instances.form_props.business_id'),
         required: false,
-        componentProps: ({formModel, formActionType}) => {
+        componentProps: ({formActionType}) => {
           return {
             api: getBusinessIdsApi,
             placeholder: t('routes.flow.instances.form_props.business_placeholder'),
@@ -71,7 +71,7 @@ export function getFormConfig(): Partial<FormProps> {
               }
               let featureResult = await getFeatureIdsApi({"business_id": e})
               const features = featureResult.features
-              let featureOptions = []
+              let featureOptions: any[] = []
               for (const key in features) {
                 featureOptions.push({"value": features[key], "label": features[key]})
               }

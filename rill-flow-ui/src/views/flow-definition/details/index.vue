@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
   import { Dag, MODE } from '/@/components/Dag';
-  import { onMounted, ref, toRaw } from "vue";
+  import { onMounted, ref } from "vue";
 
   import {
     flowDefinitionDetailApi,
