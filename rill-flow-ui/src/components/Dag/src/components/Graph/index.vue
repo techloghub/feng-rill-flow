@@ -24,11 +24,15 @@
   const nodeGroups: any = inject('nodeGroups');
   const showNodeEditModal: any = inject('showNodeEditModal');
   const showNodeSchema: any = inject('showNodeSchema');
+  const showDagMetaEditModal: any = inject('showDagMetaEditModal');
 
   const props = defineProps({
     mode: {
       type: String as PropType<MODE>,
       default: MODE.INSTANCE,
+    },
+    actionType: {
+      type: String,
     },
     readonly: {
       type: Boolean,
@@ -72,7 +76,12 @@
       setTemplateNodeReferenceMap(referenceMap);
 
       initGraph(toRaw(tasks), toRaw(props.nodeGroups), container.value, props.readonly, dagDetail, props.mode);
-
+      console.log('graph init actionType',props.actionType,props.actionType === 'create')
+      if (props.actionType === 'create') {
+        // 弹窗toolbar中的编辑dag基本信息
+        showDagMetaEditModal.value = false;
+        showDagMetaEditModal.value = true;
+      }
       const provideGraph = useProvideGraph();
       const { graphRef } = storeToRefs(provideGraph);
       if (graphRef.value == undefined) {
@@ -123,7 +132,6 @@
 
       graphRef.value.on('node:added', ({ node }) => {
         const { x, y } = node.position();
-        showNodeEditModal.value = true;
         console.log('node:added', x, y, node, showNodeEditModal.value);
         showNodeSchema.value = node;
       });

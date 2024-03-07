@@ -1,5 +1,4 @@
 {
-  "keys": ["name", "resource_name", "resource_protocol", "request_type", "pattern", "input_mappings", "output_mappings", "tolerance", "success_conditions", "fail_conditions", "retry", "next"],
   "name": {
     "type": "string",
     "name": "任务名称",
@@ -150,6 +149,7 @@
   },
   "retry": {
     "type": "object",
+    "name": "重试配置",
     "required": false,
     "fields": {
       "max_retry_times": {
