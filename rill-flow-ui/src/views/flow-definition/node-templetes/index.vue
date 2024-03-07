@@ -47,8 +47,8 @@
       </Tooltip>
     </template>
   </BasicTable>
-
 </template>
+
 <script lang="ts">
 import { defineComponent } from 'vue';
 import {BasicTable, TableAction, useTable} from '/@/components/Table';
