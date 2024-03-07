@@ -152,6 +152,7 @@
           //   };
           //   return;
           // }
+          console.log('show execution node detail', nodeInfo)
           nodeDetail.value = {
             name: nodeDetailNew.name,
             status: status,
@@ -171,7 +172,7 @@
                 : null,
             context: JSON.stringify(nodeDetailNew?.invoke_msg?.input),
             result: nodeDetailNew?.invoke_msg?.msg,
-            resourceName: nodeInfo.task?.resourceName,
+            resourceName: nodeInfo.resourceName,
             tolerance: nodeInfo?.tolerance + '',
             pattern: nodeInfo?.pattern,
             inputMappings: JSON.stringify(nodeInfo?.inputMappings),
