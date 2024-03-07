@@ -30,7 +30,7 @@
           @mousedown="
             startDrag(
               {
-                label: node.name,
+                label: getJsonFromYaml(node.task_yaml).name,
                 shape: 'rect',
                 actionType: 'Vue-node',
                 nodeDetailSchema: node,
@@ -40,7 +40,7 @@
             )
           "
         >
-          <NodeTemplate :label="node.name" :icon="node.icon" />
+          <NodeTemplate :label="getJsonFromYaml(node.task_yaml).name" :icon="node.icon" />
         </div>
       </a-tab-pane>
     </a-tabs>
