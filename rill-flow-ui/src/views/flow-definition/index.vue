@@ -54,7 +54,7 @@ const {t} = useI18n();
 const go = useGo();
 
 const [registerTable1] = useTable({
-  title: t('routes.flow.instances.record'),
+  title: t('routes.flow.definitions.list'),
   api: definitionListApi,
   columns: getInstanceColumns(),
   useSearchForm: true,
