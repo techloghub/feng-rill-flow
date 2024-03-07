@@ -6,10 +6,40 @@
     title="流程基本信息编辑"
     width="70%"
     @ok="handleOk()"
+    :showOkBtn="false"
+    :showCancelBtn="false"
   >
     <FormProvider :form="form">
-      <SchemaField :schema="schema" />
+      <SchemaField :schema="schema" :scope="{ formStep }"  />
+      <FormConsumer>
+        <template #default>
+          <FormButtonGroup>
+            <Button
+              :disabled="!formStep.allowBack"
+              @click="
+              () => {
+                formStep.back()
+              }
+            "
+            >
+              上一步
+            </Button>
+            <Button
+              :disabled="!formStep.allowNext"
+              @click="
+              () => {
+                formStep.next()
+              }
+            "
+            >
+              下一步
+            </Button>
+            <Submit :disabled="formStep.allowNext" @submit="handleOk">提交</Submit>
+          </FormButtonGroup>
+        </template>
+      </FormConsumer>
     </FormProvider>
+
 
   </BasicModal>
 </template>
@@ -33,7 +63,6 @@
   import {useProvideGraph} from "@/components/Dag/src/store/graph";
   import {storeToRefs} from "pinia";
   import {getInputSchema} from "@/components/Dag/src/components/ToolBar/data";
-  import {transferDagYaml} from "@/components/Dag/src/common/graphTransform";
   import { DagMetaInfo } from "@/components/Dag/src/models/global";
   import { useMessage } from "@/hooks/web/useMessage";
   const form = ref();
@@ -59,34 +88,60 @@
     },
   })
   const provideGraph = useProvideGraph();
-  const {dagMeta } = storeToRefs(provideGraph);
+  const { dagMeta } = storeToRefs(provideGraph);
   const { setDagMeta, setDagMetaInputSchema } = provideGraph;
 
   const schema = ref({});
   schema.value = {
     "type": "object",
-    properties: {
-      workspace: {
-        type: 'string',
-        title: '业务名称',
-        required: true,
-        disabled: true,
-        'x-decorator': 'FormItem',
-        'x-component': 'Input',
-      },
-      dagName: {
-        type: 'string',
-        title: '服务名称',
-        required: true,
-        'x-decorator': 'FormItem',
-        'x-component': 'Input',
-      },
-      alias: {
-        type: 'string',
-        title: '别名',
-        required: true,
-        'x-decorator': 'FormItem',
-        'x-component': 'Input',
+    "properties": {
+      collapse: {
+        type: 'void',
+        'x-component': 'FormStep',
+        'x-component-props': {
+          formStep: '{{formStep}}',
+        },
+        properties: {
+          step1: {
+            type: 'void',
+            'x-component': 'FormStep.StepPane',
+            'x-component-props': {
+              title: '流程基本信息',
+            },
+            properties: {
+              workspace: {
+                type: 'string',
+                title: '业务名称',
+                required: true,
+                disabled: true,
+                'x-decorator': 'FormItem',
+                'x-component': 'Input',
+              },
+              dagName: {
+                type: 'string',
+                title: '服务名称',
+                required: true,
+                'x-decorator': 'FormItem',
+                'x-component': 'Input',
+              },
+              alias: {
+                type: 'string',
+                title: '别名',
+                required: true,
+                'x-decorator': 'FormItem',
+                'x-component': 'Input',
+              },
+            },
+          },
+          step2: {
+            type: 'void',
+            'x-component': 'FormStep.StepPane',
+            'x-component-props': {
+              title: '第二步',
+            },
+            properties: getInputSchema(),
+          },
+        },
       },
     }
   }
@@ -98,15 +153,17 @@
       state.values['workspace'] = dagMeta.value?.workspace;
       state.values['dagName'] = dagMeta.value?.dagName;
       state.values['alias'] = dagMeta.value?.alias;
+      state.values['inputSchema'] = dagMeta.value?.inputSchema !== undefined ?  JSON.parse(dagMeta.value.inputSchema) : {};
     })
   });
 
   const handleOk = () => {
     //更新普通节点中的数据
-    setDagMeta(new DagMetaInfo(form.value.getFormState().values.workspace, form.value.getFormState().values.dagName, 'flow', '1.0.0', '{}', form.value.getFormState().values.alias, ''));
+    setDagMeta(new DagMetaInfo(form.value.getFormState().values.workspace, form.value.getFormState().values.dagName, 'flow', '1.0.0', form.value.getFormState().values.inputSchema, form.value.getFormState().values.alias, ''));
+    setDagMetaInputSchema(form.value.getFormState().values.inputSchema);
     console.log('handleOk', form.value.getFormState().values, dagMeta.value);
-    createMessage.success('已保存到本地');
     closeModal();
   };
+
 
 </script>

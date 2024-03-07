@@ -24,7 +24,7 @@ export function getInstanceColumns(): BasicColumn[] {
     {
       title: t('routes.flow.definitions.columns.alias'),
       width: 80,
-      dataIndex: 'alia',
+      dataIndex: 'alias',
     },
     {
       title: t('routes.flow.definitions.columns.create_time'),

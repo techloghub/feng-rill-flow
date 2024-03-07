@@ -30,12 +30,12 @@
       </a-button>
     </a-tooltip>
 
-    <a-tooltip placement="bottom">
-      <template #title>
-        <span>Dag任务提交参数结构</span>
-      </template>
-      <a-button name="updateDagInputSchema" @click="handleClick" class="item-space" size="small">参数schema</a-button>
-    </a-tooltip>
+<!--    <a-tooltip placement="bottom">-->
+<!--      <template #title>-->
+<!--        <span>Dag任务提交参数结构</span>-->
+<!--      </template>-->
+<!--      <a-button name="updateDagInputSchema" @click="handleClick" class="item-space" size="small">参数schema</a-button>-->
+<!--    </a-tooltip>-->
 
     <DagShow @register="registerDagShow" />
     <DagSave @register="registerDagSave" />
