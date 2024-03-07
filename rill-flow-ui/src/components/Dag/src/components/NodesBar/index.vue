@@ -4,7 +4,7 @@
     <a-tabs v-model:activeKey="activeKey">
       <a-tab-pane key="1" tab="基础节点">
         <div
-          class="tab-pane px-4 py-2"
+          class="tab-pane px-10 py-2"
           v-for="(node, index) in nodes?.basicNodes"
           :key="index"
           @mousedown="
@@ -68,7 +68,6 @@
   const provideGraph = useProvideGraph();
   const { graphRef } = storeToRefs(provideGraph);
 
-  const showNodeEditModal: any = inject('showNodeEditModal');
   const props = defineProps({
     nodes: {},
   });
@@ -138,7 +137,6 @@
           ports: defaultPorts,
           icon: nodeDetailSchema.icon,
         });
-        showNodeEditModal.value = false;
         break;
       default:
         break;

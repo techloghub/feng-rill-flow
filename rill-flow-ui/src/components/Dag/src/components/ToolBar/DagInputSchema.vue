@@ -59,7 +59,8 @@
       form.value.setFormState((state) => {
         state.values['inputSchema'] = JSON.parse(dagMeta.value.inputSchema);
       })
-    }), handleOk = () => {
+    }),
+    handleOk = () => {
       setDagMetaInputSchema(form.value.getFormState().values.inputSchema);
       closeModal();
     };

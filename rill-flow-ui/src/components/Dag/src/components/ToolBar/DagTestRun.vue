@@ -62,7 +62,8 @@
   const [register, { closeModal }] = useModalInner((data) => {
     console.log('DagTestRun dagMeta', data);
     executeDag.value = data.executeDagMethod;
-    const inputSchema = JSON.parse(dagMeta.value.inputSchema);
+    const inputSchema = dagMeta.value.inputSchema !== undefined ? JSON.parse(dagMeta.value.inputSchema) : [];
+
     inputSchema.forEach((item) => {
       console.log('buildSchema', item.paramsName, item, inputSchema);
       schema.value.properties[item.paramsName] = buildSchema(item);
@@ -72,7 +73,7 @@
 
   const handleOk = () => {
     //更新普通节点中的数据
-    console.log('handleOk', form.value.getFormState().values, executeDag.value);
+    console.log('handleOk', dagMeta.value.id, form.value.getFormState().values, executeDag.value);
 
     executeDag.value({
         descriptor_id: dagMeta.value.id,

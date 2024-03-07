@@ -4,10 +4,11 @@ import { Graph } from '@antv/x6';
 
 import {
   convertInputSchemaToTreeData,
-  convertSchemaToTreeData
-} from "@/components/Dag/src/common/outputToTree";
+  convertSchemaToTreeData,
+} from '@/components/Dag/src/common/outputToTree';
 import { DagMetaInfo, GraphNodeReferenceUpdateParam } from '@/components/Dag/src/models/global';
 import { TemplateNodeParamType } from '@/components/Dag/src/common/enums';
+import { Cell } from '@antv/x6/src/model/cell';
 
 export const useProvideGraph = defineStore('graph', () => {
   const graphRef = ref<Graph>();
@@ -23,6 +24,9 @@ export const useProvideGraph = defineStore('graph', () => {
   }
 
   function setDagMeta(value: DagMetaInfo) {
+    if (value === null || value === undefined) {
+      return;
+    }
     if (value.alias == undefined) {
       value.alias = 'release';
     }
@@ -34,9 +38,9 @@ export const useProvideGraph = defineStore('graph', () => {
   }
 
   function setDagMetaInputSchema(value) {
-    console.log("setDagMetaInputSchema", dagMeta.value, dagMeta.value instanceof DagMetaInfo);
+    console.log('setDagMetaInputSchema', dagMeta.value, dagMeta.value instanceof DagMetaInfo);
     dagMeta.value?.setInputSchema(value);
-    console.log("setDagMetaInputSchema", dagMeta.value, dagMeta.value instanceof DagMetaInfo);
+    console.log('setDagMetaInputSchema', dagMeta.value, dagMeta.value instanceof DagMetaInfo);
   }
 
   /**
@@ -73,6 +77,9 @@ export const useProvideGraph = defineStore('graph', () => {
   }
 
   function getReferences(nodeId) {
+    if (dagMeta.value === undefined) {
+      return [];
+    }
     // 1. 获取依赖节点
     const references = getReferencesNodesByNodeId(nodeId);
     console.log('getReferences ', references);
@@ -81,14 +88,16 @@ export const useProvideGraph = defineStore('graph', () => {
     const templateNodeIds = references?.filter((nodeId) => getNodeType(nodeId) === 'template');
     console.log('templateNodeIds ', templateNodeIds, JSON.parse(dagMeta.value?.inputSchema));
 
-
     // 3. 获取对应的output数据(含inputSchema数据)
     const outputs = convertInputSchemaToTreeData(JSON.parse(dagMeta.value?.inputSchema));
     templateNodeIds?.forEach((nodeId) => {
       const cell = graphRef.value?.getCellById(nodeId);
       console.log('getReferences foreach cell', cell?.data.nodeDetailSchema.output);
       const nodePath = '$.' + cell?.data.tooltip;
-      const output = (typeof cell?.data.nodeDetailSchema.output === 'string') ? JSON.parse(cell?.data.nodeDetailSchema.output) : cell?.data.nodeDetailSchema.output;
+      const output =
+        typeof cell?.data.nodeDetailSchema.output === 'string'
+          ? JSON.parse(cell?.data.nodeDetailSchema.output)
+          : cell?.data.nodeDetailSchema.output;
       const treeData = convertSchemaToTreeData(output, nodePath);
       outputs.push({ title: cell?.data.tooltip, value: nodePath, children: treeData });
     });
@@ -98,8 +107,53 @@ export const useProvideGraph = defineStore('graph', () => {
 
   function getNodeOutput(nodeId) {
     const cell = graphRef.value?.getCellById(nodeId);
-    const output = (typeof cell?.data.nodeDetailSchema.output === 'string') ? JSON.parse(cell?.data.nodeDetailSchema.output) : cell?.data.nodeDetailSchema.output;
+    const output =
+      typeof cell?.data.nodeDetailSchema.output === 'string'
+        ? JSON.parse(cell?.data.nodeDetailSchema.output)
+        : cell?.data.nodeDetailSchema.output;
     return convertSchemaToTreeData(output);
+  }
+
+  function exposeRefOutput(nodeDetailParams, outputPath: string) {
+    const taskName = nodeDetailParams.name;
+    const outputMap = {
+      source: '$.output.' + outputPath,
+      // target: '$.context.' + taskName,
+      target: '$.context.' + taskName + '.' + outputPath,
+    };
+    if(nodeDetailParams.outputMappings == undefined) {
+      nodeDetailParams.outputMappings = [];
+    }
+
+    addMappings(nodeDetailParams.outputMappings, outputMap,'source');
+    return outputMap;
+  }
+  function addMappings(mappings:{}[], newMapping: {},field: string) {
+    for(const index in mappings) {
+      if (mappings[index][field] == newMapping[field]) {
+        mappings[index] = newMapping;
+        return;
+      }
+    }
+    mappings.push(newMapping);
+  }
+
+  function importFromContext(nodeDetailParams, inputPath, context) {
+
+    const inputMap =  {
+      source: context,
+      target: '$.input.' + inputPath,
+    };
+   if(nodeDetailParams.inputMappings == undefined) {
+      nodeDetailParams.inputMappings = [];
+   }
+
+    addMappings(nodeDetailParams.inputMappings, inputMap,'target');
+  }
+
+  function makeReference(targetNode, targetPath, refNode, refPath) {
+    const outputMapping = exposeRefOutput(refNode, refPath);
+    importFromContext(targetNode, targetPath, outputMapping?.target);
   }
 
   function updateTemplateNodeParams(params: GraphNodeReferenceUpdateParam[]) {
@@ -107,143 +161,46 @@ export const useProvideGraph = defineStore('graph', () => {
     params.forEach((param) => {
       const cell = graphRef.value?.getCellById(param.nodeId);
       if (cell) {
+        const targetNodeParams = cell.getData().nodeDetailParams;
         if (param.type === TemplateNodeParamType.INPUT) {
-          // 直接更新cell的data 转换成nodeDetailParams的inputMapping中对应的参数中
-          // 这里需要注意，如果是数组类型，需要把数组转换成字符串
-          const inputMappings = cell.getData().nodeDetailParams.inputMappings !== undefined ? cell.getData().nodeDetailParams.inputMappings : [];
-          console.log('updateTemplateNodeParams inputMappings', inputMappings);
-          let cotainInputMapping = false;
-          // 1.1 从inputMappings中找到target中的参数名，然后把source赋值
-          for (const inputKey in inputMappings) {
-            const inputTargetParam = inputMappings[inputKey].target.split('$.input.')[1];
-            if (inputTargetParam === param.nodeParamKey) {
-              inputMappings[inputKey].source = param.nodeParamValue;
-              cotainInputMapping = true;
-              break;
-            }
-          }
-
-          // 1.2 如果不存在，则新增一个inputMapping
-          if (!cotainInputMapping) {
-            inputMappings.push({
-              source: param.nodeParamValue,
-              target: '$.input.' + param.nodeParamKey,
-            });
-          }
-
-          // 1.3 更新节点信息
-          cell.setData({
-            ...cell.getData(),
-            nodeDetailParams: {
-              ...cell.getData().nodeDetailParams,
-              inputMappings: inputMappings,
-            },
-          });
-
+          importFromContext(targetNodeParams, param.nodeParamKey, param.nodeParamValue);
           cell.prop('nodeDetailParams', {
             ...cell.getData().nodeDetailParams,
-            inputMappings: inputMappings,
+            inputMappings: targetNodeParams.inputMappings,
           });
 
-          console.log('updateTemplateNodeParams', cell.getData());
+          console.log('updateTemplateNodeParams', param.nodeParamKey, cell.getData());
         } else if (param.type === TemplateNodeParamType.REFERENCE) {
-          // 1.1 更新操作节点: 从inputMappings中找到target中的参数名，然后把source赋值
-          const inputMappings = cell.getData().nodeDetailParams.inputMappings;
-          let cotainInputMapping = false;
-          const oriSourceValue = param.nodeParamValue.replace('$', '$.context');
-          const oriTargetValue = '$.input.' + param.nodeParamKey;
-          for (const inputKey in inputMappings) {
-            if (inputMappings[inputKey].target === oriTargetValue) {
-              inputMappings[inputKey].source = oriSourceValue;
-              cotainInputMapping = true;
-              break;
-            }
-          }
-          // 1.2 如果不存在，则新增一个inputMapping
-          if (!cotainInputMapping) {
-            inputMappings.push({ source: oriSourceValue, target: oriTargetValue });
-          }
-
-          // 1.3 更新节点信息
-          cell.setData({
-            ...cell.getData(),
-            nodeDetailParams: {
+          console.log('updateTemplateNodeParams reference ', param.nodeParamKey, param.nodeParamValue);
+          const refParts = param.nodeParamValue.split('.');
+          const refNodeName = refParts[1];
+          if (refNodeName === 'context') {
+            importFromContext(targetNodeParams, param.nodeParamKey, param.nodeParamValue);
+            cell.prop('nodeDetailParams', {
               ...cell.getData().nodeDetailParams,
-              inputMappings: inputMappings,
-            },
-          });
-
-          cell.prop('nodeDetailParams', {
-            ...cell.getData().nodeDetailParams,
-            inputMappings: inputMappings,
-          });
-
-          // 2.1 更新引用节点: 获取根据引用节点名称获取引用节点，
-          const referenceNodeName = param.nodeParamValue.split('.')[1];
-          // 从graph中根据data中的tooltip找到与referenceNode相同的node节点
-          const referenceNode = graphRef.value?.getNodes().filter((node) => {
-            return node.data.tooltip === referenceNodeName;
-          })[0];
-          // 根据referenceNode获取outputMappings，并将source为param.nodeParamValue的source替换为referenceNodeOutputMappings中的source
-          const referenceNodeOutputMappings =
-            referenceNode?.getData().nodeDetailParams.outputMappings;
-          const refSourceValue = param.nodeParamValue.replace(referenceNodeName, 'output');
-          const refTargetValue = refSourceValue.replace('output', 'context');
-          let cotainOutputMapping = false;
-          for (const outputKey in referenceNodeOutputMappings) {
-            // TODO 测试代码 待删除
-            // if (outputKey === '0') {
-            //   refSourceValue = '$.output.result';
-            // }
-            console.log(
-              'updateTemplateNodeParams',
-              outputKey,
-              param.nodeParamValue.replace(referenceNodeName, 'output'),
-              referenceNodeOutputMappings[outputKey],
-            );
-            if (referenceNodeOutputMappings[outputKey].source === refSourceValue) {
-              referenceNodeOutputMappings[outputKey].target = refTargetValue;
-              cotainOutputMapping = true;
-              break;
-            }
-          }
-
-          // 2.2 如果没有找到，则新增outputmappings
-          if (!cotainOutputMapping) {
-            referenceNodeOutputMappings.push({
-              source: refSourceValue,
-              target: refTargetValue,
+              inputMappings: targetNodeParams.inputMappings,
             });
-          }
-
-          // 2.3 更新依赖节点的数据
-          if (referenceNode === undefined) {
             return;
           }
-          referenceNode.setData({
-            ...referenceNode.getData(),
-            nodeDetailParams: {
-              ...referenceNode.getData().nodeDetailParams,
-              outputMappings: referenceNodeOutputMappings,
-            },
-          });
-          referenceNode.prop('nodeDetailParams', {
-            ...referenceNode.getData().nodeDetailParams,
-            outputMappings: referenceNodeOutputMappings,
-          });
+          const refPath = refParts.slice(2).join('.');
+          const refNode = graphRef.value?.getNodes().filter((node) => {
+            return node.data.tooltip === refNodeName;
+          })[0];
+          const refNodeParams = refNode.getData().nodeDetailParams;
+          makeReference(targetNodeParams, param.nodeParamKey, refNodeParams, refPath);
 
-          console.log(
-            'updateTemplateNodeParams',
-            param.nodeParamValue.split('.')[1],
-            cell.getData(),
-            referenceNode.getData(),
-            referenceNodeOutputMappings,
-          );
+          cell.prop('nodeDetailParams', {
+            ...cell.getData().nodeDetailParams,
+            inputMappings: targetNodeParams.inputMappings,
+          });
+          refNode.prop('nodeDetailParams', {
+            ...refNode.getData().nodeDetailParams,
+            outputMappings: refNodeParams.outputMappings,
+          });
+          console.log('1updateTemplateNodeParams finish', cell.getData(), refNode?.getData());
         }
       }
     });
-    //更新节点信息
-    // graphRef.value?.getCellById();
   }
 
   function getNodeType(nodeId) {
@@ -252,6 +209,25 @@ export const useProvideGraph = defineStore('graph', () => {
     return cell?.data.nodeDetailSchema.node_type;
   }
 
+  function getNodeInputSchema(nodeId) {
+    const cell = graphRef.value?.getCellById(nodeId);
+    // 1. 获取node对应的inputSchema
+    // 2. 将inputSchema中类型为 string,number,boolean字段替换成【系统本身的ui:widget结构】。
+    // 3. 替换指定字段的ui:treeData
+
+    return cell?.data.nodeDetailSchema.inputs;
+  }
+
+  function containTask(taskName) {
+    return graphRef.value?.getNodes().map((node) => {
+      console.log("初始化基础参数的具体值 是否为node 查询", node.getAttrs().label.text, node.getAttrs());
+      return node.getAttrs().label.text;
+    }).includes(taskName);
+  }
+
+  function clearGraph() {
+    dagMeta.value = {};
+  }
   return {
     dagMeta,
     graphRef,
@@ -264,5 +240,8 @@ export const useProvideGraph = defineStore('graph', () => {
     setDagMeta,
     setDagMetaInputSchema,
     setOldDagInfo,
+    getNodeInputSchema,
+    containTask,
+    clearGraph,
   };
 });

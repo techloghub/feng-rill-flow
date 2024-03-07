@@ -106,7 +106,8 @@ export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta, m
 
   // 写入本地缓存
   const provideGraph = useProvideGraph();
-  const { setGraphRef, getGraphRef, setDagMeta, setOldDagInfo } = provideGraph;
+  const { setGraphRef, getGraphRef, setDagMeta, setOldDagInfo, clearGraph } = provideGraph;
+  clearGraph();
   setGraphRef(graph);
   if (mode === MODE.DEFINITION && graphMeta.data !== undefined) {
     setDagMeta(new DagMetaInfo(graphMeta.data.workspace, graphMeta.data.dagName, graphMeta.data.type, graphMeta.data.version, graphMeta.data.inputSchema, graphMeta.data.alias, graphMeta.id));
@@ -281,7 +282,6 @@ function initGraphShape(graphInstance, tasks, nodeGroups) {
           }
         });
       }
-
       const json = getVueNode({
         shape: 'rect',
         tooltip: item.attrs.label.text,

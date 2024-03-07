@@ -9,6 +9,7 @@
     :methods="methods"
     :nodeGroups="nodeGroups"
     :dagInfo="dagInfo"
+    :actionType="actionType"
   />
 </template>
 
@@ -39,7 +40,7 @@
   const dagInfo = ref();
   const dagMeta = ref();
   const nodesBar = ref();
-
+  const actionType = ref('edit');
   const submitDag = (params, yamlData) => {
     getFlowSubmitApi(params, yamlData).then((res) => {
       console.log('SubmitDag getFlowSubmitApi', params, yamlData, res);
@@ -95,6 +96,7 @@
 
     if (route.query.type === 'create') {
       dagInfo.value = {};
+      actionType.value = 'create';
       return;
     }
     const response = await flowDefinitionDetailApi({ id: route.query.descriptor_id }, {});

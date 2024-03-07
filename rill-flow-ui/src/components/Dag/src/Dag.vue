@@ -11,7 +11,7 @@
           <ToolBar v-if="showToolBar" :methods="methods" />
         </div>
         <!--流程图画板-->
-        <graph :mode="mode" :readonly="readonly" :showNodeGroups="showNodeGroups" :nodeGroups="nodeGroups" :dagInfo="dagInfo" />
+        <graph :mode="mode" :readonly="readonly" :showNodeGroups="showNodeGroups" :nodeGroups="nodeGroups" :dagInfo="dagInfo" :actionType="actionType" />
       </div>
       <!--右侧工具栏-->
       <div v-if="showRightTool">
@@ -81,6 +81,9 @@
         return Object.values(MODE).includes(value);
       },
     },
+    actionType: {
+      type: String,
+    },
     readonly: {
       type: Boolean,
     },
@@ -103,6 +106,7 @@
   });
 
   const showNodeEditModal = ref<boolean>(false);
+  const showDagMetaEditModal = ref<boolean>(false);
   const showNodeSchema = ref({});
 
   const [templateNodeRegister, { openModal: openTemplateNodeModal }] = useModal();
@@ -112,6 +116,7 @@
   provide('initGraphStatus', initGraphStatus);
   provide('initGraphParams', initGraphParams);
   provide('showNodeEditModal', showNodeEditModal);
+  provide('showDagMetaEditModal', showDagMetaEditModal);
   provide('showNodeSchema', showNodeSchema);
   provide('dagInfo', props.dagInfo);
 

@@ -2,6 +2,13 @@
   <div class="bar">
     <a-tooltip placement="bottom">
       <template #title>
+        <span>编辑DAG的基本信息</span>
+      </template>
+      <a-button name="edit" @click="handleClick" class="item-space" size="small">编辑</a-button>
+    </a-tooltip>
+
+    <a-tooltip placement="bottom">
+      <template #title>
         <span>保存已修改内容</span>
       </template>
       <a-button name="save" @click="handleClick" class="item-space" size="small">保存</a-button>
@@ -34,16 +41,18 @@
     <DagSave @register="registerDagSave" />
     <DagInputSchema @register="registerDagInputSchema" />
     <DagTestRun @register="registerDagTestRun" />
+    <DagEdit @register="registerDagEdit" />
   </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, toRaw} from 'vue';
+<script lang="ts" setup>
+import { defineComponent, inject, toRaw, watch } from "vue";
   import { useModal } from '@/components/Modal';
   import DagShow from '@/components/Dag/src/components/ToolBar/DagShow.vue';
   import DagSave from '@/components/Dag/src/components/ToolBar/DagSave.vue';
   import DagInputSchema from '@/components/Dag/src/components/ToolBar/DagInputSchema.vue';
   import DagTestRun from '@/components/Dag/src/components/ToolBar/DagTestRun.vue';
+  import DagEdit from '@/components/Dag/src/components/ToolBar/DagEdit.vue';
 import {
   transferDagJson,
   transferDagYaml,
@@ -52,67 +61,142 @@ import {
   import { useProvideGraph } from '@/components/Dag/src/store/graph';
   import { storeToRefs } from 'pinia';
   import { DagMetaInfo } from "@/components/Dag/src/models/global";
+import { MODE } from "@/components/Dag";
 
-  export default defineComponent({
-    name: 'Index',
-    components: { DagShow, DagSave, DagInputSchema, DagTestRun },
-    props: { methods: { type: Object } },
-    setup: function (props) {
-      const provideGraph = useProvideGraph();
-      const { graphRef, dagMeta, oldDagInfo } = storeToRefs(provideGraph);
+const props = defineProps({
+  methods: {
+    type: Object,
+  }
+});
 
-      const [registerDagShow, { openModal: openDagShowModal }] = useModal();
-      const [registerDagSave, { openModal: openDagSaveModal }] = useModal();
-      const [registerDagInputSchema, { openModal: openDagInputSchemaModal }] = useModal();
-      const [registerDagTestRun, { openModal: openDagTestRunModal }] = useModal();
+const provideGraph = useProvideGraph();
+const { graphRef, dagMeta, oldDagInfo } = storeToRefs(provideGraph);
+const showDagMetaEditModal: any = inject('showDagMetaEditModal');
 
-      const handleClick = (event: Event) => {
-        // const { graph } = FlowGraph;
-        const name = (event.currentTarget as any).name!;
-        console.log('event', name, event);
+const [registerDagShow, { openModal: openDagShowModal }] = useModal();
+const [registerDagSave, { openModal: openDagSaveModal }] = useModal();
+const [registerDagInputSchema, { openModal: openDagInputSchemaModal }] = useModal();
+const [registerDagTestRun, { openModal: openDagTestRunModal }] = useModal();
+const [registerDagEdit, { openModal: openDagDagEditModal }] = useModal();
 
-        switch (name) {
-          case 'save':
-            openDagSaveModal(true, {method: props.methods?.submitDag });
-            break;
-          case 'toJSON':
-            console.log('toJSON====>', graphRef.value, toRaw(dagMeta.value));
-            let newDagDetail = transferDagJson(graphRef.value, dagMeta.value);
+const handleClick = (event: Event) => {
+  // const { graph } = FlowGraph;
+  const name = (event.currentTarget as any).name!;
+  console.log('event', name, event);
 
-            console.log('toJSON====> newDagDetail ', graphRef.value, newDagDetail, oldDagInfo.value);
-            let yamlData = transferDagYaml(graphRef.value, dagMeta.value);
-            let oldData = transferJsonYaml(toRaw(oldDagInfo.value));
-            // let oldData = transferJsonYaml(graphRef.value.options.meta.data);
-            openDagShowModal(true, {
-              yaml: yamlData,
-              json: JSON.stringify(newDagDetail),
-              newString: yamlData,
-              oldString: oldData,
-            });
+  switch (name) {
+    case 'save':
+      openDagSaveModal(true, {method: props.methods?.submitDag });
+      break;
+    case 'edit':
+      openDagDagEditModal(true, {method: props.methods?.submitDag });
+      break;
+    case 'toJSON':
+      console.log('toJSON====>', graphRef.value, toRaw(dagMeta.value));
+      let newDagDetail = transferDagJson(graphRef.value, dagMeta.value);
 
-            break;
-          case 'updateDagInputSchema':
-            console.log('updateDagInputSchema====>', graphRef.value, dagMeta.value, toRaw(dagMeta.value));
-            openDagInputSchemaModal(true, toRaw(dagMeta.value));
-            break;
-          case 'submitDagTestRun':
-            console.log('updateDagInputSchema====>', graphRef.value, dagMeta.value, toRaw(dagMeta.value), props.methods.executeDag);
-            openDagTestRunModal(true, {data: dagMeta.value, executeDagMethod: props.methods.executeDag});;
-            break;
-          default:
-            break;
-        }
-      };
+      console.log('toJSON====> newDagDetail ', graphRef.value, newDagDetail, oldDagInfo.value);
+      let yamlData = transferDagYaml(graphRef.value, dagMeta.value);
+      let oldData = transferJsonYaml(toRaw(oldDagInfo.value));
+      // let oldData = transferJsonYaml(graphRef.value.options.meta.data);
+      openDagShowModal(true, {
+        yaml: yamlData,
+        json: JSON.stringify(newDagDetail),
+        newString: yamlData,
+        oldString: oldData,
+      });
 
-      return {
-        handleClick,
-        registerDagShow,
-        registerDagSave,
-        registerDagInputSchema,
-        registerDagTestRun,
-      };
-    },
-  });
+      break;
+    case 'updateDagInputSchema':
+      console.log('updateDagInputSchema====>', graphRef.value, dagMeta.value, toRaw(dagMeta.value));
+      openDagInputSchemaModal(true, toRaw(dagMeta.value));
+      break;
+    case 'submitDagTestRun':
+      console.log('updateDagInputSchema====>', graphRef.value, dagMeta.value, toRaw(dagMeta.value), props.methods.executeDag);
+      openDagTestRunModal(true, {data: dagMeta.value, executeDagMethod: props.methods.executeDag});;
+      break;
+    default:
+      break;
+  }
+};
+
+
+watch(
+  () => showDagMetaEditModal.value,
+  () => {
+    openDagDagEditModal(showDagMetaEditModal.value);
+
+    console.log('Dag showDagMetaEditModal', showDagMetaEditModal.value);
+  },
+  { deep: true },
+);
+
+
+  // export default defineComponent({
+  //   name: 'Index',
+  //   components: { DagShow, DagSave, DagInputSchema, DagTestRun, DagEdit },
+  //   props: { methods: { type: Object } },
+  //   setup: function (props) {
+  //     const provideGraph = useProvideGraph();
+  //     const { graphRef, dagMeta, oldDagInfo } = storeToRefs(provideGraph);
+  //
+  //     const [registerDagShow, { openModal: openDagShowModal }] = useModal();
+  //     const [registerDagSave, { openModal: openDagSaveModal }] = useModal();
+  //     const [registerDagInputSchema, { openModal: openDagInputSchemaModal }] = useModal();
+  //     const [registerDagTestRun, { openModal: openDagTestRunModal }] = useModal();
+  //     const [registerDagEdit, { openModal: openDagDagEditModal }] = useModal();
+  //
+  //     const handleClick = (event: Event) => {
+  //       // const { graph } = FlowGraph;
+  //       const name = (event.currentTarget as any).name!;
+  //       console.log('event', name, event);
+  //
+  //       switch (name) {
+  //         case 'save':
+  //           openDagSaveModal(true, {method: props.methods?.submitDag });
+  //           break;
+  //         case 'edit':
+  //           openDagDagEditModal(true, {method: props.methods?.submitDag });
+  //           break;
+  //         case 'toJSON':
+  //           console.log('toJSON====>', graphRef.value, toRaw(dagMeta.value));
+  //           let newDagDetail = transferDagJson(graphRef.value, dagMeta.value);
+  //
+  //           console.log('toJSON====> newDagDetail ', graphRef.value, newDagDetail, oldDagInfo.value);
+  //           let yamlData = transferDagYaml(graphRef.value, dagMeta.value);
+  //           let oldData = transferJsonYaml(toRaw(oldDagInfo.value));
+  //           // let oldData = transferJsonYaml(graphRef.value.options.meta.data);
+  //           openDagShowModal(true, {
+  //             yaml: yamlData,
+  //             json: JSON.stringify(newDagDetail),
+  //             newString: yamlData,
+  //             oldString: oldData,
+  //           });
+  //
+  //           break;
+  //         case 'updateDagInputSchema':
+  //           console.log('updateDagInputSchema====>', graphRef.value, dagMeta.value, toRaw(dagMeta.value));
+  //           openDagInputSchemaModal(true, toRaw(dagMeta.value));
+  //           break;
+  //         case 'submitDagTestRun':
+  //           console.log('updateDagInputSchema====>', graphRef.value, dagMeta.value, toRaw(dagMeta.value), props.methods.executeDag);
+  //           openDagTestRunModal(true, {data: dagMeta.value, executeDagMethod: props.methods.executeDag});;
+  //           break;
+  //         default:
+  //           break;
+  //       }
+  //     };
+  //
+  //     return {
+  //       handleClick,
+  //       registerDagShow,
+  //       registerDagSave,
+  //       registerDagInputSchema,
+  //       registerDagTestRun,
+  //       registerDagEdit,
+  //     };
+  //   },
+  // });
 </script>
 
 <style lang="less" scoped>

@@ -21,7 +21,7 @@
 <style lang="scss" scoped>
   .container {
     height: 50px;
-    width: 90%;
+    width: 80%;
     display: flex;
     user-select: none;
     background-color: #ff8228;
@@ -48,26 +48,26 @@
   }
 
   .node img {
-    width: 20px;
+    width: 20%;
     height: 20px;
     flex-shrink: 0;
     margin-left: 8px;
   }
 
   .node .logo {
-    width: 25px;
+    width: 20%;
     height: 25px;
     flex-shrink: 0;
-    margin-left: 8px;
+    padding-left: 10%;
   }
 
   .node .label {
-    display: inline-block;
     flex-shrink: 0;
-    width: 104px;
     color: #666;
     font-size: 14px;
-    text-align: center;
+    padding-left: 10%;
+    width: 80%;
+    //text-align: center;
   }
 
   .node .status {

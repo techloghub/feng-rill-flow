@@ -282,3 +282,80 @@ export const getGraphNodeTemplateReferenceMap = (tasks) => {
 export const getJsonFromYaml = (data) => {
   return yaml.load(data);
 };
+
+export const getMapByJson = (data) => {
+  // data是一个map，该map的key为string类型，value是map类型。data可以理解为一个树。将其转换成key为非叶子节点以.间隔，value为叶子节点
+  const map = {};
+
+  function addToMap(obj, prefix = '') {
+    for (const key in obj) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        addToMap(obj[key], prefix + key + '.');
+      } else {
+        map[prefix + key] = obj[key];
+      }
+    }
+  }
+  addToMap(data);
+  return map;
+};
+
+export const getJsonPathByJsonSchema = (data) => {
+  // data是一个map，该map的key为string类型，value是map类型。data可以理解为一个树。将其转换成key为非叶子节点以.间隔，value为叶子节点
+  const list = [];
+
+  function isBaseType(type) {
+    return type === 'string' || type === 'boolean' || type === 'number';
+  }
+  function addToList(obj, prefix = '') {
+    if (typeof obj === 'object') {
+      if (isBaseType(obj?.type)) {
+        // 去重并加入到list中
+        if (!list.includes(prefix.slice(0, -1))) {
+          list.push(prefix.slice(0, -1));
+        }
+        return;
+      }
+
+      if (obj?.type === 'array') {
+        addToList(obj.items.properties, prefix + '*.');
+        return;
+      }
+
+      if (obj?.properties) {
+        for (const key in obj?.properties) {
+          addToList(obj.properties[key], prefix + key + '.');
+        }
+        return;
+      }
+
+      for (const key in obj) {
+        addToList(obj[key], prefix + key + '.');
+      }
+    } else {
+    }
+  }
+  addToList(data);
+  return list;
+}
+
+export const getJsonByJsonPaths = (paths) => {
+  const result = {};
+  for (var i = 0; i < paths.length; i++) {
+    var item = paths[i];
+    var keys = item.key.split('.');
+    var current = result;
+
+    for (var j = 0; j < keys.length - 1; j++) {
+      var key = keys[j];
+      if (!current[key]) {
+        current[key] = {};
+      }
+      current = current[key];
+    }
+
+    var lastKey = keys[keys.length - 1];
+    current[lastKey] = item.value;
+  }
+  return result;
+}
