@@ -69,7 +69,6 @@
 
   const initGraphStatus = ref(false);
   const initGraphParams = ref();
-  const graph = ref();
 
   console.log('Dag ===> start');
   const props = defineProps({
@@ -112,7 +111,6 @@
   const [templateNodeRegister, { openModal: openTemplateNodeModal }] = useModal();
   const [metaNodeRegister, { openModal: openMetaNodeModal }] = useModal();
 
-  provide('graph', graph);
   provide('initGraphStatus', initGraphStatus);
   provide('initGraphParams', initGraphParams);
   provide('showNodeEditModal', showNodeEditModal);

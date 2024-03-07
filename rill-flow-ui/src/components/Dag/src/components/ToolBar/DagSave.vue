@@ -9,27 +9,27 @@
     :showCancelBtn="false"
   >
     <FormProvider :form="form">
-      <SchemaField :schema="schema" :scope="{ formStep }"  />
+      <SchemaField :schema="schema" :scope="{ formStep }" />
       <FormConsumer>
         <template #default>
           <FormButtonGroup>
             <Button
               :disabled="!formStep.allowBack"
               @click="
-              () => {
-                formStep.back()
-              }
-            "
+                () => {
+                  formStep.back();
+                }
+              "
             >
               上一步
             </Button>
             <Button
               :disabled="!formStep.allowNext"
               @click="
-              () => {
-                formStep.next()
-              }
-            "
+                () => {
+                  formStep.next();
+                }
+              "
             >
               下一步
             </Button>
@@ -38,31 +38,35 @@
         </template>
       </FormConsumer>
     </FormProvider>
-
   </BasicModal>
 </template>
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
-  import {Button} from "ant-design-vue";
+  import { Button } from 'ant-design-vue';
   import {
     ArrayItems,
     DatePicker,
-    FormButtonGroup, FormCollapse,
+    FormButtonGroup,
+    FormCollapse,
     FormItem,
     FormStep,
-    Input, InputNumber,
+    Input,
+    InputNumber,
     Select,
     Space,
-    Submit, Switch, PreviewText,
-  } from "@formily/antdv-x3";
-  import {createSchemaField, FormConsumer, FormProvider} from "@formily/vue";
-  import {createForm} from "@formily/core";
-  import {useProvideGraph} from "@/components/Dag/src/store/graph";
-  import {storeToRefs} from "pinia";
-  import {getInputSchema} from "@/components/Dag/src/components/ToolBar/data";
-  import {transferDagYaml} from "@/components/Dag/src/common/graphTransform";
-  import { DagMetaInfo } from "@/components/Dag/src/models/global";
+    Submit,
+    Switch,
+    PreviewText,
+  } from '@formily/antdv-x3';
+  import { createSchemaField, FormConsumer, FormProvider } from '@formily/vue';
+  import { createForm } from '@formily/core';
+  import { useProvideGraph } from '@/components/Dag/src/store/graph';
+  import { storeToRefs } from 'pinia';
+  import { getInputSchema } from '@/components/Dag/src/components/ToolBar/data';
+  import { transferDagYaml } from '@/components/Dag/src/common/graphTransform';
+  import { DagMetaInfo } from '@/components/Dag/src/models/global';
+
   const form = ref();
   form.value = createForm();
 
@@ -83,15 +87,15 @@
       FormCollapse,
       PreviewText,
     },
-  })
+  });
   const provideGraph = useProvideGraph();
   const { graphRef, dagMeta } = storeToRefs(provideGraph);
   const { setDagMeta, setDagMetaInputSchema } = provideGraph;
 
   const schema = ref({});
   schema.value = {
-    "type": "object",
-    "properties": {
+    type: 'object',
+    properties: {
       collapse: {
         type: 'void',
         'x-component': 'FormStep',
@@ -155,8 +159,8 @@
           // },
         },
       },
-    }
-  }
+    },
+  };
   const submitDag = ref();
 
   const [register, { closeModal }] = useModalInner((data) => {
@@ -167,26 +171,37 @@
       state.values['workspace'] = dagMeta.value?.workspace;
       state.values['dagName'] = dagMeta.value?.dagName;
       state.values['alias'] = dagMeta.value?.alias;
-      state.values['inputSchema'] = dagMeta.value?.inputSchema !== undefined ?  JSON.parse(dagMeta.value.inputSchema) : {};
+      state.values['inputSchema'] =
+        dagMeta.value?.inputSchema !== undefined ? JSON.parse(dagMeta.value.inputSchema) : {};
       state.values['yaml'] = transferDagYaml(graphRef.value, dagMeta.value);
-    })
+    });
   });
 
   const handleOk = () => {
     //更新普通节点中的数据
-    setDagMeta(new DagMetaInfo(form.value.getFormState().values.workspace, form.value.getFormState().values.dagName, 'flow', '1.0.0', form.value.getFormState().values.inputSchema, form.value.getFormState().values.alias, ''));
+    setDagMeta(
+      new DagMetaInfo(
+        form.value.getFormState().values.workspace,
+        form.value.getFormState().values.dagName,
+        'flow',
+        '1.0.0',
+        form.value.getFormState().values.inputSchema,
+        form.value.getFormState().values.alias,
+        '',
+      ),
+    );
     setDagMetaInputSchema(form.value.getFormState().values.inputSchema);
     let yamlData = transferDagYaml(graphRef.value, dagMeta.value);
     console.log('handleOk', form.value.getFormState().values, dagMeta.value);
 
-    submitDag.value({
+    submitDag.value(
+      {
         business_id: dagMeta.value.workspace,
         feature_name: dagMeta.value.dagName,
         alias: dagMeta.value?.alias,
       },
-      yamlData
+      yamlData,
     );
     closeModal();
   };
-
 </script>

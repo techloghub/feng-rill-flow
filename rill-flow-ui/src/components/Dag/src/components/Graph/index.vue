@@ -62,6 +62,8 @@
       );
       let tasks;
       let dagDetail;
+
+      // TODO 需要优化
       if (props.mode === MODE.DEFINITION) {
         tasks = props.dagInfo?.data?.tasks;
         dagDetail = props.dagInfo;
@@ -70,10 +72,6 @@
         dagDetail = props.dagInfo;
       }
 
-      const referenceMap = getGraphNodeTemplateReferenceMap(props.dagInfo?.tasks);
-      console.log('graph props dagRefererce', props.dagInfo, referenceMap, toRaw(props.nodeGroups));
-      // TODO 测试完成后 该行代码删除
-      setTemplateNodeReferenceMap(referenceMap);
 
       initGraph(toRaw(tasks), toRaw(props.nodeGroups), container.value, props.readonly, dagDetail, props.mode);
       console.log('graph init actionType',props.actionType,props.actionType === 'create')
@@ -82,6 +80,7 @@
         showDagMetaEditModal.value = false;
         showDagMetaEditModal.value = true;
       }
+
       const provideGraph = useProvideGraph();
       const { graphRef } = storeToRefs(provideGraph);
       if (graphRef.value == undefined) {
@@ -89,12 +88,14 @@
       }
       console.log('getSelectedCells:', graphRef.value.getSelectedCells());
 
+      // TODO 需要优化 为啥需要false && 事件绑定需要优化
       graphRef.value.on('node:dblclick', ({ cell }) => {
         showNodeEditModal.value = false;
         console.log('node:dblclick', cell);
         showNodeEditModal.value = true;
         showNodeSchema.value = cell;
       });
+
       graphRef.value.on('node:contextmenu', ({ node }) => {
         console.log('node:contextmenu', node);
       });

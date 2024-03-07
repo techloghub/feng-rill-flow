@@ -100,8 +100,6 @@ export function initGraph(dagInfo, nodeGroups, container, readonly, graphMeta, m
   initGraphShape(graph, dagInfo, nodeGroups);
   initGraphEvent(graph);
 
-  console.log('isKeyboardEnabled', graph.isKeyboardEnabled(), graphMeta);
-  initStencil(graph, nodeGroups);
   graph.resize(document.body.offsetWidth, document.body.offsetHeight);
 
   // 写入本地缓存
@@ -570,8 +568,6 @@ function JsonToGraphCell(tasks, nodeGroups) {
             status: taskInfo?.status,
             icon: icon,
             type: type,
-            category: taskInfo?.task?.category,
-            nodeDetail: taskInfo,
           },
           position: nodePositions[task]?.position,
           next: taskInfo.next,
