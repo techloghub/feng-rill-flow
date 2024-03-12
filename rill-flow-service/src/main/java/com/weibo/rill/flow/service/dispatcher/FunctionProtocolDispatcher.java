@@ -81,23 +81,21 @@ public class FunctionProtocolDispatcher implements DispatcherExtension {
 
     HttpEntity<?> buildHttpEntity(HttpMethod method, MultiValueMap<String, String> header, HttpParameter requestParams) {
         Object body = null;
-        if (method != HttpMethod.POST) {
-            return new HttpEntity<>(body, header);
-
-        }
-        boolean isApplicationFormUrlencodedValue = Optional.ofNullable(header.get(HttpHeaders.CONTENT_TYPE))
-                .map(it -> it.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
-                .orElse(false);
-        if (isApplicationFormUrlencodedValue) {
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            requestParams.getBody().forEach((key, value) -> {
-                if (value instanceof String) {
-                    params.add(key, (String) value);
-                }
-            });
-            body = params;
-        } else {
-            body = requestParams.getBody();
+        if (method == HttpMethod.POST) {
+            boolean isApplicationFormUrlencodedValue = Optional.ofNullable(header.get(HttpHeaders.CONTENT_TYPE))
+                    .map(it -> it.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                    .orElse(false);
+            if (isApplicationFormUrlencodedValue) {
+                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                requestParams.getBody().forEach((key, value) -> {
+                    if (value instanceof String) {
+                        params.add(key, (String) value);
+                    }
+                });
+                body = params;
+            } else {
+                body = requestParams.getBody();
+            }
         }
         return new HttpEntity<>(body, header);
     }

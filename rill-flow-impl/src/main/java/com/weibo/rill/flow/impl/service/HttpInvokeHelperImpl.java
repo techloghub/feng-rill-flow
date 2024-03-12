@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -83,7 +82,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
         Map<String, Object> body = Maps.newHashMap();
         Map<String, Object> functionInput = Maps.newHashMap();
         Map<String, Object> callback = Maps.newHashMap();
-        Map<String, String> header= Maps.newHashMap();
+        Map<String, String> header = Maps.newHashMap();
 
         queryParams.put("execution_id", executionId);
         body.put("data", functionInput);
@@ -101,7 +100,6 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
                 functionInput.put(key, value);
             }
         }));
-
 
         if (input != null) {
             input.forEach((key, value) -> {
@@ -161,8 +159,7 @@ public class HttpInvokeHelperImpl implements HttpInvokeHelper {
             try {
                 String result;
                 if (method == HttpMethod.GET) {
-                    ResponseEntity<String> responseEntity = restTemplate.exchange(new URI(url), method, requestEntity, String.class);
-                    result = responseEntity.getBody();
+                    result = restTemplate.getForObject(url, String.class);
                 } else {
                     result = restTemplate.postForObject(new URI(url), requestEntity, String.class);
                 }
